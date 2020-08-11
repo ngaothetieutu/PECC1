@@ -1,0 +1,655 @@
+﻿@model TaskModel
+<div class="container-fluid flex-grow-1 container-p-y">
+    <div class="card">
+        <div class="card-body pb-2">
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="Name" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="Name" />
+                        <span asp-validation-for="Name"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" style="@(!string.IsNullOrEmpty(Model.TaskProcuringAgencyName) ? "display:none" :"")">
+                <div class="row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="ParentId" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-select asp-items="@Model.AvailableTask" asp-for="ParentId" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" id="PercentNumDisplay" style="@(Model.ParentId == 0 ? "display:none" :"")">
+                <div class="row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="PercentNum" />
+                    </div>
+                    <div class="col-md-4">
+                        <nop-editor asp-for="PercentNum" />
+                    </div>
+                    <div class="col-md-5">
+                        <span style="display:none; color:red; font-size:13px;" id="ckPercentNum"><span style='color:red;font-size:15px; padding-right: 5px;'>*</span>Không thể vượt quá 100 %</span>
+                    </div>
+                </div>
+            </div>
+            <input id="ParentTotalAmount" style="display:none" />
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="UnitId" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-select asp-for="UnitId" asp-items="@Model.AvailableUnit" />
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="ContractTypeId" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-select asp-for="ContractTypeId" asp-items="@Model.AvailebleContractType" />
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="StartDate" />
+                    </div>
+                    <div class="col-md-3">
+                        <nop-editor asp-for="StartDate" />
+                        <span asp-validation-for="StartDate"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <nop-label asp-for="EndDate" />
+                    </div>
+                    <div class="col-md-3">
+                        <nop-editor asp-for="EndDate" />
+                        <span id="ckEndDate" style="color:red;"></span>
+                        <span asp-validation-for="EndDate"></span>
+                    </div>
+                </div>
+            </div>
+            @*<div class="form-group ">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <nop-label asp-for="ResponsibleId" />
+                        </div>
+                        <div class="col-md-9">
+                            <input class="form-control" style="width:90%;" id="ResponsibleId" />
+                            <script>
+                        function SearchCustomerData() {
+                            var _data = {
+                                srKeywordCustomer: $("#ResponsibleId").data("kendoComboBox").text(),
+                                UnitId: $("#@Html.IdFor(c=>c.UnitId)").val(),
+                            };
+                            return _data;
+                                        }
+                            function onProcuringAgencyEditChange() {
+                                var value = this.value();
+                                //alert(value);
+                            }
+                            $(document).ready(function () {
+                                $("#ResponsibleId").kendoComboBox({
+                                    placeholder: '@T("AppWork.Works.Task.Fields.ResponsibleId.Typing")...',
+                                    dataTextField: "FullName",
+                                    dataValueField: "Id",
+                                    filter: "contains",
+                                    autoBind: false,
+                                    minLength: 3,
+                                    template: kendo.template($("#gsCustomerSearchTemplate").html()),
+                                    dataSource: {
+                                        type: "json",
+                                        serverFiltering: true,
+                                        transport: {
+                                            read: {
+                                                /**/
+                                                url: "/Customer/SearchCustomerList",
+                                                /**/
+                                                data: SearchCustomerData
+                                            },
+                                        },
+                                    },
+                                    change: onProcuringAgencyEditChange
+                                });
+                            });
+                            </script>
+                        </div>
+                    </div>
+                </div>*@
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="CurrencyId" />
+                    </div>
+                    <div class="col-md-6">
+                        @if (Model.ParentId > 0)
+                        {
+                            <nop-select asp-for="CurrencyId" asp-items="@Model.AvailableCurrency" disabled="disabled" />
+                        }
+                        else
+                        {
+                            <nop-select asp-for="CurrencyId" asp-items="@Model.AvailableCurrency" />
+                        }
+
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="TotalMoney" />
+                    </div>
+                    <div class="col-md-6">
+                        <nop-editor asp-for="TotalMoney" />
+                        <span class="field-validation-valid" style="padding-left:10px; display:none; font-size:13px;" id="ckTotalMoneyTask"></span>
+                    </div>
+                </div>
+            </div>
+            <div style="@(!string.IsNullOrEmpty(Model.TaskProcuringAgencyName) ? "display:none" :"")">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <nop-label asp-for="TaxPercent" />
+                        </div>
+                        <div class="col-md-3">
+                            <nop-editor asp-for="TaxPercent" />
+                            <span class="field-validation-valid" style="padding-left:10px; display:none; font-size:13px;" id="ckTaxPercent"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <nop-label asp-for="PreTaxTotalMoney" />
+                        </div>
+                        <div class="col-md-6">
+                            <nop-editor asp-for="PreTaxTotalMoney" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body pb-2">
+                    <div class="row listoption">
+                        <label class="custom-control custom-checkbox m-0">
+                            <input type="checkbox" data-toggle='collapse' id="TaskCheckBoxTyLeKhoan" data-target='#TyLeKhoan' class="custom-control-input">
+                            <span class="custom-control-label">@T("appwork.works.task.group.taskgroup")</span>
+                        </label>
+                        <label class="custom-control custom-checkbox m-0">
+                            <input type="checkbox" data-toggle='collapse' id="TaskCheckBoxKhoiLuongCongViec" data-target='#KhoiLuongCongViec' class="custom-control-input">
+                            <span class="custom-control-label">@T("appwork.works.task.group.measuremass")</span>
+                        </label>
+                        <label class="custom-control custom-checkbox m-0">
+                            <input type="checkbox" data-toggle='collapse' id="TaskCheckBoxCapDiaHinh" data-target='#CapDiaHinh' class="custom-control-input">
+                            <span class="custom-control-label">@T("appwork.works.task.group.tasklevel")</span>
+                        </label>
+
+                    </div>
+                    <div class="collapse" id="TyLeKhoan" style="padding-top:20px;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group row">
+                                    <div class="col-sm-4" style="padding-top:3px;">
+                                        <nop-label asp-for="TaskGroupId" />
+                                    </div>
+                                    <div class="col-sm-8">
+                                        <nop-select asp-for="TaskGroupId" asp-items="@Model.AvailableTaskGroup" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group row">
+                                    <div class="col-sm-6" style="padding-top:3px;">
+                                        <nop-label asp-for="TaskGroupValue" />
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <nop-editor asp-for="TaskGroupValue" /><br />
+                                        <span asp-validation-for="TaskGroupValue"></span>
+                                    </div>
+                                </div>
+                                <span id="ckTaskGruopValue" style="color:red;"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group row">
+                                    <div class="col-sm-4" style="padding-top:3px;">
+                                        <nop-label asp-for="TaskGroupSalary" />
+                                    </div>
+                                    <div class="col-sm-8">
+                                        <nop-editor asp-for="TaskGroupSalary" />
+                                    </div>
+                                </div>
+                                <span id="ckTaskGruopSalary" style="color:red;"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group row">
+                                    <div class="col-sm-6" style="padding-top:3px;">
+                                        <nop-label asp-for="TaskGroupCost" />
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <nop-editor asp-for="TaskGroupCost" /><br />
+                                    </div>
+                                </div>
+                                <span id="ckTaskGroupCost" style="color:red;"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id='KhoiLuongCongViec' class='collapse row'>
+                        <div class="col-sm-6 ">
+                            <div class="form-group row">
+                                <div class="col-sm-4">
+                                    <nop-label asp-for="MeasureMass" />
+                                </div>
+                                <div class="col-sm-8">
+                                    <nop-editor asp-for="MeasureMass" />
+                                    <span asp-validation-for="MeasureMass"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 ">
+                            <div class="form-group row">
+                                <div class="col-sm-6 row">
+                                    <nop-label asp-for="MeasurePrice" />
+                                    <span>(@Model.CurrencyName)</span>
+                                </div>
+                                <div class="col-sm-6">
+                                    <nop-editor asp-for="MeasurePrice" />
+                                    <span asp-validation-for="MeasurePrice"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group panel-collapse collapse" id="CapDiaHinh">
+                        <div class="row">
+                            <div class="col-md-2">
+                                <nop-label asp-for="TaskLevelId" />
+                            </div>
+                            <div class="col-md-5">
+                                <nop-select asp-for="TaskLevelId" asp-items="@Model.lsTaskLevelId" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <nop-label asp-for="Description" />
+                <nop-textarea asp-for="Description" />
+            </div>
+        </div>
+    </div>
+</div>
+<div class="text-right mt-3">
+    <button type="button" id="btnaddtasksave" class="btn btn-primary">@T("admin.common.save")</button>&nbsp;
+    <button type="button" class="btn btn-danger" data-dismiss="modal">@T("admin.common.cancel")</button>
+</div>
+<script>
+    $(document).ready(function () {
+                var ParentId = $("#@Html.IdFor(c=>c.ParentId)").val();
+                if (ParentId > 0) {
+                        $.ajax({
+                        url: "/Works/_GetTotalMoneyTask?TaskID=" + ParentId,
+                            type: "GET",
+                            success: function (data) {
+                                $("#ParentTotalAmount").val(data.ObjectInfo);
+                        },
+                            error: function () {
+                            ShowErrorMessage(data.Message);
+                        }
+                    })
+                };
+                    $("#@Html.IdFor(c=>c.ParentId)").change(function () {
+                    var parentId = $(this).val();
+                    //console.log(parentId);
+                    if (parentId > 0) {
+                            $("#PercentNumDisplay").show();
+                            $("#PercentNum").data("kendoNumericTextBox").value(0);
+                            $.ajax({
+                            url: "/Works/_GetTotalMoneyTask?TaskID=" + parentId,
+                                type: "GET",
+                                success: function (data) {
+                                    $("#ParentTotalAmount").val(data.ObjectInfo);
+                            },
+                                error: function () {
+                                ShowErrorMessage(data.Message);
+                            }
+                        })
+                        } else {
+                            $("#ParentTotalAmount").val(0);
+                            $("#PercentNum").data("kendoNumericTextBox").value(0);
+                            $("#PercentNumDisplay").hide();
+                            $("#TotalMoney").val(0);
+                    }
+                });
+                    $("#@Html.IdFor(c=>c.PercentNum)").change(function () {
+                    var PercentNum = ConvertToNumber(this);
+                        $("#ckPercentNum").hide();
+                    if (PercentNum > 100) {
+                            //$("#ckPercentNum").html("<p><span style='color:red;font-size:15px; padding-right: 5px;'>*</span>Không thể vượt quá 100 %</p>");
+                            $("#ckPercentNum").show();
+                        return;
+                    }
+                    if (PercentNum >0) {
+                        var moneyparent = $("#ParentTotalAmount").val();
+                            $("#TotalMoney").val((PercentNum * moneyparent/100).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));
+                    }
+                });
+
+            })
+</script>
+<script>
+    $(document).ready(function () {
+        $("#PreTaxTotalMoney").attr("disabled", "disabled");
+        var totalMoney = ConvertToNumber("#TotalMoney");
+            var taxPercent = $("#@Html.IdFor(c => c.TaxPercent)").val();
+        var preTaxTotalMoney = (totalMoney / (1 + taxPercent / 100)).toFixed(0);
+            $("#@Html.IdFor(c => c.PreTaxTotalMoney)").val(preTaxTotalMoney.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));
+        $("#@Html.IdFor(c => c.TotalMoney)").change(function () {
+            var totalMoney = ConvertToNumber(this);
+            var taxPercent = $("#@Html.IdFor(c => c.TaxPercent)").val();
+            var preTaxTotalMoney = (totalMoney / (1 + taxPercent / 100)).toFixed(0);
+            $("#@Html.IdFor(c => c.PreTaxTotalMoney)").val(preTaxTotalMoney.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));
+        });
+            $("#@Html.IdFor(c => c.TaxPercent)").change(function () {
+                var taxPercent  =  $(this).val();
+                var totalMoney = ConvertToNumber("#@Html.IdFor(c => c.TotalMoney)");
+                var preTaxTotalMoney = (totalMoney / (1 + taxPercent / 100)).toFixed(0);
+            $("#@Html.IdFor(c => c.PreTaxTotalMoney)").val(preTaxTotalMoney.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));
+        });
+        $('#@Html.IdFor(model => model.TotalMoney)').change(function () {
+            var TotalMoney = ConvertToNumber(this);
+            var ParentTotalAmount = $("#ParentTotalAmount").val();
+            if ((ParentTotalAmount > 0) && ((($("#PercentNum").data("kendoNumericTextBox").value() == 0)) || ($("#PercentNum").data("kendoNumericTextBox").value() >100 ))) {
+                $("#PercentNum").data("kendoNumericTextBox").value((TotalMoney / ParentTotalAmount) * 100);
+                if ((TotalMoney / ParentTotalAmount) * 100 >100) {
+                    $("#ckPercentNum").show();
+                }
+            }
+        })
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        //hien thi lai
+        @if (Model.TaskGroupValue > 0 || Model.TaskGroupId > 0)
+        {
+            <text>
+                $("#TyLeKhoan").collapse('toggle');
+                $("#TaskCheckBoxTyLeKhoan").attr("checked", "checked");
+            </text>
+        }
+            @if (Model.MeasureMass > 0 || Model.MeasurePrice > 0)
+            {
+            <text>
+                $("#KhoiLuongCongViec").collapse('toggle');
+                $("#TaskCheckBoxKhoiLuongCongViec").attr("checked", "checked");
+            </text>
+            }
+            @if (Model.TaskLevelId > 0)
+            {
+            <text>
+                $("#CapDiaHinh").collapse('toggle');
+                $("#TaskCheckBoxCapDiaHinh").attr("checked", "checked");
+            </text>
+            }
+
+    });
+</script>
+<script>
+    function setTotalMoney() {
+        var dg = $("#MeasureMass").data("kendoNumericTextBox").value();
+        var kl = $("#MeasurePrice").data("kendoNumericTextBox").value();
+        if ((dg <= 0) || (kl <= 0) ){
+            $("#TotalMoney").data("kendoNumericTextBox").value(0).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1.");
+        }
+        else {
+            $("#TotalMoney").data("kendoNumericTextBox").value(dg * kl).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1.");
+        }
+    }
+    $(document).ready(function () {
+        //setTimeout(function () {
+        //    $("#TotalMoney").data('kendoNumericTextBox').enable(false);
+        //}, 500);
+        // Check ngày kết thúc
+        $("#@Html.IdFor(c=>c.EndDate)").change(function () {
+            var _endDate = $(this).val();
+            var arrE = _endDate.split("/");
+            var EndDate = arrE[1] + "/" + arrE[0] + "/" + arrE[2];
+            var _starDate = $("#@Html.IdFor(c=>c.StartDate)").val();
+            var arrS = _starDate.split("/");
+            var StartDate = arrS[1] + "/" + arrS[0] + "/" + arrS[2];
+            var _contractEndDate = '@Model.ContractEndDate.toDateVNString()';
+            var _arrEC = _contractEndDate.split("/");
+            var ContractEndDate = _arrEC[1] + "/" + _arrEC[0] + "/" + _arrEC[2];
+            if (new Date(StartDate) > new Date(EndDate) || new Date(EndDate) > new Date(ContractEndDate)) {
+                $("#ckEndDate").html("* Ngày kết thúc không đúng.");
+                $("#ckEndDate").show();
+            } else {
+                $("#ckEndDate").html("");
+                $("#ckEndDate").hide();
+            }
+        });
+        // Check ngày bắt đầu
+        $("#@Html.IdFor(c=>c.StartDate)").change(function () {
+             var _starDate = $(this).val();
+            var arrS = _starDate.split("/");
+            var StartDate = arrS[1] + "/" + arrS[0] + "/" + arrS[2];
+             var _endDate = $("#@Html.IdFor(c=>c.EndDate)").val();
+            var arrE = _endDate.split("/");
+            var EndDate = arrE[1] + "/" + arrE[0] + "/" + arrE[2];
+            var _contractStartDate = '@Model.ContractStarDate.toDateVNString()';
+            var _arrSC = _contractStartDate.split("/");
+            var ContractStartDate = _arrSC[1] + "/" + _arrSC[0] + "/" + _arrSC[2];
+            if (new Date(StartDate) > new Date(EndDate) || new Date(StartDate) < new Date(ContractStartDate)) {
+                $("#ckEndDate").html("* Ngày bắt đầu không đúng.");
+                $("#ckEndDate").show();
+            } else {
+                $("#ckEndDate").html("");
+                $("#ckEndDate").hide();
+            }
+        });
+        $("#@Html.IdFor(c=>c.TaskGroupId)").change(function () {
+            var _id = $(this).val();
+            $.ajax({
+                type:"GET",
+                url: "/TaskGroup/_getTaskGroupvalue?id=" + _id,
+                success: function (data) {
+                    if (data.Code == "00") {
+                        $("#TaskGroupValue").data("kendoNumericTextBox").value(data.ObjectInfo.Ratio);
+                    }
+                    else {
+                        $("#TaskGroupValue").data("kendoNumericTextBox").value(0);
+                    }
+                },
+                error: function () {
+                    $("#TaskGroupValue").data("kendoNumericTextBox").value(0);
+                }
+            })
+        })
+        $("#@Html.IdFor(c => c.StartDate)").focus(function () {
+            $("#ckEndDate").html("");
+            $("#ckEndDate").hide();
+        })
+        $("#@Html.IdFor(c => c.EndDate)").focus(function () {
+            $("#ckEndDate").html("");
+            $("#ckEndDate").hide();
+        })
+        $("#btnaddtasksave").click(function () {
+            //var ResponsibleId = $("#ResponsibleId").data('kendoComboBox').value();
+            var _taskGroupValue = $("#TaskGroupValue").data("kendoNumericTextBox").value();
+            var _taskGroupSalary = $("#TaskGroupSalary").data("kendoNumericTextBox").value();
+            var _taskGroupCost = $("#TaskGroupCost").data("kendoNumericTextBox").value();
+            if (_taskGroupValue != (_taskGroupCost + _taskGroupSalary)) {
+                $("#ckTaskGruopValue").html("* Phần lương và chi phí sản xuất khác tỷ lệ khoán.");
+                $("#ckTaskGruopValue").show();
+                return;
+            } else {
+                $("#ckTaskGruopValue").html("");
+                $("#ckTaskGruopValue").hide();
+            }
+            var _data = {
+                Id:@Model.Id,
+                Name: $("#@Html.IdFor(c=>c.Name)").val(),
+                Description: $("#@Html.IdFor(c=>c.Description)").val(),
+                ContractId: @Model.ContractId,
+                StartDate: $("#@Html.IdFor(c=>c.StartDate)").val(),
+                EndDate: $("#@Html.IdFor(c=>c.EndDate)").val(),
+                MeasureMass: $("#@Html.IdFor(c=>c.MeasureMass)").val(),
+                MeasurePrice: $("#@Html.IdFor(c=>c.MeasurePrice)").val(),
+                TotalMoney: $("#@Html.IdFor(c=>c.TotalMoney)").val(),
+               // ResponsibleId: ResponsibleId,
+                ParentId: $("#@Html.IdFor(c=>c.ParentId)").val(),
+                TaskLevelId: $("#@Html.IdFor(c=>c.TaskLevelId)").val(),
+                CurrencyId: $("#@Html.IdFor(c=>c.CurrencyId)").val(),
+                TaskGroupValue: $("#TaskGroupValue").val(),
+                TaskGroupCost: $("#@Html.IdFor(c=>c.TaskGroupCost)").val(),
+                TaskGroupSalary: $("#@Html.IdFor(c=>c.TaskGroupSalary)").val(),
+                TaskGroupId: $("#@Html.IdFor(c=>c.TaskGroupId)").val(),
+                AppendixId:@Model.AppendixId,
+                UnitId: $("#@Html.IdFor(c=>c.UnitId)").val(),
+                PercentNum: $("#@Html.IdFor(c=>c.PercentNum)").val(),
+                TaxPercent: $("#@Html.IdFor(c=>c.TaxPercent)").val(),
+                ContractTypeId: $("#@Html.IdFor(c=>c.ContractTypeId)").val(),
+                ContractStarDate: '@Model.ContractStarDate',
+                ContractEndDate: '@Model.ContractEndDate',
+                
+            };
+            //console.log(_data);
+            kendo.ui.progress($("#modalContractTask"), true);
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "/Works/_Create",
+                    data: _data,
+                    success: function (data) {
+                        $('#ContractTaskChild_' + data.ObjectInfo.ParentId).removeClass("isloaded");
+                        //console.log(data);
+                        kendo.ui.progress($("#modalContractTask"), false);
+                        if (CheckValidMessageReturn(data)) {
+                            //console.log(data);
+                            $("#modalContractTask .close").click();
+                            ShowSuccessMessage(data.Message);
+                            //kiem tra xem box chi tiet hang muc cong viec da mo chua
+                            if ($('#ContractTaskChild_' + data.ObjectInfo.ParentId).hasClass("show"))
+                                loadContractTaskChild(@Model.ContractId, data.ObjectInfo.ParentId);
+                            else
+                                $('#ContractTaskChild_' + data.ObjectInfo.ParentId).collapse('toggle');
+                           //load lai so luong, neu them moi
+                            if (data.ObjectInfo.ParentId > 0 && @Model.Id == 0) {
+                                var _countChild = parseInt($("#spanTaskCountChild_" + data.ObjectInfo.ParentId).html());
+                                _countChild = _countChild + 1;
+                                $("#spanTaskCountChild_" + data.ObjectInfo.ParentId).html(_countChild);
+                            }
+                            else {
+                                loadContractTaskChild(@Model.ContractId,0);
+                            }
+                        }
+                        ReloadPaymentPlan(@Model.ContractId);
+                    },
+                    error: function(xhr, ajaxOptions, thrownError){
+                        alert(thrownError);
+                        kendo.ui.progress($("#modalContractTask"), false);
+                    }
+                    })
+        })
+        $("#MeasureMass").change(function () {
+            setTotalMoney();
+        })
+        $("#MeasurePrice").change(function () {
+            setTotalMoney();
+        })
+        //$("#showKhoiLuongcv").click(function () {
+        //    var x = $(this).attr("href");
+        //    if ($(x).attr("class") == "row panel-collapse collapse show") {
+        //        $("#caret1").attr("class", "fa fa-caret-down");
+        //    }
+        //    else if ($(x).attr("class") == "row panel-collapse collapse") {
+        //        $("#caret1").attr("class", "fa fa-caret-up");
+        //    }
+        //});
+
+        // Thay doi Phan luong thi tinh ra Chi phi Sx(hoac nguoc lai)
+        $("#TaskGroupSalary").data("kendoNumericTextBox").bind("change", function () {
+            var _taskGruopSalary = this.value();
+            var _taskGroupValue = $("#TaskGroupValue").data("kendoNumericTextBox").value();
+            if (_taskGruopSalary > _taskGroupValue) {
+                $("#ckTaskGruopSalary").html("* Phần lương đang lớn hơn tỷ lệ khoán.");
+                $("#ckTaskGruopSalary").show();
+            } else {
+                $("#ckTaskGruopSalary").html("");
+                $("#ckTaskGruopSalary").hide();
+                $("#TaskGroupCost").data("kendoNumericTextBox").value(_taskGroupValue - _taskGruopSalary);
+            }
+        });
+        $("#TaskGroupCost").data("kendoNumericTextBox").bind("change", function () {
+            var _taskGroupCost = this.value();
+            var _taskGroupValue = $("#TaskGroupValue").data("kendoNumericTextBox").value();
+            if (_taskGroupCost > _taskGroupValue) {
+                $("#ckTaskGroupCost").html("* Chi phí sản xuất đang lớn hơn tỷ lệ khoán.");
+                $("#ckTaskGroupCost").show();
+            } else {
+                $("#ckTaskGroupCost").html("");
+                $("#ckTaskGroupCost").hide();
+                $("#TaskGroupSalary").data("kendoNumericTextBox").value(_taskGroupValue - _taskGroupCost);
+            }
+        });
+        $("#TaskGroupCost").focus(function () {
+            $("#ckTaskGruopValue").html("");
+        });
+        $("#TaskGroupSalary").focus(function () {
+            $("#ckTaskGruopValue").html("");
+        });
+        })
+</script>
+@if (Model.isAcceptanceKL)
+{
+    <script>
+        $(document).ready(function () {
+            // kiem tra neu cong viec da co nghiem thu khoi luong thi khong cho sua
+            var _starDatePicker = $("#StartDate").data("kendoDatePicker");
+            _starDatePicker.readonly();
+            var _endDatePicker = $("#EndDate").data("kendoDatePicker");
+            _endDatePicker.readonly();
+            $('#TotalMoney').attr("readonly", "readonly");
+            $("#ParentId").prop("disabled", true);
+            $("#TaskGroupId").prop("disabled", true);
+            $("#UnitId").prop("disabled", true);
+            $("#ContractTypeId").prop("disabled", true);
+            $("#_currencyId").prop("disabled", true);
+            $("#TaskLevelId").prop("disabled", true);
+            $("#TaskGroupId").prop("disabled", true);
+            $("#CurrencyId").prop("disabled", true);
+            var _taxPercent = $("#TaxPercent").data("kendoNumericTextBox");
+            _taxPercent.readonly();
+            var TaskGroupValue = $("#TaskGroupValue").data("kendoNumericTextBox");
+            TaskGroupValue.readonly();
+            var TaskGroupSalary = $("#TaskGroupSalary").data("kendoNumericTextBox");
+            TaskGroupSalary.readonly();
+            var TaskGroupCost = $("#TaskGroupCost").data("kendoNumericTextBox");
+            TaskGroupCost.readonly();
+            var MeasureMass = $("#MeasureMass").data("kendoNumericTextBox");
+            MeasureMass.readonly();
+            var MeasurePrice = $("#MeasurePrice").data("kendoNumericTextBox");
+            MeasurePrice.readonly();
+            var PercentNum = $("#PercentNum").data("kendoNumericTextBox");
+            PercentNum.readonly();
+        });
+    </script>
+}
+<style>
+    .listoption label span {
+        padding-right: 20px;
+    }
+
+    .listoption {
+        padding-bottom: 20px;
+    }
+</style>

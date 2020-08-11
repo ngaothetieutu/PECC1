@@ -1,0 +1,31 @@
+﻿@using GS.Web.Areas.Admin.Models.Contract
+@model ContractAttributeModel
+
+@{
+    //page title
+    ViewBag.Title = T("Admin.Contract.ContractAttributes.AddNew").Text;
+}
+
+<form asp-controller="ContractAttribute" asp-action="Create" method="post" id="contractattribute-form">
+    <div class="content-header clearfix">
+        <h1 class="pull-left">
+            @T("Admin.Contract.ContractAttributes.AddNew")
+            <small>
+                <i class="fa fa-arrow-circle-left"></i>
+                <a asp-action="List">@T("Admin.Contract.ContractAttributes.BackToList")</a>
+            </small>
+        </h1>
+        <div class="pull-right">
+            <button type="submit" name="save" class="btn bg-blue">
+                <i class="fa fa-floppy-o"></i>
+                @T("Admin.Common.Save")
+            </button>
+            <button type="submit" name="save-continue" class="btn bg-blue">
+                <i class="fa fa-floppy-o"></i>
+                @T("Admin.Common.SaveContinue")
+            </button>
+            @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.ContractAttributeDetailsButtons })
+        </div>
+    </div>
+    @await Html.PartialAsync("_CreateOrUpdate", Model)
+</form>

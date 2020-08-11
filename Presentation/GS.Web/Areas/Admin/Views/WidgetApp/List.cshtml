@@ -1,0 +1,78 @@
+﻿@using GS.Web.Areas.Admin.Models.WidgetApps
+@model WidgetAppSearchModel
+
+    <div class="panel-group">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                @T("Admin.WidgetApps.WidgetApp")
+            </div>
+            <div class="panel-body">
+                <p>
+                    <em>@T("Admin.WidgetApps.WidgetApp.Description")</em>
+                </p>
+                <div id="widgetApps-grid"></div>
+
+                <script>
+            $(document).ready(function () {
+                $("#widgetApps-grid").kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("List", "WidgetApp"))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: addAntiForgeryToken
+                                }
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors"
+                            },
+                            error: function(e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            serverPaging: true,
+                            serverFiltering: true,
+                            serverSorting: true
+                        },
+                        pageable: {
+                            refresh: true,
+                            @await Html.PartialAsync("_GridPagerMessages")
+                        },
+                        editable: {
+                            confirmation: "@T("Admin.Common.DeleteConfirmation")",
+                            mode: "inline"
+                        },
+                        scrollable: false,
+                        columns: [{
+                            field: "Name",
+                            title: "@T("Admin.WidgetApps.WidgetApp.Fields.Name")",
+                            width: 200
+                        }, {
+                            field: "Description",
+                            title: "@T("Admin.WidgetApps.WidgetApp.Fields.Description")",
+                            width: 400
+                        }, {
+                            field: "Id",
+                            title: "@T("Admin.Common.Edit")",
+                            width: 80,
+                            headerAttributes: { style: "text-align:center" },
+                            attributes: { style: "text-align:center" },
+                            template: '<a class="btn btn-default" href="@Url.Content("~/Admin/WidgetApp/Edit/")#=Id#"><i class="fa fa-pencil"></i>@T("Admin.Common.Edit")</a>'
+                        }]
+                    })
+                })
+                </script>
+            </div>
+            <div class="panel-footer">
+                <a class="btn btn-primary" href="@Url.Action("Create", "WidgetApp")">
+                    <i class="fa fa-plus-square"></i>
+                    @T("Admin.Common.AddNew")
+                </a>
+            </div>
+        </div>
+    </div>

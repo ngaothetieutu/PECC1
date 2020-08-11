@@ -1,0 +1,39 @@
+@model ConstructionCapitalModel
+
+@{
+    //page title
+    ViewBag.Title = T("AppWork.Contracts.ConstructionCapital.AddNew").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Category_construction_capital");
+}
+
+<form asp-controller="ConstructionCapital" asp-action="Create" method="post" id="ConstructionCapitalForm">
+    <div class="card mb-4">
+        <h6 class="card-header">
+            @T("AppWork.Contracts.ConstructionCapital.AddNew")
+            <small>
+                <i class="fa fa-arrow-circle-left"></i>
+                <a asp-action="List">@T("AppWork.Contracts.ConstructionCapital.BackToList")</a>
+            </small>
+            <button type="submit" name="save-continue" class="btn btn-secondary" style="float:right;margin-right:5px;" id="btnAddConstructionCapital">
+                <i class="far fa-save" style="margin-right:5px;"></i>
+                @T("Admin.Common.SaveContinue")
+            </button>
+            <button type="submit" name="save" class="btn btn-success" style="float:right;margin-right:5px; ">
+                <i class="fas fa-save" style="margin-right:5px;"></i>
+                @T("Admin.Common.Save")
+            </button>
+        </h6>
+        <div class="card-body">
+
+            @await Html.PartialAsync("_CreateOrUpdate", Model)
+        </div>
+    </div>
+</form>
+<script>
+    $(document).ready(function () {
+        $("#ConstructionCapitalForm").submit(function () {
+            $("#btnAddConstructionCapital").attr("disabled", "disabled");
+        });
+    });
+</script>

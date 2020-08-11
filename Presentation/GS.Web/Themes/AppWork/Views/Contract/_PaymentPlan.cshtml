@@ -1,0 +1,107 @@
+﻿@using GS.Core.Domain.Dashboard
+@model PaymentPlanModel
+<div>
+    <div class="col-md-12">
+        <div class="row">
+            <div class="col-6 col-sm-12 col-m6-12 col-lg-6 pr-4 list-task-plan row" style="padding-top: 5px;padding-bottom: 5px;">
+                <div class="col-sm-7"><strong><i class="blue-text">Sản lượng đã nghiệm thu </i></strong></div>
+                <div class="col-sm-5"><i style="color:#ff6a00;">@Model.totalAcceptanced.ToVNStringNumber()</i></div>
+            </div>
+            <div class="col-6 col-sm-12 col-m6-12 col-lg-6 pr-4 list-task-plan row" style="padding-top: 5px;padding-bottom: 5px;">
+                <div class="col-sm-7"> <strong><i class="blue-text">Sản lượng còn lại chưa nghiệm thu </i></strong></div>
+                <div class="col-sm-5"> <i style="color:#ff6a00;">@Model.totalAmountNotAccepted.ToVNStringNumber()</i></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6 col-sm-12 col-m6-12 col-lg-6 pr-4 list-task-plan row" style="padding-top: 5px;padding-bottom: 5px;">
+                <div class="col-sm-7"><strong><i class="blue-text"> Sản lượng đã nghiệm thu thanh toán </i></strong></div>
+                <div class="col-sm-5">
+                    <a href="#">
+                        <i style="color:#ff6a00;" data-toggle="tooltip" data-placement="bottom" title="Nghiệm thu thanh toán đã giảm trừ">@Model.totalAmountPaymentAccepted.ToVNStringNumber()</i>
+                    </a> /
+                    <a href="#">
+                        <i style="color:#ff6a00;" data-toggle="tooltip" data-placement="bottom" title="Nghiệm thu thanh toán chưa giảm trừ">@Model.totalMoneyPaymentAccepted.ToVNStringNumber() </i>
+                    </a>
+                </div>
+            </div>
+            <div class="col-6 col-sm-12 col-m6-12 col-lg-6 pr-4 list-task-plan row" style="padding-top: 5px;padding-bottom: 5px;">
+                <div class="col-sm-7">
+                    <strong><i class="blue-text">Sản lượng nghiệm thu thanh toán còn lại </i></strong>
+                </div>
+                <div class="col-sm-5">
+                    <i style="color:#ff6a00;">@Model.totalAmountNotPaymentAccepted.ToVNStringNumber()</i>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6 col-sm-12 col-m6-12 col-lg-6 pr-4 list-task-plan row" style="padding-top: 5px;padding-bottom: 5px;">
+                <div class="col-sm-7"><strong><i class="blue-text">Chủ đầu tư thanh toán </i></strong></div>
+                <div class="col-sm-5"> <i style="color:#ff6a00;">@Model.totalAmountPayment.ToVNStringNumber()</i></div>
+            </div>
+            <div class="col-6 col-sm-12 col-m6-12 col-lg-6 pr-4 list-task-plan row" style="padding-top: 5px;padding-bottom: 5px;">
+                <div class="col-sm-7"><strong><i class="blue-text">Tạm ứng từ chủ đầu tư còn lại </i></strong></div>
+                <div class="col-sm-5">
+                    <a href="#">
+                        <i data-toggle="tooltip" data-placement="bottom" title="Còn lại sau trừ tạm ứng cho đơn vị" style="color:#ff6a00;">@Model.totalPaymentAdvanced.ToVNStringNumber()</i>
+                    </a> /
+                    <a href="#">
+                        <i data-toggle="tooltip" data-placement="bottom" title="Tổng tạm ứng" style="color:#ff6a00;">@Model.totalPaymentPlan.ToVNStringNumber()</i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6 col-sm-12 col-m6-12 col-lg-6 pr-4 list-task-plan row" style="padding-top: 5px;padding-bottom: 5px;">
+                <div class="col-sm-7">
+                    <strong><i class="blue-text">Tổng nghiệm thu nội bộ </i></strong>
+                </div>
+                <div class="col-sm-5">
+                    <i style="color:#ff6a00;">@Model.totalAmountAcceptanceNoiBo.ToVNStringNumber()</i>
+                </div>
+            </div>
+            <div class="col-6 col-sm-12 col-m6-12 col-lg-6 pr-4 list-task-plan row" style="padding-top: 5px;padding-bottom: 5px;">
+                <div class="col-sm-7">
+                    <strong><i class="blue-text">Đơn vị đã tạm ứng </i></strong>
+                </div>
+                <div class="col-sm-5">
+                    <i style="color:#ff6a00;">@Model.totalAmountUnitAdvance.ToVNStringNumber()</i>
+                </div>
+            </div>
+        </div>
+        @if (Model.contractStatus == (int)GS.Core.Domain.Contracts.ContractStatus.Liquidated || Model.contractStatus == (int)GS.Core.Domain.Contracts.ContractStatus.Completed || Model.contractStatus == (int)GS.Core.Domain.Contracts.ContractStatus.Settlemented)
+        {
+            <div class="row">
+                <div class="col-6 col-sm-12 col-m6-12 col-lg-6 pr-4 list-task-plan row" style="padding-top: 5px;padding-bottom: 5px;">
+                    <div class="col-sm-7">
+                        <strong><i class="blue-text">Tổng quyết toán </i></strong>
+                    </div>
+                    <div class="col-sm-5">
+                        <i style="color:#ff6a00;">@Model.totalAmountContractSettlement.ToVNStringNumber()</i>
+                    </div>
+                </div>
+                <div class="col-6 col-sm-12 col-m6-12 col-lg-6 pr-4 list-task-plan row" style="padding-top: 5px;padding-bottom: 5px;">
+                    <div class="col-sm-7">
+                        <strong><i class="blue-text">Khoản giữ lại </i></strong>
+                    </div>
+                    <div class="col-sm-5">
+                        <i style="color:#ff6a00;">@Model.totalAmountContractHolding.ToVNStringNumber()</i>
+                    </div>
+                </div>
+            </div>
+        }
+        @*</div>*@
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>
+<style>
+    .col-6 {
+        padding-left: 20px !important;
+    }
+    .blue-text {
+        color: #1e70cd;
+    }
+</style>

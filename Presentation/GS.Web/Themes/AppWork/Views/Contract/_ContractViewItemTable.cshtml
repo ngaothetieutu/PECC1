@@ -1,0 +1,68 @@
+﻿@model ContractModel
+@using GS.Core.Domain.Contracts;
+    @using GS.Services.Customers
+    @using GS.Core
+
+    @inject IWorkContext workContext
+    @inject ICustomerService customerService
+<div class="col-md-12">
+    <div class="card pb-4 mb-2" style="padding:5px !important;">
+        <div class="row no-gutters align-items-center">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-11">
+                        <a href="/Contract/Detail?guid=@Model.ContractGuid" class="text-dark font-weight-semibold">@Model.Name</a>
+                    </div>
+                    <div class="col-md-1">
+                        <div style="text-align:center;">
+                            <div class="btn-group project-actions" style="text-align:right!important;">
+                                <button type="button" class="btn btn-sm btn-default icon-btn borderless btn-round md-btn-flat dropdown-toggle hide-arrow" data-toggle="dropdown">
+                                    <i class="ion ion-ios-more"></i>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <a class="dropdown-item" href="Detail?guid=@Model.ContractGuid"> @T("admin.common.detail")</a>
+                                    <a class="dropdown-item" href="Edit?guid=@Model.ContractGuid">@T("admin.common.Edit")</a>                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="col">
+                            <i class="lnr lnr-diamond"></i>&nbsp;@Model.TotalAmountText
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <i class="fas fa-calendar-alt"></i>&nbsp;@Model.StartDate.toDateVNString()&nbsp;<i class="lnr lnr-arrow-right app-work-icon-hot"></i>&nbsp; @Model.EndDate.toDateVNString()
+                    </div>
+                    <div class="col-md-3">
+                        <div class="row">
+                            <div class="d-flex flex-wrap">
+                                @if (Model.contractResourceModels.Count > 0)
+                                {
+                                    foreach (var m in Model.contractResourceModels)
+                                    {
+                                        <a href="javascript:void(0)" class="d-block mr-1 mb-1">
+                                            <div class="media align-items-center">
+                                                <img src="@m.CustomerAvatarUrl" class="ui-w-20 rounded-circle" alt="">
+                                            </div>
+                                        </a>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3" style="text-align:center">
+                        <div class="text-right text-muted small">@Model.ProgressNum%</div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar" style="width: @Model.ProgressNum%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

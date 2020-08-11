@@ -1,0 +1,348 @@
+﻿@model TaskListModel
+@foreach (TaskModel task in Model.Data)
+{
+    var Colorstyle = "";
+   
+    @switch (task.TreeLevel)
+    {
+        case 1:
+            Colorstyle = "white";
+        break;
+        case 2:
+            Colorstyle = "#dcf7f6";
+        break;
+        case 3:
+            Colorstyle = "#9cf5f1";
+        break;
+        case 4:
+            Colorstyle = "lightgray";
+        break;
+        case 5:
+            Colorstyle = "whitesmoke";
+        break;
+    }
+    if (!string.IsNullOrEmpty(task.TaskProcuringAgencyName))
+    {
+        Colorstyle = "#E7F0FF";
+    }
+
+<div class="row list-task-plan" style="background-color:@Colorstyle">
+    <div class="col-md-12">
+        <div class="project-task-item" style="background-color:@Colorstyle">
+            <span>
+                <i class="lnr @(task.ParentId>0 ? "lnr-chevron-right-circle":"lnr-pushpin") app-work-icon-hot"></i>
+                <a href="#" data-toggle="tooltip" data-placement="bottom">
+                    <span>@task.Name</span>@if (!string.IsNullOrEmpty(task.ContractTypeName))
+                    {<i style="color:#ff6a00"> &nbsp;- @task.ContractTypeName</i>}
+                </a>
+
+                @if (!string.IsNullOrEmpty(task.UnitName))
+                {
+                    <span style="color:#05862b;">(@task.UnitName) </span>
+                }
+                @if (task.listBBContract.Total > 0)
+                {
+                    <strong style="color:orangered;"> - BB' thực hiện</strong>
+                }
+                @if (string.IsNullOrEmpty(task.TaskProcuringAgencyName))
+                {
+                    @switch (task.StatusId)
+                    {
+                        case 1:
+                            <span class="badge @task.classStatus font-weight-normal ml-2">@task.nameStatus</span>
+                            break;
+                        case 3:
+                            <span class="badge @task.classStatus font-weight-normal ml-2">@task.nameStatus</span>
+                            break;
+                        case 5:
+                            <span class="badge bg-danger font-weight-normal ml-2">Huỷ bởi phụ lục</span>
+                            break;
+                        case 6:
+                            <span class="badge bg-success font-weight-normal ml-2">Đã hoàn thành</span>
+                            break;
+                        case 7:
+                            <span class="badge bg-primary font-weight-normal ml-2">Đã quyết toán</span>
+                            break;
+                        case 8:
+                            <span class="badge bg-secondary font-weight-normal ml-2">Đã nghiệm thu</span>
+                            break;
+                    }
+                }
+                else
+                {
+                    <span class="badge bg-danger font-weight-normal ml-2">Đơn vị liên danh</span>
+                }
+
+            </span>
+            <div class="d-flex align-items-center">
+                <div class="project-task-actions btn-group">
+                    <button type="button" class="btn btn-default btn-xs btn-round icon-btn borderless md-btn-flat hide-arrow dropdown-toggle" data-toggle="dropdown">
+
+                        <i class="ion ion-ios-more"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        @*<a class='dropdown-item' data-toggle='modal' href='#modalContractTask' data-id='0' data-parentid='@task.Id' data-title='Thêm mới công việc'><i class='pe-7s-gleam'></i> @T("Admin.Common.AddNew")</a>*@
+                        <a class='dropdown-item' data-toggle='modal' href='#modalContractTask' data-id='@task.Id' data-parentid='@task.ParentId' data-title='Sửa hạng mục công việc'><i class='pe-7s-tools'></i> @T("Admin.Common.Edit")</a>
+                        <div class="dropdown-divider"></div>
+                        <a class='dropdown-item' data-toggle='modal' href='#tabTaskResource' data-taskid='@task.Id' data-title='Phân quyền hạng mục công việc'><i class="pe-7s-add-user"></i> Phân quyền</a>
+                        @*<a class='dropdown-item' data-toggle='modal' href='#tabContractAcceptance' data-taskid='@task.Id' data-type='@((int)GS.Core.Domain.Contracts.ContractAcceptancesType.TamUng)' data-title="Tạo mới tạm ứng sản lượng"><i class="pe-7s-note2"></i>&nbsp; Tạm ứng sản lượng</a>
+                        *@
+                        <div class="dropdown-divider"></div>
+                        <!--Phai kiem tra loai task moi cho tao thong tin hop dong B-B'-->
+                        @if (task.listBBContract.Total == 0 && string.IsNullOrEmpty(task.TaskProcuringAgencyName))
+                        {
+                            <a class="dropdown-item" href="/Contract/Create?ClassificationId=@((int)GS.Core.Domain.Contracts.ContractClassification.BB)&ContractRelateId=@task.ContractId&TaskId=@task.Id"><span class="pe-7s-plus"></span> Tạo hợp đồng B-B'</a>
+                        }
+                        <!--phai co nghiem hop dong B-B'-->
+                        @if (task.listBBContract.Total > 0 && string.IsNullOrEmpty(task.TaskProcuringAgencyName))
+                        {
+                            if (task.contractAcceptanceBB.Id == 0)
+                            {
+                                <a class='dropdown-item' data-toggle='modal' href='#tabContractAcceptanceBB' data-taskid='@task.Id' data-type='@((int)GS.Core.Domain.Contracts.ContractAcceptanceBBType.BB)' data-title="Nghiệm thu hợp đồng B-B' "><i class="pe-7s-note2"></i> Nghiệm thu B-B'</a>
+                            }
+                            <a class='dropdown-item' data-toggle='modal' href='#tabInsertContractPaymentBB' data-taskid="@task.Id" data-type="@((int)GS.Core.Domain.Contracts.ContractPaymentType.Payment)" data-receipts="0" data-title="Tạo thanh toán BB'"><i class='pe-7s-gleam'></i>Tạo thanh toán BB'</a>
+                        }
+                        <div class="dropdown-divider"></div>
+                        @if (string.IsNullOrEmpty(task.TaskProcuringAgencyName))
+                        {
+                            <a class="dropdown-item" data-toggle='modal' href='#tapInsertProcuringAgencyTask' data-taskid="@task.Id"><i class='pe-7s-id'></i> Thêm liên danh</a>
+
+                        }
+                        else
+                        {
+                            <a class="dropdown-item" data-toggle='modal' href='#tapInsertProcuringAgencyTask' data-taskid="@task.Id"><i class='pe-7s-id'></i> Thay đổi liên danh</a>
+
+                        }
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="javascript:DeleteContractTask(@task.Id,@task.ParentId)"><i class='pe-7s-trash'></i>@T("Admin.Common.Delete")</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12" style="padding-left:30px">
+        <div class="row">
+            <div style="padding-left:23px;" class="col-md-4 row">
+                <span><i class="lnr lnr-diamond" style="font-size:16px"></i>&nbsp;@task.TotalAmountText</span> @if (task.PercentNum > 0)
+                {<span>&nbsp;( @task.PercentNum</span><span>% )</span>}
+            </div>
+            <div class="col-md-4">
+                <i class="fas fa-calendar-alt"></i>&nbsp;@task.StartDate.toDateVNString() &nbsp;<i class="lnr lnr-arrow-right app-work-icon-hot"></i>&nbsp; @task.EndDate.toDateVNString()
+            </div>
+            <div class="col-md-4">
+                @if (task.TaskGroupValue > 0 && string.IsNullOrEmpty(task.TaskProcuringAgencyName))
+                {
+                    <span title="Tỷ lệ khoán"><i class="fas fa-balance-scale"></i>&nbsp;@task.TaskGroupValue%</span>
+                }
+
+                @*<div class="d-flex flex-wrap">
+                        @if (task.taskResourceModels.Count > 0)
+                        {
+                            foreach (var m in task.taskResourceModels)
+                            {
+                                <a href="javascript:void(0)" class="d-block mr-1 mb-1">
+                                    <div class="media align-items-center">
+                                        <img src="@m.CustomerAvatarUrl" class="ui-w-20 rounded-circle" style="width:20px;height:20px;" alt="">
+                                    </div>
+                                </a>
+                            }
+                        }
+                    </div>*@
+            </div>
+        </div>
+    </div>
+    @if (!string.IsNullOrEmpty(task.TaskProcuringAgencyName))
+    {
+        <div class="col-md-12" style="padding-left:30px">
+            <div class="row">
+                <div class="col-md-6">
+                    <span>Đơn vị liên danh :</span> <i style="color:#1e70cd;">@task.TaskProcuringAgencyName</i>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        @if (task.listBBContract.Total == 0)
+        {
+            <div class="col-md-12" style="padding-left:30px">
+                <div class="row">
+                    <div class="col-md-6">
+                        <span>Đơn vị đã tạm ứng:</span> <i style="color:#1e70cd;">@task.TotalAdvanced</i>/<i style="color:red;" href="#" data-toggle="tooltip" data-placement="bottom" title="Giới hạn ứng">@task.TotalLimitAdvance</i>
+                    </div>
+                    <div class="col-md-6">
+                        <span>Tạm ứng sản lượng của đơn vị:</span> <a style="color:red;" href="javascript:void(0);" data-toggle="modal" data-title="Danh sách tạm ứng sản lượng" data-taskid="@task.Id" data-target="#modalAdvanceQuantity">@task.AdvanceQuantityValue &nbsp;</a>
+                    </div>
+                    @*<div class="col-md-4"><span>Giá trị còn lại:</span> @task.TotalAdvancedAcceptanceNoiBo</div>*@
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="col-md-12" style="padding-left:30px">
+                <div class="row">
+                    @foreach (ContractModel ct in task.listBBContract.Data)
+                    {
+                        <div class="col-md-12">
+                            <span>Hợp đồng BB':</span> <a href="/Contract/Detail?guid=@ct.ContractGuid">@ct.Name</a> - <span style="font-size:13px; color:#ff6a00"> @ct.TotalAmount.ToVNStringNumber()</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        <div class="col-md-12" style="padding-left:30px">
+            <div class="row">
+                @if (task.ParentId == 0)
+                {
+                    <div class="col-md-3">
+                        <span>NTKL :</span> <small title="Nghiệm thu khối lượng" class="app-work-money" style="font-size:.894rem !important; padding-left:5px;">@task.TotalAmountAcceptanced</small>
+                    </div>
+                }
+                <div class="col-md-3">
+                    <span>NTTT :</span> <small title="Nghiệm thu thanh toán" class="app-work-money" style="font-size:.894rem !important; padding-left:5px;">@task.TotalAmountPaymentAcceptanced</small>
+                </div>
+                <div class="col-md-3">
+                    <span>GTDD :</span> <small title="Giá trị dở dang" class="app-work-money" style="font-size:.894rem !important; padding-left:5px;">@task.UnfinishedText</small>
+                </div>
+            </div>
+        </div>
+        @if (task.StatusId == 7)
+        {
+            <div class="col-md-12" style="padding-left:30px">
+                <div class="row">
+                    <div class="col-md-10">
+                        <span>Giá trị đã quyết toán :</span> <small title="Giá trị quyết toán" class="app-work-money" style="font-size:.894rem !important; padding-left:5px;">@task.TaskSettlemented</small>
+                    </div>
+
+                </div>
+            </div>
+        }
+        <div class="col-md-12" style="padding-left:30px">
+            <div class="row">
+                @if (task.listBBContract.Total == 0)
+                {
+                    <div class="col-md-3">
+                        <i class="ion ion-ios-filing"></i>&nbsp;<a href="javascript:void(0);" style="font-size:13px !important;" data-toggle="collapse" data-target="#ContractTaskChild_@task.Id"><i>Chi tiết</i>(<span style="color:red" id="spanTaskCountChild_@task.Id">@task.CountChild</span>)</a>
+                    </div>
+                }
+                @if (task.listAppendixIdContract.Total > 0)
+                {
+                    <div class="col-md-3">
+                        <i class="ion ion-ios-wallet"></i>&nbsp;<a href="javascript:void(0);" style="font-size:13px !important;" data-title="Danh sách hợp đồng phụ lục" data-taskid="@task.Id" data-toggle="modal" data-target="#modalAppendixIdContract"><i>Phụ lục</i>(<span style="color:red">@task.listAppendixIdContract.Total</span>)</a>
+                    </div>
+                }
+                @*<div class="col-md-3">
+                        <i class="ion ion-ios-filing"></i>&nbsp;<a href="javascript:void(0);" style="font-size:13px !important;" data-toggle="modal" data-title="Danh sách hợp đồng B-B'" data-taskid="@task.Id" data-target="#modalBBContract"><i>Hợp đồng B-B'</i>(<span style="color:red">@task.listBBContract.Total</span>)</a>
+                    </div>*@
+                @if (task.listBBContract.Total > 0)
+                {
+                    <div class="col-md-3">
+                        <i class="ion ion-ios-wallet"></i>&nbsp;<a href="javascript:void(0);" style="font-size:13px !important;" data-toggle="collapse" data-title="Nghiệm thu B-B'" data-taskid="@task.Id" data-target="#ContractAcceptanceBB_@task.Id"><i>Nghiệm thu B-B'</i></a>
+                    </div>
+                    <div class="col-md-6">
+                        <i class="ion ion-ios-wallet"></i>&nbsp;<a href="javascript:void(0);" style="font-size:13px !important;" data-toggle="modal" data-title="Nghiệm thu B-B'" data-target="#tabContractPaymentBB_@task.Id"><i>Thanh toán B-B' : <span style="color:red;">@task.TotalAmountBBText</span> </i></a>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="col-md-12" style="padding-left:30px">
+            <div id="ContractTaskChild_@task.Id" class="collapse card">
+            </div>
+            <div id="ContractAcceptanceBB_@task.Id" class="collapse card" style="padding-left:30px;">
+                @if (task.contractAcceptanceBB.Id > 0)
+                {
+                    <div class="row no-gutters align-items-center">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <div class="list-task-plan" style="border-bottom:none !important">
+                                        <i class="lnr lnr-tag app-work-icon-hot"></i>&nbsp;<strong><a class="text-dark" data-toggle='modal' href='#tabContractAcceptanceBB' data-taskid='@task.Id' data-id="@task.contractAcceptanceBB.Id" data-title="Nghiệm thu hợp đồng B-B'">@task.contractAcceptanceBB.Name (@task.contractAcceptanceBB.ApprovalDate.toDateVNString())</a></strong>
+                                    </div>
+                                </div>
+                                <div class="col-md-2" style="padding-top:4px;">
+                                    <a class="btn btn-warning btn-sm" href="javascript:DeleteAcceptanceBB(@task.contractAcceptanceBB.Id)">Huỷ</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <span style="color:red">Chưa nghiệm thu BB'</span>
+                }
+            </div>
+            <div id="ContractAcceptanceTask_@task.Id" class="collapse card">
+            </div>
+            <script>
+                $(document).ready(function () {
+                    $('#ContractTaskChild_@task.Id').on('shown.bs.collapse', function (event) {
+                        var _ContractId = $("#Id").val();
+                        loadContractTaskChild(_ContractId,@task.Id);
+                    });
+                    $('#ContractAcceptanceTask_@task.Id').on('shown.bs.collapse', function (event) {
+                        loadContractAcceptanceTask(@task.Id);
+                    });
+                });
+            </script>
+        </div>
+    }
+
+</div>
+    @*thanh toan BB*@
+    <div class="modal fade" data-backdrop="static" data-keyboard="false" id="tabContractPaymentBB_@task.Id" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Danh sách thanh toán BB'</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+                </div>
+                <div class="content" style="margin-left:20px; margin-right:20px;">
+                    @foreach (ContractPaymentModel pm in task.listPaymentBB)
+                    {
+                        <div class="row list-task-plan">
+                            <div class="col-md-12">
+                                <div class="project-task-item" style="padding-left:20px;">
+                                    <span>
+                                        <i class="fas fa-calendar-check"></i>
+                                        <a href="/Contract/Detail?guid=@pm.Id">@pm.Description</a>
+                                        @if (pm.TypeId == (int)GS.Core.Domain.Contracts.ContractPaymentType.Payment)
+                                        {
+                                            <span class="badge badge-success font-weight-normal ml-2">Thanh toán</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-warning font-weight-normal ml-2">Tạm ứng</span>
+                                        }
+                                    </span>
+                                    <div class="d-flex align-items-center">
+                                        <div class="project-task-actions btn-group">
+                                            <button type="button" class="btn btn-default btn-xs btn-round icon-btn borderless md-btn-flat hide-arrow dropdown-toggle" data-toggle="dropdown">
+                                                <i class="ion ion-ios-more"></i>
+                                            </button>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a class='dropdown-item' href="/Contract/Edit?guid=@pm.Id"><i class='fas fa-edit'></i>@T("Admin.Common.Edit")</a>
+                                                <a class="dropdown-item" href="javascript:DeleteContractPayment(@pm.Id)"><i class='fas fa-trash-alt'></i>@T("Admin.Common.Delete")</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-sm-1">
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <i class="fas fa-calendar-alt"></i>&nbsp;@pm.PaymentDate.toDateVNString()
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <i class="lnr lnr-diamond"></i>&nbsp;@pm.TotalAmountText
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>   
+}

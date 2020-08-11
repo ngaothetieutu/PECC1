@@ -1,0 +1,46 @@
+﻿@model TaskModel
+<div class="form-group">
+    <div class="row">
+        <div class="col-md-3">
+            <label>Đơn vị liên danh</label>
+        </div>
+        <div class="col-md-9">
+            <nop-select asp-for="TaskProcuringAgencyId" asp-items="@Model.lstProcuringAgency"/>
+        </div>
+    </div>
+    <div class="text-right mt-3">
+        <button type="button" id="btnProcuringAgencyAdd" class="btn btn-primary">@T("admin.common.save")</button>&nbsp;
+        <button type="button" id="btnProcuringAgencyCancel" class="btn btn-danger" data-dismiss="modal">@T("admin.common.cancel")</button>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#btnProcuringAgencyAdd").click(function () {
+            var TaskProcuringAgencyId = $("#@Html.IdFor(c =>c.TaskProcuringAgencyId)").val();
+            var _data = {
+                Id :@Model.Id,
+                TaskProcuringAgencyId: TaskProcuringAgencyId,                
+            };
+            //console.log(_data);
+            $.ajax({
+                type: "POST",
+                data: _data,
+                url: "/Works/ProcuringAgencyTaskAdd",
+                success: function (msg) {
+                    if (msg.Code == "00") {
+                        ShowSuccessMessage(msg.Message);     
+                        $("#tapInsertProcuringAgencyTask .close").click();
+                        window.location.reload();
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                    $("#tapInsertProcuringAgencyTask .close").click();
+                }
+            });
+        });
+        $("#btnProcuringAgencyCancel").click(function () {
+            $("#tapInsertProcuringAgencyTask .close").click();
+        });
+    });
+</script>

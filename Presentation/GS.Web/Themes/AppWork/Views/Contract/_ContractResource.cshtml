@@ -1,0 +1,84 @@
+﻿@model ContractModel
+@using GS.Services.Contracts
+@inject IContractService _contractService
+<div class="card mb-4">
+    <div class="card-header with-elements">
+        <span class="card-header-title">@T("AppWork.Contracts.Contract.Fields.Resources.Title")</span>
+        <div class="card-header-elements ml-auto">
+            <button type="button" class="btn btn-xs btn-outline-primary" data-toggle="modal" data-target="#tabContractResourceAdd" data-id="0" data-title="Thêm người tham gia">
+                <span class="ion ion-md-add"></span> @T("AppWork.Contracts.Contract.Fields.Resources.Add")
+            </button>
+        </div>
+    </div>
+    <ul class="list-group list-group-flush">
+        @if (Model.contractResourceModels.Count > 0)
+        {
+            foreach (var m in Model.contractResourceModels)
+            {
+                <li class="list-group-item">
+                    <div class="media align-items-center">
+                        <img src="@m.CustomerAvatarUrl" class="d-block ui-w-30 rounded-circle" alt="">
+                        <div class="media-body px-2">
+                            <a href="javascript:void(0)" class="text-dark">@(string.IsNullOrEmpty(m.CustomerFullName)?m.UnitName:m.CustomerFullName)</a>
+                        </div>
+                        <a href="javascript:void(0)" class="d-block text-light text-large font-weight-light" data-toggle="modal" data-target="#tabContractResourceAdd" data-id="@m.CustomerId" data-title="Sửa người tham gia">
+                            <i class="lnr lnr-pencil d-block"></i>
+                        </a>
+                    </div>
+                </li>
+            }
+        }
+        else
+        {
+            <li class="list-group-item">
+                <div class="media align-items-center">
+
+                </div>
+            </li>
+        }
+
+    </ul>
+
+</div>
+<script>
+    $(document).ready(function () {
+        SetEmptyModal('#tabContractResourceAdd'); 
+          $('#tabContractResourceAdd').on('show.bs.modal', function (event) {
+            var modal = $(this);
+            //lay thong tin tu button de hien thi popup
+            var button = $(event.relatedTarget);
+            if (!button)
+                return;
+              var _customerId = button.data('id');
+              modal.find('.modal-title').html(button.data('title'));
+              $.ajax({
+                  cache: false,
+                  type: "GET",
+                  url: "/Contract/_ContractResourceAdd?ContractId=@Model.Id&CustomerId=" + _customerId,
+                  complete: function (data) {
+                      modal.find('.content').html(data.responseText);
+                  },
+                  error: function (xhr, ajaxOptions, thrownError) {
+                      alert(thrownError);
+                  },
+                  traditional: true
+              });
+          });     
+                 
+    });
+</script>
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="tabContractResourceAdd" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="content">
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

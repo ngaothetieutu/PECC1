@@ -1,0 +1,25 @@
+﻿@model ContractListModel
+@if (Model.Data.Count() > 0)
+{
+    foreach (var item in Model.Data)
+    {
+        <div class="col-md-12" style="border-bottom: 1.2px solid #f1ecec;">
+            <div class="row list-task-plan" style="font-style:italic;padding-top: 8px;">
+                <div class="col-md-11" style="padding-left:10px;">
+                    <span style="font-weight:400;">@item.Name</span>-(<span style="color:#ff6a00;">@item.Code1</span>)
+                </div>
+                <div class="col-md-1">
+                    <div class="btn-group project-actions">
+                        <button type="button" class="btn btn-sm btn-default icon-btn borderless btn-round md-btn-flat dropdown-toggle hide-arrow" data-toggle="dropdown">
+                            <i class="ion ion-ios-more"></i>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a target="_blank" class="dropdown-item" href="Detail?guid=@item.ContractGuid"> @T("admin.common.detail")</a>
+                            <a target="_blank" class="dropdown-item" href="Edit?guid=@item.ContractGuid">@T("admin.common.Edit")</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}

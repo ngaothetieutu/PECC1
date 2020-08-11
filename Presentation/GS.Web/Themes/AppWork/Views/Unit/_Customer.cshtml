@@ -1,0 +1,142 @@
+﻿@model GS.Web.Models.Unit.CustomerUnitSearchModel
+@Html.ValidationSummary(false)
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#boxUserInformation">
+            <i class="ion ion-md-add-circle"></i>
+            @T("AppWork.Unit.AddCustomerToUnit.Title")
+        </button>
+        <div id="customer-grid"></div>
+        <script>
+            function DeleteUserFromUnit(customerId) {
+                bootbox.confirm({
+                    message: '@T("admin.common.deleteconfirmation")',
+                    className: 'bootbox-sm',
+                    buttons: {
+                        confirm: {
+                            label: '@T("admin.common.yes")',                           
+                        },
+                        cancel: {
+                            label: '@T("admin.common.no")',
+                        },
+                    },
+                    callback: function (result) {
+                        if (result) {
+                            var _data = {
+                                UnitId: @Model.UnitId,
+                                CustomerId: customerId,
+                            }
+                            $.ajax({
+                                type: "POST",
+                                url: '/Unit/DeleteCustomerUnit',
+                                data: _data,
+                                success: function (data) {
+                                    if (data.Code == "00")
+                                        LoadCustomer();
+                                    else {
+                                        ShowSuccessMessage(data.Message);
+                                    }
+                                }
+                            });
+                        }
+                    },
+                });
+            }
+            $(document).ready(function () {
+                $("#customer-grid").kendoGrid({
+                    dataSource: {
+                        type: "json",
+                        transport: {
+                            read: {
+                                url: "@Html.Raw(Url.Action("CustomerUnit", "Unit"))",
+                                type: "POST",
+                                dataType: "json",
+                                data: {
+                                    UnitId: @Model.UnitId,
+                                }
+                            }
+                        },
+                        schema: {
+                            data: "Data",
+                            total: "Total",
+                            errors: "Errors"
+                        },
+                        error: function (e) {
+                            display_kendoui_grid_error(e);
+                            // Cancel the changes
+                            this.cancelChanges();
+                        },
+                        serverPaging: false,
+                        serverFiltering: true,
+                        serverSorting: true
+                    },
+                    scrollable: false,
+                    columns: [
+                        {
+                            field: "Username",
+                            title: "Tài khoản",
+                        },
+                        {
+                            field: "FullName",
+                            title: "Tên đầy đủ",
+                        },
+                        {
+                            field: "CustomerId",
+                            title: "Chọn",
+                            width: 100,
+                            headerAttributes: { style: "text-align:center" },
+                            attributes: { style: "text-align:center" },
+                            template: '<label><button type="button" class="btn btn-danger" onclick="DeleteUserFromUnit(\'#=CustomerId#\');"><i class="ion ion-md-trash"></i>Xóa</button> </label>'
+
+                        }
+                    ]
+                });
+            });                                                                           
+        </script>
+    </div>
+    <script>      
+        $(document).ready(function () {
+            $('#boxUserInformation').on('hidden.bs.modal', function () {
+                LoadCustomer();
+            })
+            SetEmptyModal('#boxUserInformation');
+            $('#boxUserInformation').on('show.bs.modal', function (event) {
+                var modal = $(this);
+                //lay thong tin tu button de hien thi popup
+                var button = $(event.relatedTarget);
+                if (!button)
+                    return;                
+                $.ajax({
+                    cache: false,
+                    type: "GET",
+                    url: '/Unit/_AddCustomer',
+                    data: { "UnitId": @Model.UnitId },
+                    complete: function (data) {
+                        modal.find('.content').html(data.responseText);
+
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert(thrownError);
+                    },
+                    traditional: true
+                });
+            });
+        })
+    </script>
+    <div class="modal fade" data-backdrop="static" data-keyboard="false" id="boxUserInformation" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color:#e1e1e1;">
+                    <h5 class="modal-title">@T("AppWork.Unit.AddCustomerToUnit.Title")</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">x</button>
+                </div>
+                <div class="modal-body">
+                    <div class="content">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,474 @@
+﻿@model ContractSearchModel
+@{
+    //page title
+    ViewBag.Title = T("AppWork.Contracts.Contract").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Contract_List");
+
+}
+<nop-antiforgery-token />
+<input asp-for="TypeDisplay" type="hidden" />
+<input asp-for="TypeOrder" type="hidden" />
+<input asp-for="PageSize" type="hidden" />
+<input asp-for="Page" type="hidden" />
+<input asp-for="StartYear" type="hidden" />
+@*<input asp-for="ClassificationId" type="hidden" />*@
+<div class="row" style="padding-top:10px;">
+    <div class="col-md-4 ">
+
+    </div>
+    <div class="col-md-8 ml-auto">
+        <div class="pull-right">
+            <a style="padding-top:6px;" id="search_advance" data-toggle="modal" href="#contractsearchAdvance" data-id="0">
+                <i class="fa fa-search"></i> Tìm kiếm nâng cao
+            </a>
+            <div class="btn-group">
+                <button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Loại hợp đồng</button>
+                <div class="dropdown-menu">
+                    @foreach (SelectListItem it in Model.DdlClassification)
+                    {
+                        <a class="dropdown-item" href="javascript:setContractClassfication(@it.Value)">@it.Text</a>
+                    }
+                </div>
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Sắp xếp </button>
+                <div class="dropdown-menu">
+                    @foreach (SelectListItem it in Model.DdlTypeOrder)
+                    {
+                        <a class="dropdown-item" href="javascript:setContractSortOrder(@it.Value)">@it.Text</a>
+                    }
+                </div>
+            </div>
+            <div id="icon-grid-two-up" data-title=".oi.oi-grid-two-up" class="card icon-example d-inline-flex justify-content-center align-items-center">
+                <a href="javascript:setContractDisplay(@((int)ContractDisplayType.Box))" title="Hiển thị dạng lưới">
+                    <i class="oi oi-grid-three-up d-block"></i>
+                </a>
+            </div>
+            <div id="icon-grid-two-up" data-title=".oi.oi-grid-two-up" class="card icon-example d-inline-flex justify-content-center align-items-center">
+                <a href="javascript:setContractDisplay(@((int)ContractDisplayType.Row))" title="Hiển thị theo danh sách">
+                    <i class="oi oi-list d-block"></i>
+                </a>
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Hiện thị
+                </button>
+                <div class="dropdown-menu">
+                    @foreach (SelectListItem it in Model.DdlPageSizes)
+                    {
+                        <a class="dropdown-item" href="javascript:setContractPageSize(@it.Value)">@it.Text bản ghi</a>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+<div id="StatisticalConstructionType"></div>
+<div id="recentlyContractViews"></div>
+<div id="view-contract"></div>
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="contractsearchAdvance" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5  class="modal-title">Tìm kiếm nâng cao</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="content">
+                    <div class="container-fluid flex-grow-1 container-p-y">
+                        <div class="card">
+                            <div class="card-body pb-2">
+                                <div class="form-group">
+                                    <label class="form-label">Từ khoá</label>
+                                    <nop-editor asp-for="Keysearch" />
+                                </div>
+                                <div class='row'>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="form-label">Ngày bắt đầu</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="form-label">Từ ngày</label>
+                                            <nop-editor asp-for="StartDateFrom" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="form-label">Đến ngày</label>
+                                            <nop-editor asp-for="StartDateTo" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class='row'>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="form-label">Ngày ký</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="form-label">Từ ngày</label>
+                                            <nop-editor asp-for="SignedateFrom" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="form-label">Đến ngày</label>
+                                            <nop-editor asp-for="SignedateTo" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Chủ đầu tư</label>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <nop-select asp-for="SelectedProcuringAgencyIds" asp-items="Model.DdlprocuringAgency" asp-multiple="true" />
+                                        <script>
+                                            $(document).ready(function() {
+                                                var rolesIdsInput =
+                                                    $('#@Html.IdFor(model => model.SelectedProcuringAgencyIds)')
+                                                        .data("kendoMultiSelect");
+                                                rolesIdsInput.setOptions({
+                                                    autoClose: false,
+                                                    filter: "contains"
+                                                });
+
+                                                @if (Model.DdlprocuringAgency.Count == 0)
+                                                {
+                                                    <text>
+                                                        rolesIdsInput.setOptions({
+                                                            enable: false,
+                                                            placeholder:
+                                                                'Chọn chủ đầu tư ...'
+                                                        });
+                                                        rolesIdsInput._placeholder();
+                                                        rolesIdsInput._enable();
+                                                    </text>
+                                                }
+                                            });
+                                        </script>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Dự án</label>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <nop-select asp-for="SelectedConstructionIds" asp-items="Model.DdlConstruction" asp-multiple="true" />
+                                        <script>
+                                            $(document).ready(function() {
+                                                var rolesIdsInput =
+                                                    $('#@Html.IdFor(model => model.SelectedConstructionIds)')
+                                                        .data("kendoMultiSelect");
+                                                rolesIdsInput.setOptions({
+                                                    autoClose: false,
+                                                    filter: "contains"
+                                                });
+
+                                                @if (Model.DdlConstruction.Count == 0)
+                                                {
+                                                    <text>
+                                                        rolesIdsInput.setOptions({
+                                                            enable: false,
+                                                            placeholder:
+                                                                'Chọn dự án ...'
+                                                        });
+                                                        rolesIdsInput._placeholder();
+                                                        rolesIdsInput._enable();
+                                                    </text>
+                                                }
+                                            });
+                                        </script>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Hình thức hợp đồng</label>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <nop-select asp-for="contractForm" asp-items="Model.AvaiableContractForms" />
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-md-6">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <label class="form-label">Loại công trình</label>
+                                            </div>
+                                            <div class="col-md-9">
+                                                <nop-select asp-for="ConstructionTypeId" asp-items="Model.AvailableConstructionTypeId" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <label class="form-label">Loại hợp đồng</label>
+                                            </div>
+                                            <div class="col-md-9">
+                                                <nop-select asp-for="ClassificationId" asp-items="Model.DdlClassification" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-md-6">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <label class="form-label">Trạng thái hợp đồng</label>
+                                            </div>
+                                            <div class="col-md-9">
+                                                <nop-select asp-for="ContractStatus" asp-items="Model.AvaiableContractStatus" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <label class="form-label">Tình trạng hợp đồng</label>
+                                            </div>
+                                            <div class="col-md-9">
+                                                <nop-select asp-for="contractMonitorStatus" asp-items="Model.AvaiableContractMonitorStatus" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group row" id="acceptanceDate">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Ngày nghiệm thu</label>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label class="form-label">Từ ngày</label>
+                                                    <nop-editor asp-for="AcceptanceDateFrom" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label class="form-label">Đến ngày</label>
+                                                    <nop-editor asp-for="AcceptanceDateTo" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-right mt-3">
+                    <button type="button" id="btnContractSearch" class="btn btn-primary">Tìm kiếm</button>&nbsp;
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">@T("admin.common.cancel")</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        load_contractlist(0);
+        var _Keysearch = $("#@Html.IdFor(c=>c.Keysearch)").val();
+        if (!_Keysearch) {
+            load_recentlyContracts();
+        }
+        $("#acceptanceDate").hide();
+        $("#ContractStatus").change(function () {
+            checkStatusAcceptance();
+        });
+        $("#btnContractSearch").click(function () {
+            $("#recentlyContractViews").hide();
+            $("#contractsearchAdvance .close").click();
+            searchContract(-1, -1, -1);
+        });
+    });
+
+    function checkStatusAcceptance() {
+        if (parseInt($("#ContractStatus").val()) == 9) {
+            $("#acceptanceDate").show();
+        } else {
+            $("#acceptanceDate").hide();
+        }
+    }
+
+    function setContractClassfication(classficationId) {        
+        $("#@Html.IdFor(c=>c.ClassificationId)").val(classficationId);
+        searchContract();
+        $("#recentlyContractViews").hide();
+    }
+     function  setContractSortOrder(sortOrderId) {
+         $("#@Html.IdFor(c=>c.TypeOrder)").val(sortOrderId);
+         searchContract();
+         $("#recentlyContractViews").hide();
+    }
+     function  setContractPageSize(sizeId) {
+         $("#@Html.IdFor(c=>c.PageSize)").val(sizeId);
+         searchContract();
+         $("#recentlyContractViews").hide();
+    }
+    function  setContractDisplay(displayId) {
+        $("#@Html.IdFor(c=>c.TypeDisplay)").val(displayId);
+        try { localStorage.setItem("ContractTypeDisplay", displayId); } catch (e) { }
+        searchContract();
+        var _Keysearch = $("#@Html.IdFor(c=>c.Keysearch)").val();
+        if (!_Keysearch)  {
+                load_recentlyContracts();
+        }
+    }
+    function searchContract() {
+        kendo.ui.progress($("#view-contract"), true);
+        typeDisplay = $("#@Html.IdFor(c=>c.TypeDisplay)").val();
+        var ConstructionTypeId = $("#@Html.IdFor(c=>c.ConstructionTypeId)").val();
+        var ContractMonitorStatus = $("#@Html.IdFor(c=>c.contractMonitorStatus)").val();
+        var Keysearch = $("#@Html.IdFor(c=>c.Keysearch)").val();
+        var StartYear = @Model.StartYear;
+        try { typeDisplay = localStorage.getItem('ContractTypeDisplay'); } catch (e) { }
+        var ClassificationId = $("#@Html.IdFor(c=>c.ClassificationId)").val();
+        var _data = {
+             Page: $("#@Html.IdFor(c=>c.Page)").val(),
+             ClassificationId:ClassificationId,
+             Keysearch:Keysearch,
+             TypeOrder: $("#@Html.IdFor(c=>c.TypeOrder)").val(),
+             TypeDisplay: typeDisplay,
+             StartDateFrom: $("#@Html.IdFor(c=>c.StartDateFrom)").val(),
+             StartDateTo:$("#@Html.IdFor(c=>c.StartDateTo)").val(),
+             SelectedProcuringAgencyIds: $("#@Html.IdFor(c=>c.SelectedProcuringAgencyIds)").val(),
+             SelectedConstructionIds: $("#@Html.IdFor(c=>c.SelectedConstructionIds)").val(),
+             PageSize: $("#@Html.IdFor(c=>c.PageSize)").val(),
+             ConstructionTypeId: ConstructionTypeId,
+             contractType: $("#@Html.IdFor(c=>c.contractForm)").val(),
+             ContractStatus: $("#@Html.IdFor(c=>c.ContractStatus)").val(),
+             ContractMonitorStatus: ContractMonitorStatus,
+             SignedateFrom: $("#@Html.IdFor(c=>c.SignedateFrom)").val(),
+             SignedateTo: $("#@Html.IdFor(c=>c.SignedateTo)").val(),
+             StartYear: StartYear,
+             AcceptanceDateFrom: $("#@Html.IdFor(c=>c.AcceptanceDateFrom)").val(),
+             AcceptanceDateTo: $("#@Html.IdFor(c=>c.AcceptanceDateTo)").val(),
+        };
+        console.log(_data);
+        $.ajax({
+            type: "POST",
+            data: _data,
+            url: "/Contract/_PartialList",
+            success: function (data) {
+                kendo.ui.progress($("#view-contract"), false);
+                $("#view-contract").html(data);
+                if (ConstructionTypeId > 0 || ContractMonitorStatus > 0) {
+                    $("#recentlyContractViews").hide();
+                    if (ConstructionTypeId == 39) {
+                        $("#reasltlabel").html("<span>Loại công trình </span><strong style='color:#ff6c00'>Thuỷ lợi</strong> ");
+                    }
+                    else if (ConstructionTypeId == 45) {
+                        $("#reasltlabel").html("<span>Loại công trình </span><strong style='color:#ff6c00'>Nhiệt điện</strong> ");
+                    }
+                    else if (ConstructionTypeId == 246) {
+                        $("#reasltlabel").html("<span>Loại công trình </span><strong style='color:#ff6c00'>Thủy điện</strong> ");
+                    }
+                    else if (ConstructionTypeId == 251) {
+                        $("#reasltlabel").html("<span>Loại công trình </span><strong style='color:#ff6c00'>Lưới điện</strong> ");
+                    }
+                    else if (ConstructionTypeId == 247) {
+                        $("#reasltlabel").html("<span>Loại công trình </span><strong style='color:#ff6c00'>Loại khác</strong> ");
+                    }
+                    else if (ConstructionTypeId == 252) {
+                        $("#reasltlabel").html("<span>Loại công trình </span><strong style='color:#ff6c00'>Năng lượng mới</strong> ");
+                    }
+                    else if (ContractMonitorStatus == 1) {
+                        $("#reasltlabel").html("<span>Chậm tiến độ thanh toán</span>");
+                    }
+                    else if (ContractMonitorStatus == 2) {
+                        $("#reasltlabel").html("<span>Chậm tiến độ xử lý</span>");
+                    }
+                    else if (ContractMonitorStatus == 3) {
+                        $("#reasltlabel").html("<span>Hết hạn hợp đồng</span>");
+                    }
+                    else if (ContractMonitorStatus == 4) {
+                        $("#reasltlabel").html("<span>Các hợp đồng sắp đến hạn</span>");
+                    }
+                    else if (ContractMonitorStatus == 5) {
+                        $("#reasltlabel").html("<span>Các hợp đồng sắp đến hạn thanh lý</span>");
+                    }
+                    else {
+                        $("#reasltlabel").html("<span>Danh sách hợp đồng</span>");
+                    }
+                }               
+                if (Keysearch.trim()) {
+                    //console.log("to do");
+                    $("#reasltlabel").html("<span>Kết quả tìm kiếm với từ khoá </span>'<i style='color:#1e70cd'> " + Keysearch + " </i>'");
+                }               
+                //if (getUrlParameter('ConstructionTypeId') > 0) {
+                //    $("#search_advance").hide();
+                //}
+            },
+            error: function () {
+                kendo.ui.progress($("#view-contract"), false);
+                alert('errors !');
+                $("#contractsearchAdvance .close").click();
+            }
+        })
+
+        if (ConstructionTypeId > 0) {
+            load_StatisticalConstructionType(ConstructionTypeId, StartYear);          
+        }
+    }
+    function getUrlParameter(sParam) {
+        var sPageURL = window.location.search.substring(1),
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+            }
+        }
+    };
+    function load_contractlist(page)
+    {
+        $("#@Html.IdFor(c=>c.Page)").val(page);
+        searchContract();
+    }
+    function load_recentlyContracts() {
+        var typeDisplay = $("#@Html.IdFor(c=>c.TypeDisplay)").val();
+        try { typeDisplay=localStorage.getItem('ContractTypeDisplay'); } catch (e) { }
+         var _data = {
+            PageSize:4,//lay  4 record
+            TypeDisplay: typeDisplay,
+        };
+        $.ajax({
+            type: "GET",
+            url: "/Contract/_RecentlyContractViews",
+            data:_data,
+            success: function (data) {
+                $("#recentlyContractViews").html(data);
+            }
+        })
+    }
+    function load_StatisticalConstructionType(ConstructionTypeId, time) {
+        ShowViewLoading("#StatisticalConstructionType");
+        $.ajax({
+            type: "GET",
+            url: "/Contract/_StatisticalConstructionType?constructionType=" + ConstructionTypeId + "&StartYear=" + time,
+            success: function (data) {
+                $("#StatisticalConstructionType").html(data);
+            },
+        });
+    }
+</script>
+<style>
+    .icon-example {
+        width: 30px;
+        height: 28px;
+        font-size: 12px;
+        position: relative;
+    }
+</style>

@@ -1,0 +1,238 @@
+﻿@model ContractPaymentAdvanceModel
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<input asp-for="ListContractId" type="hidden"/>
+<div class="content">
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="Name" />
+            </div>
+            <div class="col-md-10">
+                <nop-editor asp-for="Name" />
+                <span asp-validation-for="Name"></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="Code" />
+            </div>
+            <div class="col-md-10">
+                <nop-editor asp-for="Code" />
+                <span asp-validation-for="Code"></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="PayDate" />
+            </div>
+            <div class="col-md-10">
+                <nop-editor asp-for="PayDate" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="Description" />
+            </div>
+            <div class="col-md-10">
+                <app-textarea asp-for="Description" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="CurrencyId" />
+            </div>
+            <div class="col-md-4">
+                <nop-select asp-for="CurrencyId" asp-items="Model.listCurrency" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="UnitId" />
+            </div>
+            <div class="col-md-4">
+                <nop-select asp-for="UnitId" asp-items="@Model.AvailableUnit" />
+                <span asp-validation-for="UnitId"></span>
+            </div>
+            <div class="col-md-3" id="frmbuttoncontract" style="padding-top:7px;">
+                <button type="button" class="btn btn-xs btn-outline-success" data-title="Chọn hợp đồng tạm ứng" data-toggle="modal" data-target="#tabContractAdvance">
+                    <span class="ion ion-md-add">chọn hợp đồng</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div id="frmTotalReceive">
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-2">
+                    <app-label asp-for="TotalAmount" />
+                </div>
+                <div class="col-md-4">
+                    <nop-editor asp-for="TotalAmount" />
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-2">
+                    <app-label asp-for="TotalReceive" />
+                </div>
+                <div class="col-md-4">
+                    <nop-editor asp-for="TotalReceive" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="ListContract">
+    </div>
+    <script>
+        $(document).ready(function () {
+            if (@Model.Id > 0) {
+                $("#frmbuttoncontract").show();
+                $("#frmTotalReceive").show();
+                var ListContractId = $("#@Html.IdFor(c=>c.ListContractId)").val().split(',');
+                //console.log(ListContractId);
+                $.each(ListContractId, function (index, value) {
+                    loadContractAdvance(value);
+                });
+            }
+            else {                
+                $("#frmTotalReceive").hide();
+                $("#frmbuttoncontract").hide();
+            }
+
+            $("#groupTotalAmount").hide();
+            $("#@Html.IdFor(c=>c.UnitId)").change(function () {
+                if ($(this).val() > 0) {
+                    $("#frmbuttoncontract").show();
+                    $("#frmTotalReceive").show();                    
+                }
+                else{
+                    $("#frmbuttoncontract").hide();
+                    $("#TotalReceive").val(0);
+                    $("#TotalAmount").val(0);
+                    $("#frmTotalReceive").hide();      
+                    $("#ListContract").html("");
+                }
+            });
+        })
+    </script>
+</div>
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="tabContractAdvance" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="content">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // Script Goi Modal "tabInsertContractPayment" ngoài Detail
+    $(document).ready(function () {
+        SetEmptyModal('#tabContractAdvance');
+        $('#tabContractAdvance').on('show.bs.modal', function (event) {
+            var modal = $(this);
+            kendo.ui.progress(modal.find('.content'), true);
+            //lay thong tin tu button de hien thi popup
+            var button = $(event.relatedTarget);
+            if (!button)
+                return;
+            modal.find('.modal-title').text(button.data('title'));
+            var UnitId = $("#@Html.IdFor(c=>c.UnitId)").val();
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "/Advance/_AdvanceContracts?UnitId="+UnitId,
+                complete: function (data) {
+                    kendo.ui.progress(modal.find('.content'), false);
+                    modal.find('.content').html(data.responseText);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                },
+                traditional: true
+            });
+        });
+    });
+    //load hop dong
+    function loadContractAdvance(contractId) {
+        $("#btnContractAdvance_" + contractId).hide();
+        //console.log(contractId);
+        var UnitId = $("#@Html.IdFor(c=>c.UnitId)").val();    
+        @*var AdvanceId = $("#@Html.IdFor(c=>c.Id)").val();*@    
+        $.ajax({
+            url: "/Advance/_AdvanceContractTask?ContractId=" + contractId + "&UnitId=" + UnitId +"&AdvanceId=@Model.Id",
+            type: "POST",
+            success: function (data) {
+                $("#ListContract").append(data);
+                $('#btnContractAdvance_' + contractId).hide();
+                //tinh tong gia tri 
+                var TotalMoneySub = 0;
+                $(".totalAmountAccep").each(function () {
+                    var totalAmountSub = ConvertToNumber(this);
+                    TotalMoneySub = parseInt(TotalMoneySub) + parseInt(totalAmountSub);
+                });
+                $("#TotalAmount").val(TotalMoneySub.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));
+                ////tinh tong gia tri thuc nhan
+                //var TotalReceiveSub = 0;
+                //$(".TotalReceiveSub").each(function () {
+                //    var ReceiveSub = $(this).val();
+                //    console.log(ReceiveSub);
+                //    TotalReceiveSub = parseInt(TotalReceiveSub) + parseInt(ReceiveSub);
+                //});
+                //$("#TotalReceive").val(TotalReceiveSub.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));      
+            },
+            error: function () { 
+            }
+        })
+    }
+    function closeAdvanceContractTask(ContractId) {
+        $("#AdvanceContractTask_" + ContractId).remove();   
+       
+        //tinh lai tong tien sau khi xoa 
+        var TotalMoneySub = 0;
+        $(".totalAmountAccep").each(function () {
+            var totalAmountSub = ConvertToNumber(this);
+            TotalMoneySub = parseInt(TotalMoneySub) + parseInt(totalAmountSub);
+        });
+        $("#TotalAmount").val(TotalMoneySub.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));
+         //tinh tong gia tri thuc nhan sau khi xoa
+        var TotalReceiveSub = 0;
+        $(".TotalReceiveSub").each(function () {
+            var ReceiveSub = ConvertToNumber(this);
+            TotalReceiveSub = parseInt(TotalReceiveSub) + parseInt(ReceiveSub);
+        });
+        $("#TotalReceive").val(TotalReceiveSub.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));  
+        //neu danh sach rong thi xoa tong 
+        if ($("#ListContract").html() == "") {
+            $("#frmTotalReceive").hide();
+        }
+    }
+</script>
+<style>
+    .modal-dialog {
+        overflow-y: initial !important
+    }
+
+    .modal-body {
+        max-height: 420px;
+        overflow-y: auto;
+    }
+</style>

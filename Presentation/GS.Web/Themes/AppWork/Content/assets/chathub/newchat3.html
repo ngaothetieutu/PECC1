@@ -1,0 +1,54 @@
+<div class="container-chat" ng-style="client.style">
+
+    <div class="row chat-window col-xs-5 col-md-3" style="margin-left:10px;">
+        <div class="col-xs-12 col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading top-bar">
+                    <div class="col-md-8 col-xs-8">
+                        <h3 class="panel-title">{{client.Fullname}}</h3>
+                    </div>
+                    <div class="col-md-4 col-xs-4" style="text-align: right;">
+                        <a href="#"><span class="glyphicon glyphicon-remove icon_close" ng-click="closeChat()"></span></a>
+                    </div>
+                </div>
+                <div class="panel-body msg_container_base" id="window_chat_{{client.Id}}" style="min-height: 300px;">
+                        <p style="text-align: center; color: #4267B2; cursor: pointer;" ng-click="showMoreMessage()" ng-if="client.isShowMoreMessage == true">Hiện thị thêm</p>
+                    <div ng-repeat="item in client.messages">
+                        <div class="row msg_container base_sent" ng-if="item.fromGuid === $root.guidId">
+                            <div class="col-md-10 col-xs-10">
+                                <div class="messages msg_sent">
+                                    <p>{{item.message}}</p>
+                                    <time datetime="2009-11-13T20:00">{{item.timeConvert}}</time>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-xs-2 avatar">
+                                
+                            </div>
+                        </div>
+                        <div class="row msg_container base_receive" ng-if="item.fromGuid !==  $root.guidId">
+                            <div class="col-md-2 col-xs-2 avatar">
+                                <img ng-src="{{client.AnhDaiDienUrl}}"
+                                    class="img-circle">
+                            </div>
+                            <div class="col-md-10 col-xs-10">
+                                <div class="messages msg_receive">
+                                    <p>{{item.message}}</p>
+                                    <time datetime="2009-11-13T20:00">{{item.timeConvert}}</time>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="panel-footer">
+                    <div class="input-group">
+                        <input id="btn-input" type="text" ng-model="message" ng-keypress="bindingSendMessage($event)" class="form-control input-sm chat_input" placeholder="Nhập nội dung chat" />
+                        <span class="input-group-btn">
+                            <button class="btn btn-primary btn-sm" ng-click="sendMessage()" id="btn-chat">Gửi</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

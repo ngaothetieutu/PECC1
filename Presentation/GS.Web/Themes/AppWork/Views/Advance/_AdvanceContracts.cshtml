@@ -1,0 +1,32 @@
+﻿@model ContractPaymentAdvanceModel
+<div class="container-fluid flex-grow-1 container-p-y">
+    <div class="card">
+        <div class="card-body pb-2">
+            <div class="form-group">
+                <div class="task-list custom-controls-stacked">
+                    @foreach (ContractModel contract in Model.listContractModel)
+                    {
+                        <div class="task-list-item row " style="padding-top:10px;">
+                            <div class="col-sm-10">
+                                <label class="ui-todo-item custom-control custom-checkbox ">
+                                    <span>@contract.Name</span>
+                                </label>
+                            </div>
+                            <div class="col-sm-2 x">
+                                <a id="btnContractAdvance_@contract.Id" href="javascript:loadContractAdvance(@contract.Id)" class="btn btn-success btn-sm btnchoseContract">Chọn</a>
+                            </div>                          
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $(".ContractAdvanceInput").each(function () {
+            var contractid = $(this).val();
+            $("#btnContractAdvance_" + contractid).hide();
+        });
+    });
+</script>

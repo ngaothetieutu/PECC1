@@ -1,0 +1,103 @@
+@model ContractModel
+@using GS.Services.Customers
+@using GS.Core
+
+@inject IWorkContext workContext
+@inject ICustomerService customerService
+@{
+    var creator = customerService.GetCustomerById(Model.CreatorId);
+    var CreateBy = customerService.GetCustomerFullName(creator);
+}
+<div class="card mb-4">
+    <h6 class="card-header">@T("AppWork.Contracts.Contract.Fields.Contractdetails")</h6>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div class="text-muted">@T("AppWork.Contracts.Contract.Fields.CreatedBy")</div>
+            <div>
+                <span style="color:#1e70cd;">@CreateBy</span>
+            </div>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div class="text-muted">@T("AppWork.Contracts.Contract.Fields.CreatedDate")</div>
+            <div>
+                <strong>@Model.CreatedDate.toDateVNString(true)</strong>
+            </div>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div class="text-muted">@T("AppWork.Contracts.Contract.Fields.UpdatedDate")</div>
+            <div>
+                <strong>@Model.UpdatedDate.toDateVNString(true)</strong>
+            </div>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div class="text-muted">@T("AppWork.Contracts.Contract.Fields.SignedDate")</div>
+            <div>
+                <strong>@Model.SignedDate.toDateVNString()</strong>
+            </div>
+        </li>
+        @*<li class="list-group-item d-flex justify-content-between align-items-center">
+                <div class="text-muted">@T("AppWork.Contracts.Contract.Fields.StartDate")</div>
+                <div>
+                    <strong>@Model.StartDate.ToString("dd/MM/yyyy")</strong>
+                </div>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div class="text-muted">@T("AppWork.Contracts.Contract.Fields.EndDate")</div>
+                <div>
+                    <strong>@Model.EndDate.ToString("dd/MM/yyyy")</strong>
+                </div>
+            </li>*@
+        @*<li class="list-group-item d-flex justify-content-between align-items-center">
+                <div class="text-muted">@T("AppWork.Contracts.Contract.Fields.PeriodId")</div>
+                <div>
+                    <strong>@Model.ContractPeriodName</strong>
+                </div>
+            </li>*@
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div class="text-muted">@T("AppWork.Contracts.Contract.Fields.CurrencyId")</div>
+            <div>
+                <strong>@Model.CurrencyName</strong>
+            </div>
+        </li>
+        @*<li class="list-group-item d-flex justify-content-between align-items-center">
+                <div class="text-muted">Deadline</div>
+                <div>
+                    <strong>03/12/2018</strong>
+                </div>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div class="text-muted">Priority</div>
+                <div class="project-priority btn-group">
+                    <button type="button" class="btn btn-xs md-btn-flat dropdown-toggle btn-danger" data-toggle="dropdown">High</button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a class="dropdown-item active" href="javascript:void(0)">High</a>
+                        <a class="dropdown-item" href="javascript:void(0)">Medium</a>
+                        <a class="dropdown-item" href="javascript:void(0)">Low</a>
+                    </div>
+                </div>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div class="text-muted">Hour rate</div>
+                <div>$35/h</div>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div class="text-muted">Total hours</div>
+                <div>74</div>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div class="text-muted">Total cost</div>
+                <div>
+                    <strong>$2590</strong>
+                </div>
+            </li>*@
+        @*<li class="list-group-item">
+                <div class="text-muted small">Tags</div>
+                <div class="d-flex flex-wrap">
+                    <div class="badge badge-default mt-1 mr-1">Development</div>
+                    <div class="badge badge-default mt-1 mr-1">Frontend</div>
+                    <div class="badge badge-default mt-1 mr-1">Backend</div>
+                    <div class="badge badge-default mt-1 mr-1">Design</div>
+                </div>
+            </li>*@
+    </ul>
+</div>

@@ -1,0 +1,95 @@
+﻿@model ContractModel
+<div class="card">
+    <div class="card-body pb-2">
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-4">
+                    <app-label asp-for="Unfinished1" />
+                </div>
+                <div class="col-md-8">
+                    <nop-editor asp-for="Unfinished1" />
+                    <span asp-validation-for="Unfinished1"></span>
+                </div>
+            </div>
+            <a href="javascript:void(0);" style="font-size:11px !important; padding-left:50px;" data-toggle="collapse" data-target="#LstTaskModelDangThucHien"><i>Chi tiết</i></a>
+            <div class="row">
+                <div class="col-sm-4"></div>
+                <div class="col-sm-8">
+                    <div id="LstTaskModelDangThucHien" class="collapse card">
+                        <ul class="list-group list-group-flush">
+                            @foreach (TaskModel task in Model.LstTaskModelDangThucHien)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">@task.Name  <small class="app-work-money" style="font-size:12px !important; padding-left:5px;">@task.UnfinishedText</small></li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-4">
+                    <app-label asp-for="Unfinished2" />
+                </div>
+                <div class="col-md-8">
+                    <nop-editor asp-for="Unfinished2" />
+                    <span asp-validation-for="Unfinished2"></span>
+                </div>
+            </div>
+            <a href="javascript:void(0);" style="font-size:11px !important; padding-left:50px;" data-toggle="collapse" data-target="#LstTaskModelChuaThucHien"><i>Chi tiết</i></a>
+            <div class="row">
+                <div class="col-sm-4"></div>
+                <div class="col-sm-8">
+                    <div id="LstTaskModelChuaThucHien" class="collapse card">
+                        <ul class="list-group list-group-flush">
+                            @foreach (TaskModel task in Model.LstTaskModelChuaThucHien)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">@task.Name <small class="app-work-money" style="font-size:12px !important; padding-left:5px;">@task.UnfinishedText</small></li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="modal-footer">
+            <div class="text-right mt-3">
+                <button type="button" id="btnAddUnfinish" class="btn btn-primary">@T("admin.common.save")</button>&nbsp;
+                <button type="button" class="btn btn-default" data-dismiss="modal">@T("admin.common.cancel")</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $("#btnAddUnfinish").click(function () {
+        var _data = {
+            Id: @Model.Id,
+            Unfinished1: $("#@Html.IdFor(c => c.Unfinished1)").val(),
+            Unfinished2: $("#@Html.IdFor(c => c.Unfinished2)").val(),
+        };
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: _data,
+            url: "/Contract/_Unfinished",
+            success: function (msg) {
+                if (msg.Code == "00") {
+                    $("#modalUnfinish .close").click();
+                    ShowSuccessMessage(msg.Message);
+                    ReloadPaymentPlan(@Model.Id);
+                    location.reload();
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                $("#modalUnfinish .close").click();
+                //kendo.ui.progress($("#tabInsertContractPayment"), false);
+                alert(thrownError);
+
+            }
+        })
+    });
+
+</script>
+
+

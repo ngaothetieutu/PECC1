@@ -1,0 +1,64 @@
+﻿@model ContractAcceptanceSubModel
+<div class="row AcceptanceContractTask" id="AcceptanceSubContractTask_@Model.TaskId" data-taskid="@Model.TaskId" style="padding-top:10px;">
+    <div style="display:none">
+        <nop-editor asp-for="HasBB" id="hasBB_@Model.TaskId" />
+    </div>
+    <div class="col-md-3 pt-7">
+        <label style="font-weight:500;">@Model.TaskName </label>(<span style="color:#3dc316;">@Model.TotalAmountTask</span>)
+        @if (Model.HasBB)
+        {<label style="color:#0da026; font-weight:200;">- Hợp đồng BB: <span class="app-work-money">@Model.ContractBBValueText</span></label>}
+    </div>
+    <div class="col-md-2 pt-7">
+        <label style="color:#e16d1a;">@Model.TotalPaymentAcceptanceTask</label>
+    </div>
+    <div class="col-md-2 pt-7">
+        <label style="color:#e16d1a;">@Model.TotalPaymentAcceptanceTaskTruocThue</label>
+    </div>
+    <div class="col-md-2" style="padding-top:3px;">
+        @Html.EditorFor(c => c.Ratio, null, "ratio_" + Model.TaskId)
+        <span class="field-validation-valid" style="padding-left:10px; display:none; font-size:13px;" id="ckRatio_@Model.TaskId"></span>
+    </div>
+    <div class="col-md-2" style="margin-left: 0px;">
+        <nop-editor asp-for="TotalAmount" asp-class="totalAmountAcceptanceSub" id="totalAmount_@Model.TaskId" />
+    </div>
+    <div class="col-md-1 text-center" style="padding-top:7px; padding-right:15px !important;">
+        <a href="javascript:closeAcceptanceSubTask(@Model.TaskId)" class="close"><small style="color:red;">x</small></a>
+    </div>
+    @*@Model.ContractBBValue*@
+</div>
+<script>
+    $(document).ready(function () {
+        $("#ratio_@Model.TaskId").data("kendoNumericTextBox").bind("change", function () {
+            var Amount = @Model.TotalAmountTask.ToNumber();
+            var _Ratio = this.value();
+            if (_Ratio > 100) {
+                $("#ckRatio_@Model.TaskId").show();
+                $("#ckRatio_@Model.TaskId").html("<span style='color:red;font-size: 15px;'>*&nbsp;</span>" +  "<span style='color:red;'>Nhập đúng tỷ lệ khoán.</span>");
+                return;
+            } else if (Amount > 0 && _Ratio > 0) {
+                $("#ckRatio_@Model.TaskId").html("");
+                //neu có hop dong BB thi tru di gia tri hop dong bb
+                if ($("#hasBB_" + @Model.TaskId).is(":checked")){
+                    $("#totalAmount_@Model.TaskId").val((0-Amount * _Ratio / 100).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));
+                }
+                else {
+                     $("#totalAmount_@Model.TaskId").val((Amount * _Ratio / 100).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));
+                }               
+            }
+            //khi ratio thay doi, tinh lại tong
+            var TotalMoneySub = 0;
+            $(".totalAmountAcceptanceSub").each(function () {
+                var totalAmountSub = ConvertToNumber(this);
+                TotalMoneySub = parseInt(TotalMoneySub) + parseInt(totalAmountSub);
+            });
+            $("#TotalAmount").val(TotalMoneySub.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));
+        });
+        //tinh tong gia tri
+            var TotalMoneySub = 0;
+            $(".totalAmountAcceptanceSub").each(function () {
+                var totalAmountSub = ConvertToNumber(this);
+                TotalMoneySub = parseInt(TotalMoneySub) + parseInt(totalAmountSub);
+            });
+            $("#TotalAmount").val(TotalMoneySub.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));
+    });
+</script>

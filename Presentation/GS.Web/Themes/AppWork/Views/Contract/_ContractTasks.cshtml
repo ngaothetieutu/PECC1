@@ -1,0 +1,306 @@
+﻿@model ContractModel
+<input asp-for="AppendixId" type="hidden" />
+<div class="card-body">
+    <div class="card-header  with-elements">
+        <div class="card-header-elements ml-auto">
+            @if (Model.StatusId != (int)GS.Core.Domain.Contracts.ContractStatus.Completed)
+            {
+                <button type="button" class="btn btn-xs btn-outline-primary" data-toggle="modal" data-target="#modalContractTask" data-title="Thêm mới công việc">
+                    <span class="ion ion-md-add">&nbsp;@T("admin.common.AddNew")</span>
+                </button>
+            }
+        </div>
+    </div>
+    <div class="project-task-list custom-controls-stacked">
+        <div id="ContractTaskChild_0"></div>
+        <script>
+            function loadContractTaskChild(ContractId, ParentId) {
+                    //kiem tra xem, da load du lieu chua, neu load roi thi ko load nua
+                    var isloaded = $('#ContractTaskChild_' + ParentId).hasClass('isloaded');
+                    if (isloaded)
+                        return;
+                    ShowViewLoading('#ContractTaskChild_' + ParentId);
+                    var _data = {
+                    ContractId: ContractId,
+                    ParentId: ParentId
+                };
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    data: _data,
+                    url: "/Works/_ContractTaskChild",
+                    success: function (data) {
+                        //console.log(data);
+                        $('#ContractTaskChild_' + ParentId).html(data);
+                        $('#ContractTaskChild_' + ParentId).addClass("isloaded");
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert(thrownError);
+                    },
+                    traditional: true
+                });
+            }
+            function loadContractAcceptanceTask(TaskId) {
+                $.ajax({
+                    type: "GET",
+                        url: "/Contract/_ContractAcceptanceTask?ContractId=" +@Model.Id+"&TaskId=" + TaskId ,
+                        success: function (data) {
+                            $('#ContractAcceptanceTask_' + TaskId).html(data);
+                    },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                        alert(thrownError);
+                    },
+                        traditional: true
+                    })
+            };
+            function DeleteContractTask(id,parentId) {
+                bootbox.confirm({
+                    message: '@T("admin.common.deleteconfirmation")',
+                className: 'bootbox-sm',
+                buttons: {
+                        confirm: {
+                            label: '@T("admin.common.yes")',
+                    },
+                    cancel: {
+                            label: '@T("admin.common.no")',
+                    },
+                }, 
+                callback: function (result) {
+                        if (result) {
+                            kendo.ui.progress($("#ContractTaskChild_" + parentId), true);
+                        $.ajax({
+                                cache: false,
+                            type: "GET",
+                            url: "/Works/Delete?taskId=" + id ,
+                            success: function (msg) {                               
+                                if (msg.Code == "00") {
+                                    $('#ContractTaskChild_' + msg.ObjectInfo.ParentId).removeClass("isloaded");
+                                        kendo.ui.progress($("#ContractTaskChild_" + parentId), false);
+                                        ShowSuccessMessage(msg.Message);
+                                        //hien thi lai danh sach hang muc cong viec
+                                        loadContractTaskChild(@Model.Id, msg.ObjectInfo.ParentId);
+                                        //
+                                        if (msg.ObjectInfo.ParentId > 0) {
+                                            var _countChild = parseInt($("#spanTaskCountChild_" + msg.ObjectInfo.ParentId).html());
+                                            _countChild = _countChild - 1;
+                                        $("#spanTaskCountChild_" + msg.ObjectInfo.ParentId).html(_countChild);
+                                        }
+                                    }
+                                    else {
+                                        kendo.ui.progress($("#ContractTaskChild_" + parentId), false);
+                                        ShowErrorMessage(msg.Message);
+                                    }
+                                },
+                            error: function (xhr, ajaxOptions, thrownError) {
+                                    alert(thrownError);
+                                    kendo.ui.progress($("#ContractTaskChild_" + parentId), false);
+                                },
+                            traditional: true
+                        });
+                        }
+                    },
+                });
+            }
+        </script>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+                loadContractTaskChild(@Model.Id, 0);
+                //modal Task
+                SetEmptyModal('#modalContractTask');
+        $('#modalContractTask').on('show.bs.modal', function (event) {
+                    var modal = $(this);
+                    ShowViewLoading(modal.find('.content'));
+
+                    //lay thong tin tu button de hien thi popup
+                    var button = $(event.relatedTarget);
+                    if (!button)
+                        return;
+                    var _id = button.data('id');
+                    var _parentid = button.data('parentid');
+                    var _appendixId = @Model.AppendixId;
+                    if (!_parentid)
+                        _parentid = 0;
+                    modal.find('.modal-title').html(button.data('title'));
+                $.ajax({
+                        cache: false,
+                    type: "GET",
+                    url: "/Works/_Create?ContractId=" +@Model.Id+"&TaskId=" + _id + "&ParentTaskId=" + _parentid + "&AppendixId=" + _appendixId,
+                    complete: function (data) {
+                            modal.find('.content').html(data.responseText);
+                        },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                            alert(thrownError);
+                        },
+                    traditional: true
+                });
+                });
+                //Modal nghiem thu nôi bo
+                SetEmptyModal('#modalContractAccepptaceTask');
+        $('#modalContractAccepptaceTask').on('show.bs.modal', function (event) {
+                    var modal = $(this);
+                    ShowViewLoading(modal.find('.content'));
+                    //lay thong tin tu button de hien thi popup
+                    var button = $(event.relatedTarget);
+                    if (!button)
+                        return;
+                    var _TaskId = button.data('taskid');
+                    modal.find('.modal-title').html(button.data('title'));
+                $.ajax({
+                        cache: false,
+                    type: "GET",
+                    url:"/Contract/_ContractAcceptanceTask?ContractId=" +@Model.Id+"&TaskId=" + _TaskId ,
+                    complete: function (data) {
+                            modal.find('.content').html(data.responseText);
+                        },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                            alert(thrownError);
+                        },
+                    traditional: true
+                });
+                });
+                //modal hop dong B-B'
+                SetEmptyModal('#modalBBContract');
+        $('#modalBBContract').on('show.bs.modal', function (event) {
+                    var modal = $(this);
+                    ShowViewLoading(modal.find('.content'));
+                    //lay thong tin tu button de hien thi popup
+                    var button = $(event.relatedTarget);
+                    if (!button)
+                        return;
+                    var _TaskId = button.data('taskid');
+                    modal.find('.modal-title').html(button.data('title'));
+                $.ajax({
+                        cache: false,
+                    type: "GET",
+                    url:"/Contract/_ContractBBList?TaskId=" + _TaskId ,
+                    complete: function (data) {
+                            modal.find('.content').html(data.responseText);
+                        },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                            alert(thrownError);
+                        },
+                    traditional: true
+                });
+                });
+                //Modal hop dong phu luc
+                SetEmptyModal('#modalAppendixIdContract');
+        $('#modalAppendixIdContract').on('show.bs.modal', function (event) {
+                    var modal = $(this);
+                    ShowViewLoading(modal.find('.content'));
+                    //lay thong tin tu button de hien thi popup
+                    var button = $(event.relatedTarget);
+                    if (!button)
+                        return;
+                    var _TaskId = button.data('taskid');
+                    modal.find('.modal-title').html(button.data('title'));
+                $.ajax({
+                        cache: false,
+                    type: "GET",
+                    url:"/Contract/_ContractAppendixList?TaskId=" + _TaskId ,
+                    complete: function (data) {
+                            modal.find('.content').html(data.responseText);
+                        },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                            alert(thrownError);
+                        },
+                    traditional: true
+                });
+                });
+        //tạm ứng sản lượng
+        $('#modalAdvanceQuantity').on('show.bs.modal', function (event) {
+                    var modal = $(this);
+                    ShowViewLoading(modal.find('.content'));
+                    //lay thong tin tu button de hien thi popup
+                    var button = $(event.relatedTarget);
+                    if (!button)
+                        return;
+                    var _TaskId = button.data('taskid');
+                    modal.find('.modal-title').html(button.data('title'));
+            $.ajax({
+                        cache: false,
+                type: "GET",
+                url: "/Contract/_ContractAdvanceQuantityList?TaskId=" + _TaskId,
+                complete: function (data) {
+                            modal.find('.content').html(data.responseText);
+                        },
+                error: function (xhr, ajaxOptions, thrownError) {
+                            alert(thrownError);
+                        },
+                traditional: true
+            });
+                });
+            });
+</script>
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="modalContractTask" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-big">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@T("admin.contract.detail.addtask")</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body" style="padding:0.5625rem !important;">
+                <div class="content">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="modalContractAccepptaceTask" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@T("admin.contract.detail.addtask")</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body" style="padding:0.5625rem !important;">
+                <div class="content">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="modalBBContract" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Hợp đồng B-B'</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body" style="padding:0.5625rem !important;">
+                <div class="content">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="modalAdvanceQuantity" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body" style="padding:0.5625rem !important;">
+                <div class="content">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="modalAppendixIdContract" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Hợp đồng phụ lục</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body" style="padding:0.5625rem !important;">
+                <div class="content">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

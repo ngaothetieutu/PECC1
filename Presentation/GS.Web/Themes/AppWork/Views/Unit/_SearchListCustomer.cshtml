@@ -1,0 +1,54 @@
+﻿@model GS.Web.Models.Unit.CustomerUnitSearchModel
+
+@if (Model.ListCustomer != null && Model.ListCustomer.Count > 0)
+{
+    <table class="table">
+        <tr>
+            <td>@T("AppWork.Unit.SearchList.UserName.Field")</td>
+            <td>@T("AppWork.Unit.SearchList.Email.Field")</td>
+            <td></td>
+        </tr>
+        <tbody>
+            @foreach (var item in Model.ListCustomer)
+            {
+                <tr>
+                    <td>@item.Username<br />@item.FullName</td>
+                    <td>@item.Email</td>
+                    <td><button type="button" name="chon" class="CheckUser" data-guid="@item.CustomerId">Chọn</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+}
+else
+{
+    <h5>@T("AppWork.Unit.NotSearchCustomer.Field")</h5>
+}
+<script>
+    $(document).ready(function () {
+        $('.CheckUser').on('click', function (e) {
+            var _button = $(this);
+            var _data = {
+                UnitId: $('#UnitId').val(),
+                CustomerId: $(this).data('guid'),
+            }
+            $.ajax({
+                type: "POST",
+                url: "/Unit/AddCustomer",
+                data: _data,
+                dataType: "json",
+                success: function (data) {                    
+                    if (data.Code == '00') {
+                        _button.hide();
+                        LoadCheckCutomerList();
+                    }
+                    else {
+                        ShowSuccessMessage(data.Message);
+                    }
+                }
+            });
+        });
+    });
+</script>
+

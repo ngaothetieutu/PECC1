@@ -1,0 +1,123 @@
+@model ContractPaymentAdvanceModel
+@{
+    //page title
+    ViewBag.Title = T("admin.common.addnew").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Advance_Create");
+}
+@*<form asp-controller="Advance" asp-action="Create" method="post">*@
+<div class="card mb-4">
+    <h6 class="card-header">
+        @T("AppWork.Contracts.ContractPaymentAdvance.AddNew")
+        <small>
+            <i class="fa fa-arrow-circle-left"></i>
+            <a asp-action="List">@T("AppWork.Contracts.ConstructionType.BackToList")</a>
+        </small>
+        <button id="btnSave" class="btn btn-success" style="float:right;margin-right:5px;">
+            <i class="far fa-save" style="margin-right:5px;">
+            </i>@T("Admin.Common.Save")
+        </button>
+        @if (Model.Id>0)
+        {
+            <span id="btnDelete" class="btn btn-danger" style="float:right;margin-right: 5px;">
+                <i class="fas fa-trash"></i>
+                @T("Admin.Common.Delete")
+            </span>
+        }
+    </h6>
+    <div class="card-body">
+        @await Html.PartialAsync("_CreateOrUpdate", Model)
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#btnSave").click(function () {
+            var Name =  $("#@Html.IdFor(c=>c.Name)").val();
+            var UnitId = $("#@Html.IdFor(c=>c.UnitId)").val();
+            var CurrencyId = $("#@Html.IdFor(c=>c.CurrencyId)").val();
+            var PayDate =  $("#@Html.IdFor(c=>c.PayDate)").val();
+            var ListContractAcceptance = [];            
+            $(".ContractAcceptance").each(function () {
+                var IDF = $(this).data("idf");
+                var unitId = UnitId;
+                var totalAmount = $("#totalAmount_" + IDF).val();               
+                var taskId = $("#TaskId_" + IDF).val();
+                var ratio = $("#ratio_" + IDF).val();
+                var ContractId = $("#ContractId_" + IDF).val();
+                var Acceptance = {
+                    UnitId: unitId,
+                    TotalAmount: totalAmount,
+                    TaskId: taskId,
+                    CurrencyId: CurrencyId,
+                    Name: Name,
+                    ApprovalDate: PayDate,
+                    ContractId: ContractId,
+                    Ratio: ratio
+                };
+                ListContractAcceptance.push(Acceptance);
+            });
+            var data = {
+                Id:$("#@Html.IdFor(c=>c.Id)").val(),
+                Name:$("#@Html.IdFor(c=>c.Name)").val(),
+                Code: $("#@Html.IdFor(c=>c.Code)").val(),
+                Description: $("#@Html.IdFor(c=>c.Description)").val(),
+                TotalAmount: ConvertToNumber($("#@Html.IdFor(c=>c.TotalAmount)")) ,
+                UnitId: UnitId,
+                CurrencyId: CurrencyId,
+                PayDate: PayDate,
+                ListContractAcceptance: ListContractAcceptance,
+                TotalReceive: ConvertToNumber($("#@Html.IdFor(c=>c.TotalReceive)")) ,
+            };
+            //console.log(data);
+            $.ajax({
+                url: "/Advance/Create",
+                type: "POST",
+                data: data,
+                success: function (data) {
+                    if (CheckValidMessageReturn(data)) {                       
+                        ShowSuccessMessage(data.Message);
+                        document.location.href = '/Advance/List';
+                    }
+                },
+                error: function (data) {
+
+                },
+            })
+        })
+        $("#btnDelete").click(function () {
+            
+           bootbox.confirm({
+        message: '@T("admin.common.deleteconfirmation")',
+        className: 'bootbox-sm',
+        buttons: {
+            confirm: {
+                label: '@T("admin.common.yes")',
+            },
+            cancel: {
+                label: '@T("admin.common.no")',
+            },
+        },
+        callback: function (result) {
+                if (result) {               
+                    //kendo.ui.progress($("#ContractPaymentRequest_" + planid), true);
+                    $.ajax({
+                        cache: false,
+                        type: "GET",                   
+                        url: "/Advance/Delete?Id=@Model.Id",
+                        success: function (msg) {
+                            ShowSuccessMessage(msg.Message);
+                            document.location.href = '/Advance/List';                       
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            alert(thrownError);
+                            //kendo.ui.progress($("#ContractPaymentRequest_" + planid), false);
+                        },
+                        traditional: true
+                    });
+                }
+        },
+        });
+        })
+    })
+</script>
+@*</form>*@

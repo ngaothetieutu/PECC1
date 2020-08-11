@@ -1,0 +1,27 @@
+﻿@using GS.Web.Areas.Admin.Models.Tasks
+
+@model TaskAttributeModel
+
+@inject IEventPublisher eventPublisher
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+
+<div class="content">
+    <div class="form-horizontal">
+        <nop-tabs id="taskattribute-edit">
+            <nop-tab asp-name="tab-info" asp-title="@T("Admin.Task.TaskAttributes.Info")" asp-default="true">@await Html.PartialAsync("_CreateOrUpdate.Info", Model)</nop-tab>
+            <nop-tab asp-name="tab-values" asp-title="@T("Admin.Task.TaskAttributes.Values")">@await Html.PartialAsync("_CreateOrUpdate.Values", Model)</nop-tab>
+        </nop-tabs>
+    </div>
+</div>
+
+@{
+    //custom tabs
+    var eventMessage = new AdminTabStripCreated(this.Html, "taskattribute-edit");
+    eventPublisher.Publish(eventMessage);
+    foreach (var eventBlock in eventMessage.BlocksToRender)
+    {
+        @eventBlock
+    }
+}

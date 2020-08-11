@@ -1,0 +1,126 @@
+﻿@model TaskResourceModel
+<div>
+    <div class="form-group row">
+        <div class="col-md-3">
+            <label class="form-label">@T("appwork.works.task.fields.resources.unit")</label>
+        </div>
+        <div class="col-md-9">
+            <nop-select asp-for="UnitId" asp-items="Model.AvailbleUnit"/>           
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-md-3">
+            <label class="form-label">@T("appwork.works.task.fields.resources.customer")</label>
+        </div>
+        <div class="col-md-9" id="addCustomer">
+            <input class="" style="width:80%;" id="CustomerId" />
+            <script>
+                $(document).ready(function () {
+                })
+                function SearchCustomerData() {
+                    var _data = { srKeywordCustomer: $("#CustomerId").data("kendoComboBox").text() };
+                    return _data;
+                                }
+                function onProcuringAgencyEditChange() {
+                    var value = this.value();
+                    //alert(value);
+                }
+                $(document).ready(function () {
+                    $("#CustomerId").kendoComboBox({
+                        placeholder: '@T("appwork.works.task.fields.resources.customer")...',
+                        dataTextField: "FullName",
+                        dataValueField: "Id",
+                        filter: "contains",
+                        autoBind: false,
+                        minLength: 3,
+                        template: kendo.template($("#gsCustomerSearchTemplate").html()),
+                        dataSource: {
+                            type: "json",
+                            serverFiltering: true,
+                            transport: {
+                                read: {
+                                    /**/
+                                    url: "/Customer/SearchCustomerList",
+                                    /**/
+                                    data: SearchCustomerData
+                                },
+                            },
+                        },
+                        change: onProcuringAgencyEditChange
+                    });
+                });
+            </script>
+        </div>
+        <div class="col-md-9" id="EditCustomer">
+            <span>
+                @Model.CustomerName
+            </span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-md-3">
+            <label class="form-label">@T("appwork.works.task.fields.resources.roleid")</label>
+        </div>
+        <div class="col-md-9">
+            <nop-select asp-for="SelectedCustomerRoleIds" asp-items="Model.AvailbleRoles" asp-multiple="true" />
+            <script>
+                $(document).ready(function() {
+                    var rolesIdsInput =
+                        $('#@Html.IdFor(model => model.SelectedCustomerRoleIds)')
+                            .data("kendoMultiSelect");
+                    rolesIdsInput.setOptions({
+                        autoClose: false,
+                        filter: "contains"
+                    });
+
+                    @if (Model.AvailbleRoles.Count == 0)
+                    {
+                        <text>
+                            rolesIdsInput.setOptions({
+                                enable: false,
+                                placeholder:
+                                    '@T("Admin.Catalog.Products.CustomerRoles.NoCustomerRolesAvailable")'
+                            });
+                            rolesIdsInput._placeholder();
+                            rolesIdsInput._enable();
+                        </text>
+                    }
+                });
+            </script>
+        </div>
+    </div>
+</div>
+<div class="text-right mt-3">
+    <button type="button" id="btnaddtaskresourcesave" class="btn btn-primary">@T("admin.common.save")</button>&nbsp;
+    <button type="button" id="btnaddtaskresourceCancel" class="btn btn-danger">@T("admin.common.cancel")</button>
+</div>
+<script>
+    $("#btnaddtaskresourcesave").click(function () {
+        console.log("to do");
+        var roles = $('#@Html.IdFor(model => model.SelectedCustomerRoleIds)').val();    
+        var _data = {
+            SelectedCustomerRoleIds: roles,
+            UnitId:$('#@Html.IdFor(model => model.UnitId)').val(),
+            CustomerId: $("#CustomerId").data('kendoComboBox').value(),
+            TaskId:@Model.TaskId,
+        };
+        console.log(_data);
+        $.ajax({
+            type:"POST",
+            url: "/Works/_TaskResourceUp",
+            data: _data,
+            success: function (data) {
+                $("#tabTaskResource .close").click();
+                loadTaskResource()
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+                $("#tabTaskResource .close").click();
+                loadTaskResource();
+            }
+        })
+    })
+    $("#btnaddtaskresourceCancel").click(function () {
+        $("#tabTaskResource .close").click();
+    })
+</script>

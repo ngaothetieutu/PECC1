@@ -1,0 +1,147 @@
+﻿@using GS.Web.Models.Report
+@using GS.Core.Domain.Contracts
+@model List<ContractReport>
+
+<div>
+    <div class="row" style="text-align:center; margin-top:20px;">
+        @{
+            // Tong gia tri hop dong sau thue 
+            var _totalAmountContract = Model.Sum(c => c.TotalAmount);
+            // Tong gia tri  tam ung
+            var _totalAdvanceAmount = Model.Sum(c => c.AdvanceAmount);
+            <div class="col-md-12" style="margin-bottom:15px;" id="thongKe">
+                <table class="table-bordered">
+                    <thead role="rowgroup" class="k-grid-header" style="color:black;">
+                        <tr role="row">
+                            <th style="min-width:300px;">Số lượng hợp đồng</th>
+                            <th style="min-width:150px;">@Model.Count()</th>
+                        </tr>
+                        <tr>
+                            <th>Tổng giá trị hợp đồng</th>
+                            <th>@_totalAmountContract.ToVNStringNumber()</th>
+                        </tr>
+                        <tr style="border-bottom: 1px solid;">
+                            <th>Tổng giá trị tạm ứng</th>
+                            <th>@_totalAdvanceAmount.ToVNStringNumber()</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        }
+        <div class="col-md-12">
+            <h6 class="header" style="font-size:22px; color:black;">BÁO CÁO THỐNG KÊ CHUNG</h6>
+            <table class="table-bordered" id="tbReport">
+                <thead role="rowgroup" class="k-grid-header" style="color:black;">
+                    <tr role="row">
+                        <th class="STT">STT</th>
+                        <th class="ConstructionCode1">Mã công trình</th>
+                        <th class="ConstructionName">Tên công trình</th>
+                        <th class="ProcuringAgencyName">Chủ đầu tư</th>
+                        <th class="Name">Tên hợp đồng</th>
+                        <th class="ConstructionType1">Loại dự án</th>
+                        <th class="ProcuringAgencyIsEVN">Trong (ngoài) EVN</th>
+                        <th class="TotalAmount">Giá trị hợp đồng sau thuế (VNĐ)</th>
+                        <th class="ContractForms">Hình thức hợp đồng</th>
+                        <th class="Code">Số hợp đồng</th>
+                        <th class="SignedDate">Ngày ký</th>
+                        <th class="EndDate">Ngày dự kiến kết thúc</th>
+                        <th class="AdvanceAmount">Giá trị tạm ứng (VNĐ)</th>
+                        <th class="status">Trạng thái</th>
+                        <th class="FinishDate">Ngày kết thúc</th>
+                    </tr>
+                </thead>
+                <tbody style="background: white; color:black;">
+                    @{ 
+                        int stt = 1;
+                    }
+                    @foreach (ContractReport ct in Model)
+                    {
+                        <tr>
+                            <td class="STT">@stt</td>
+                            <td class="ConstructionCode1">@ct.ConstructionCode</td>
+                            <td class="ConstructionName">@ct.ConstructionName</td>
+                            <td class="ProcuringAgencyName">@ct.ProcuringAgencyName</td>
+                            <td class="Name">@ct.Name</td>
+                            <td class="ConstructionType1">@ct.ConstructionType</td>
+                            @if (ct.ProcuringAgencyIsEVN == true)
+                            {
+                                <td id="ProcuringAgencyIsEVN1" class="ProcuringAgencyIsEVN"><input type="checkbox" checked="checked" disabled="disabled" /></td>
+                            }
+                            else
+                            {
+                                <td id="ProcuringAgencyIsEVN1" class="ProcuringAgencyIsEVN"><input type="checkbox" disabled="disabled" /></td>
+                            }
+                            <td class="TotalAmount">@ct.TotalAmount.ToVNStringNumber()</td>
+                            @*<td class="ContractForms">@(String.Join(", ", ct.contract.ContractForms.Select(c => c.Name).ToArray()))</td>*@
+                            <td class="ContractForms">@ct.ContractForm</td>
+                            <td class="Code">@ct.Code</td>
+                            <td class="SignedDate">@ct.SignedDate.toDateVNString()</td>
+                            <td class="EndDate">@ct.EndDate.toDateVNString()</td>
+                            <td class="AdvanceAmount">@ct.AdvanceAmount.ToVNStringNumber()</td>
+                            <td class="status">@ct.StatusId.ToStatusContractVN()</td>
+                            <td class="FinishDate">@ct.FinishDate.toDateVNString()</td>
+                        </tr>
+                        stt ++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        if (!document.getElementById("ConstructionCode1").checked) {
+            $(".ConstructionCode1").hide();
+        }
+        if (!document.getElementById("ConstructionName").checked) {
+            $(".ConstructionName").hide();
+        }
+        if (!document.getElementById("ProcuringAgencyName").checked) {
+            $(".ProcuringAgencyName").hide();
+        }
+        if (!document.getElementById("Name").checked) {
+            $(".Name").hide();
+        }
+        if (!document.getElementById("ConstructionType1").checked) {
+            $(".ConstructionType1").hide();
+        }
+        if (!document.getElementById("ProcuringAgencyIsEVN").checked) {
+            $(".ProcuringAgencyIsEVN").hide();
+        }
+        if (!document.getElementById("TotalAmount").checked) {
+            $(".TotalAmount").hide();
+        }
+        if (!document.getElementById("ContractForms").checked) {
+            $(".ContractForms").hide();
+        }
+        if (!document.getElementById("Code").checked) {
+            $(".Code").hide();
+        }
+        if (!document.getElementById("SignedDate").checked) {
+            $(".SignedDate").hide();
+        }
+        if (!document.getElementById("EndDate").checked) {
+            $(".EndDate").hide();
+        }
+        if (!document.getElementById("AdvanceAmount").checked) {
+            $(".AdvanceAmount").hide();
+        }
+        if (!document.getElementById("status").checked) {
+            $(".status").hide();
+        }
+        if (!document.getElementById("FinishDate").checked) {
+            $(".FinishDate").hide();
+        }
+    });
+</script>
+<style>
+    .table-bordered td {
+        border: 1px solid black;
+        border-collapse: collapse;
+    }
+
+    .table-bordered th {
+        border-color: black;
+        border-bottom: 0px;
+    }
+</style>

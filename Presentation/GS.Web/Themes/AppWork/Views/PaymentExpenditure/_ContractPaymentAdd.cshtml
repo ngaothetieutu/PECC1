@@ -1,0 +1,10 @@
+﻿@model  ContractPaymentModel
+<div class="row PaymentExpenditure" style="padding-top:10px;" data-taskid="@Model.TaskId">
+    <div class="col-md-8 row">
+        <strong style="color:#1e70cd">@Model.TaskName</strong>
+        <small style="color:#0da026;"> &nbsp;- @Model.ContractName</small>
+    </div>
+    <div class="col-md-4">
+        <nop-editor asp-for="Amount" id="Amount_@Model.TaskId"/>
+    </div>
+</div>

@@ -1,0 +1,115 @@
+﻿@model TestModel
+@{
+
+}
+<nop-antiforgery-token />
+<form asp-action="Test" method="post">
+    <div class="content">
+        <button type="submit" name="save-continue" class="btn btn-secondary" style="float:right;margin-right:5px;">
+            <i class="far fa-save" style="margin-right:5px;">
+            </i>@T("Admin.Common.SaveContinue")
+        </button>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-2">
+                    <app-label asp-for="WorkDate" />
+                </div>
+                <div class="col-md-10">
+                    <nop-editor asp-for="WorkDate" />
+                    <span asp-validation-for="WorkDate"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <app-label asp-for="WorkDateNull" />
+                </div>
+                <div class="col-md-10">
+                    <nop-editor asp-for="WorkDateNull" />
+                    <span asp-validation-for="WorkDateNull"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <app-label asp-for="WorkNumber" />
+                </div>
+                <div class="col-md-10">
+                    <nop-editor asp-for="WorkNumber" />
+                    <span asp-validation-for="WorkNumber"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <app-label asp-for="WorkCurrency" />
+                </div>
+                <div class="col-md-10">
+                    <nop-editor asp-for="WorkCurrency" asp-class="abcdef" />
+                    <span asp-validation-for="WorkCurrency"></span>
+                    <a href="javascript:checkvnd();" class="btn btn-primary">Check</a>
+                    <script>
+                        function checkvnd() {
+                            //kendo.culture("vi-VN");
+                            alert(ConvertToNumber($("#WorkCurrency")));
+                        }
+                    </script>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <app-label asp-for="WorkNumberNull" />
+                </div>
+                <div class="col-md-10">
+                    <nop-editor asp-for="WorkNumberNull" />
+                    <span asp-validation-for="WorkNumberNull"></span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-2">
+                    Chủ đầu tư:
+                </div>
+                <div class="col-md-10">
+                    <input id="ProcuringAgencyId" style="width: 100%;" />
+
+                    <script>
+                        function SearchProcuringAgencyData() {
+                            var _data = { "Name": $("#ProcuringAgencyId").data("kendoComboBox").text() };
+                            console.log(_data);
+                            return _data;
+                        }
+                        function onProcuringAgencyEditChange() {
+                            var value = this.value();
+                            alert(value);
+                        }
+                        $(document).ready(function () {
+                            $("#ProcuringAgencyId").kendoComboBox({
+                                placeholder: "Chọn thông tin chủ đầu tư...",
+                                dataTextField: "Name",
+                                dataValueField: "Id",
+                                filter: "contains",
+                                autoBind: false,
+                                minLength: 3,
+                                dataSource: {
+                                    type: "json",
+                                    serverFiltering: false,
+                                    transport: {
+                                        read: {
+                                            /**/
+                                            url: "/Contract/SearchProcuringAgency",
+                                            /**/
+                                            data: SearchProcuringAgencyData
+                                        },
+
+                                    },
+                                },
+                                change: onProcuringAgencyEditChange
+
+                            });
+                        });
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+    <nop-editor asp-for="WorkFileIds" />
+</form>

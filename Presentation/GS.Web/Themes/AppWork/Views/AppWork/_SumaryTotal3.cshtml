@@ -1,0 +1,52 @@
+﻿@model SumaryTotalModel3
+
+<div class="card d-flex w-100 mb-4">
+    <div class="row no-gutters row-bordered row-border-light h-100">
+        <div class="d-flex col-sm-6 col-md-4 col-lg-6 align-items-center">
+            <a href="/ProcuringAgency/List" class="card-body media align-items-center text-dark" style="padding:5px;">
+                <i class="lnr lnr-users display-4 d-block text-primary" style="font-size:20px;"></i>
+                <span class="media-body d-block ml-3">
+                    <span class="text-big font-weight-bolder">@Model.TotalProcuringAgency</span>
+                    <br>
+                    <small class="text-muted">Số lượng chủ đầu tư</small>
+                </span>
+            </a>
+        </div>
+        <div class="d-flex col-sm-6 col-md-4 col-lg-6 align-items-center">
+            <a href="/Contract/List" class="card-body media align-items-center text-dark" style="padding:5px;">
+                <i class="lnr lnr-license display-4 d-block text-primary" style="font-size:20px;"></i>
+                <span class="media-body d-block ml-3">
+                    <span class="text-big">
+                        <span class="font-weight-bolder">@Model.TotalContract</span>
+                    </span>
+                    <br>
+                    <small class="text-muted">Số hợp đồng</small>
+                </span>
+            </a>
+        </div>
+        <div class="d-flex col-sm-6 col-md-4 col-lg-6 align-items-center">
+            <a href="/Contract/List" class="card-body media align-items-center text-dark" style="padding:5px;">
+                <i class="lnr lnr-construction display-4 d-block text-primary" style="font-size:20px;"></i>
+                <span class="media-body d-block ml-3">
+                    <span class="text-big">
+                        <span class="font-weight-bolder">@Model.TotalConstruction</span>
+                    </span>
+                    <br>
+                    <small class="text-muted">Số công trình</small>
+                </span>
+            </a>
+        </div>
+        <div class="d-flex col-sm-6 col-md-4 col-lg-6 align-items-center">
+            <a class="card-body media align-items-center text-dark" style="padding:5px;">
+                <i class="fas fa-user-tie d-block text-primary" style="font-size:20px;"></i>
+                <span class="media-body d-block ml-3">
+                    <span class="text-big">
+                        <span class="font-weight-bolder">@Model.totalCustomer</span>
+                    </span>
+                    <br>
+                    <small class="text-muted">Tài khoản đăng nhập</small>
+                </span>
+            </a>
+        </div>
+    </div>
+</div>

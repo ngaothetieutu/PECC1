@@ -1,0 +1,98 @@
+﻿@using GS.Core.Domain.Contracts
+@model List<ConstructionTypeResultByYear>
+
+<div class="card mb-4" style="border-top-width: 0px;">
+    <div class="table-responsive">
+        <table class="table card-table">
+            <thead>
+                <tr>
+                    <th>Tên</th>
+                    <th>Tổng giá trị</th>
+                    <th>Tổng nghiệm thu</th>
+                    <th>Tổng giá trị dở dang</th>
+                    <th>Tổng tạm ứng</th>
+                    <th>Tổng đã thanh toán</th>
+                </tr>
+            </thead>
+            @foreach (ConstructionTypeResultByYear ct in Model)
+            {
+                <tbody>
+                    <tr>
+                        <td><a href="/Contract/List?ConstructionTypeId=@ct.TypeId&StartYear=@ct.StartYear"><span class="text-dark">@ct.TypeName</span><span>(</span><i class="lnr" style="color:red">@ct.TotalCount</i><span>)</span></a></td>
+                        <td ><a style="color:#07936a !important" class="align-items-center" data-toggle="modal" href="#modalListConstructionTypeContract" data-typeid="@ct.TypeId" data-year="@ct.StartYear" data-action="total" data-title="Danh sách hợp đồng có công trình thuộc loại @ct.TypeName">@ct.TotalMoney.ToVNStringNumber()</a></td>
+                        <td ><a style="color:#07936a !important" class="align-items-center" data-toggle="modal" href="#modalListConstructionTypeContract" data-typeid="@ct.TypeId" data-year="@ct.StartYear" data-action="acceptance" data-title="Danh sách hợp đồng thuộc loại @ct.TypeName có nghiệm thu năm @ct.StartYear" >@ct.TotalPaymentAcceptance.ToVNStringNumber()</a></td>
+                        <td style="color:#07936a"><span title="Dở dang chưa NT">@ct.TotalMoneyContractUnfinish.ToVNStringNumber()</span> / <span title="Dở dang chưa thực hiện">@ct.TotalMoneyContractUnfinish2.ToVNStringNumber()</span></td>
+                        <td><a style="color:#07936a !important" class="align-items-center" data-toggle="modal" href="#modalListConstructionTypeContract" data-typeid="@ct.TypeId" data-year="@ct.StartYear" data-action="advance" data-title="Danh sách hợp đồng thuộc loại @ct.TypeName có tạm ứng năm @ct.StartYear" >@ct.TotalPaymentAdvance.ToVNStringNumber()</a></td>
+                        <td><a style="color:#07936a !important" class="align-items-center" data-toggle="modal" href="#modalListConstructionTypeContract" data-typeid="@ct.TypeId" data-year="@ct.StartYear" data-action="paymentpaid" data-title="Danh sách hợp đồng thuộc loại @ct.TypeName có thanh toán năm @ct.StartYear" >@ct.TotalMoneyPaid.ToVNStringNumber()</a></td>
+                    </tr>
+                </tbody>
+            }
+        </table>
+    </div>
+</div>
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="modalListConstructionTypeContract" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body" id="modal-content-scroll" style="padding:0.5625rem !important;">
+                <div class="content">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        SetEmptyModal('#modalListConstructionTypeContract');
+        $('#modalListConstructionTypeContract').on('show.bs.modal', function (event) {
+            var modal = $(this);
+            ShowViewLoading(modal.find('.content'));
+            kendo.ui.progress($("#modalListConstructionTypeContract"), true);
+            //lay thong tin tu button de hien thi popup
+            var button = $(event.relatedTarget);
+            if (!button)
+                return;
+            var _year = button.data('year');
+            var _typeid = button.data('typeid');
+            modal.find('.modal-title').text(button.data('title'));
+            var _action = button.data('action');
+            var _url = "";
+            if (_action == "total")
+                _url = "/AppWork/_ListContractByConstructionType?constructionTypeId=" + _typeid + "&year=" + _year;
+            if (_action == "acceptance")
+                _url = "/AppWork/_ListContractAcceptanceInYearByConstructionTypeId?constructionTypeId=" + _typeid + "&year=" + _year;
+            if (_action == "advance")
+                _url = "/AppWork/_ListContractPaymentAdvanceInYearByConstructionTypeId?constructionTypeId=" + _typeid + "&year=" + _year;
+            if (_action == "paymentpaid")
+                _url = "/AppWork/_ListContractPaymentPaidInYearByConstructionTypeId?constructionTypeId=" + _typeid + "&year=" + _year;
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: _url,
+                complete: function (data) {
+                    modal.find('.content').html(data.responseText);
+                    kendo.ui.progress($("#modalListConstructionTypeContract"), false);
+                    //new PerfectScrollbar(document.getElementById('#modal-content-scroll'));
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                },
+                traditional: true
+            });
+        });
+
+    });
+</script>
+<style>
+    .modal-dialog {
+        overflow-y: initial !important
+    }
+
+    .modal-body {
+        max-height: 350px;
+        overflow-y: auto;
+    }
+</style>

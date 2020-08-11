@@ -1,0 +1,31 @@
+﻿@using GS.Web.Areas.Admin.Models.Tasks
+@model TaskAttributeModel
+
+@{
+    //page title
+    ViewBag.Title = T("Admin.Task.TaskAttributes.AddNew").Text;
+}
+
+<form asp-controller="TaskAttribute" asp-action="Create" method="post" id="taskattribute-form">
+    <div class="content-header clearfix">
+        <h1 class="pull-left">
+            @T("Admin.Task.TaskAttributes.AddNew")
+            <small>
+                <i class="fa fa-arrow-circle-left"></i>
+                <a asp-action="List">@T("Admin.Task.TaskAttributes.BackToList")</a>
+            </small>
+        </h1>
+        <div class="pull-right">
+            <button type="submit" name="save" class="btn bg-blue">
+                <i class="fa fa-floppy-o"></i>
+                @T("Admin.Common.Save")
+            </button>
+            <button type="submit" name="save-continue" class="btn bg-blue">
+                <i class="fa fa-floppy-o"></i>
+                @T("Admin.Common.SaveContinue")
+            </button>
+            @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.TaskAttributeDetailsButtons })
+        </div>
+    </div>
+    @await Html.PartialAsync("_CreateOrUpdate", Model)
+</form>

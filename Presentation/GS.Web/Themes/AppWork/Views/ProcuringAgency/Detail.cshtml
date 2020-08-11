@@ -1,0 +1,28 @@
+﻿@model ProcuringAgencyModel
+
+@{
+    //page title
+    ViewBag.Title = T("AppWork.Contracts.ProcuringAgency.DetailProcuringAgencyDetails").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("ProcuringAgency");
+}
+
+<form asp-controller="ProcuringAgency" asp-action="Detail" method="post">
+    <div class="content-header clearfix">
+        <div class="card">
+            <div class="card-header" style="height: 50px;">
+                <h5 class="pull-left">
+                    @T("AppWork.Contracts.ProcuringAgency.DetailProcuringAgencyDetails")
+                    <small>
+                        <i class="fa fa-arrow-circle-left"></i>
+                        <a asp-action="List">@T("AppWork.Contracts.ProcuringAgency.BackToList")</a>
+                    </small>
+                </h5>
+            </div>
+            @await Html.PartialAsync("_CreateOrUpdate", Model)
+
+        </div>
+    </div>
+
+</form>
+<nop-delete-confirmation asp-model-id="@Model.Id" asp-button-id="store-delete" />

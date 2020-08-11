@@ -1,0 +1,65 @@
+﻿@model ContractLogSearchModel
+<div id="contractlog-grid"></div>
+<script>
+    $(document).ready(function () {
+        function SearchData() {
+            var _data = {
+                ContractId: @Model.ContractId
+            };
+            addAntiForgeryToken(_data);
+            return _data;
+        }
+        $("#contractlog-grid").kendoGrid({
+            dataSource: {
+                type: "json",
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("_ListContractLog", "Contract"))",
+                        type: "POST",
+                        dataType: "json",
+                        data: SearchData
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                pageSize: @(Model.PageSize),
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                pageSizes: [@(Model.AvailablePageSizes)],
+                @await Html.PartialAsync("_GridPagerMessages")
+            },
+            editable: {
+                confirmation: "@T("Admin.Common.DeleteConfirmation")",
+                mode: "inline"
+            },
+            scrollable: false,
+            columns: [
+            {
+                    field: "UserFullName",
+                    title: "@T("AppWork.Contracts.ContractLog.Fields.CreatorId")",
+                    width: 200,
+                },{
+                    field: "CreatedDate",
+                    title: "@T("AppWork.Contracts.ContractLog.Fields.CreatedDate")",
+                    type: "date",
+                    format: "{0:dd/MM/yyyy}"
+                },{
+                    field: "Note",
+                    title: "@T("AppWork.Contracts.ContractLog.Fields.Note")"
+                }
+            ]
+        });
+    });
+</script>

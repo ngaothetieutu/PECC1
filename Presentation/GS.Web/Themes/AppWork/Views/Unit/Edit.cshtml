@@ -1,0 +1,28 @@
+@model GS.Web.Models.Unit.UnitModel
+
+@{
+    //page title
+    ViewBag.Title = T("AppWork.Customer.Unit.EditUnitDetails").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Unit");
+}
+
+<form asp-controller="Unit" asp-action="Edit" method="post">
+    <div class="card mb-4">
+        <h4 class="card-header">
+            @T("AppWork.Customer.Unit.EditUnitDetails")            
+            <span id="store-delete" class="btn btn-danger" style="float:right;margin-right: 5px;">
+                <i class="fas fa-trash"></i>
+                @T("Admin.Common.Delete")
+            </span>            
+            <button type="submit" name="save" class="btn btn-success" style="float:right; margin-right: 5px;">
+                <i class="fas fa-save"></i>
+                @T("Admin.Common.Save")
+            </button>
+        </h4>
+        <div class="card-body">
+            @await Html.PartialAsync("_CreateOrUpdate", Model)
+        </div>
+    </div>
+</form>
+<nop-delete-confirmation asp-model-id="@Model.Id" asp-button-id="store-delete" />

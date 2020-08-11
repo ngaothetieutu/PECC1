@@ -1,0 +1,286 @@
+﻿@model BarCharts
+@using GS.Services.Contracts
+@inject IContractService contractService
+<link rel="stylesheet" href="/Themes/AppWork/Content/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css">
+<script src="/Themes/AppWork/Content/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+<link rel="stylesheet" href="/Themes/AppWork/Content/assets/vendor/css/pages/projects.css">
+<script src="/Themes/AppWork/Content/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+<hr class="container-m--x mt-0 mb-4">
+<div class="row">
+    <div class="d-flex col-xl-4 align-items-stretch" id="tabSumaryTotal" style="padding-right:0px;"></div>
+    <script>
+        $(document).ready(function () {
+            ShowViewLoading("#tabSumaryTotal");
+            $.ajax({
+                type: "GET",
+                url: "/AppWork/_SumaryTotal",
+                success: function (data) {
+                    $("#tabSumaryTotal").html(data);
+                },
+            });
+        })
+    </script>
+    <div class="d-flex col-xl-4 align-items-stretch" id="tabSumaryTotal2" style="padding-right:0px;"></div>
+    <script>
+        $(document).ready(function () {
+            ShowViewLoading("#tabSumaryTotal2");
+            $.ajax({
+                type: "GET",
+                url: "/AppWork/_SumaryTotal2",
+                success: function (data) {
+                    $("#tabSumaryTotal2").html(data);
+                },
+            });
+        })
+    </script>
+    <div class="d-flex col-xl-4 align-items-stretch" id="tabSumaryTotal3"></div>
+    <script>
+        $(document).ready(function () {
+            ShowViewLoading("#tabSumaryTotal3");
+            $.ajax({
+                type: "GET",
+                url: "/AppWork/_SumaryTotal3",
+                success: function (data) {
+                    $("#tabSumaryTotal3").html(data);
+                },
+            });
+        })
+    </script>
+</div>
+<hr class="container-m--x mt-0 mb-4">
+<div class="card mb-4">
+    <div class="card-header row" style="padding-bottom:0px;margin-left: 0px;margin-right: 0px; padding-top:0px; height:45px;">
+        <div class="col-md-9" style="padding-left:0px;">
+            <h6 style="padding-top:13px;">Thống kê </h6>
+        </div>
+        <div class="col-md-2" style="text-align:right; padding-right:0px; padding-top:8px;">
+            <button class="btn btn-default" id="btnSumaryTotalByYearLastTime">
+                <i class="fas fa-arrow-alt-circle-left d-block" style="color:#26B4FF"></i>
+            </button>
+            <button class="btn btn-default" id="btnSumaryTotalByYearNextTime">
+                <i class="fas fa-arrow-alt-circle-right d-block" style="color:#26B4FF"></i>
+            </button>
+        </div>
+        <div class="col-md-1" style="height:30px; padding-top:8px;">
+            <select class="form-control form-control-sm" id="checkSumaryTotalByYear" style="min-width:75px; height:30px;">
+                @for (int i = DateTime.Now.Year; i > 1990; i--)
+                {
+                    <option value="@i">@i</option>
+                }
+            </select>
+        </div>
+    </div>
+    <div id="SumaryTotalByYear" style=""></div>
+</div>
+<script>
+    $(document).ready(function () {
+        SumaryTotalByYear(@DateTime.Now.Year);
+        CheckDisableButton(parseInt($("#checkSumaryTotalByYear").val()));
+    })
+    function SumaryTotalByYear(year) {
+        ShowViewLoading("#SumaryTotalByYear");
+        $.ajax({
+            type: "GET",
+            url: "/AppWork/_SumaryTotalByYear?time=" + year,
+            success: function (data) {
+                $("#SumaryTotalByYear").html(data);
+                $("#checkSumaryTotalByYear").val(year);
+            },
+        });
+    }
+    function CheckDisableButton(e) {
+        if (e == @DateTime.Now.Year) {
+            $("#btnSumaryTotalByYearNextTime").prop("disabled", true);
+        } else {
+            $("#btnSumaryTotalByYearNextTime").prop("disabled", false);
+        }
+        if (e == 1991) {
+            $("#btnSumaryTotalByYearLastTime").prop("disabled", true);
+        } else {
+            $("#btnSumaryTotalByYearLastTime").prop("disabled", false);
+        }
+    }
+    $("#checkSumaryTotalByYear").change(function () {
+        SumaryTotalByYear($(this).val());
+        CheckDisableButton(parseInt($("#checkSumaryTotalByYear").val()));
+    });
+    $("#btnSumaryTotalByYearLastTime").click(function () {
+        SumaryTotalByYear(parseInt($("#checkSumaryTotalByYear").val()) - 1);
+        CheckDisableButton(parseInt($("#checkSumaryTotalByYear").val()) - 1);
+    });
+    $("#btnSumaryTotalByYearNextTime").click(function () {
+        SumaryTotalByYear(parseInt($("#checkSumaryTotalByYear").val()) + 1);
+        CheckDisableButton(parseInt($("#checkSumaryTotalByYear").val()) + 1);
+    });
+</script>
+<hr class="container-m--x mt-4 mb-4">
+<div>
+    <ul class="nav nav-tabs">
+        <li class="nav-item" id="tabConstructionType">
+            <a class="nav-link active" data-toggle="tab" href="#typeContract">Loại công trình</a>
+        </li>
+        <li class="nav-item" style="width:40%;" id="tabConstructionTypebyYear">
+            <div class="nav-link" data-toggle="tab" href="#typeContractByYear" style="margin:0px;padding-bottom:2px;">
+                <div class="row">
+                    <div class="col-md-5">
+                        <a>Thống kê theo năm</a>
+                    </div>
+                    <div class="col-md-4" style="text-align:right;padding-right:5px;padding-left:0px;" id="btnYear">
+                        <button class="btn btn-default" id="btnTypeContractByYearLastTime">
+                            <i class="fas fa-arrow-alt-circle-left d-block" style="color:#26B4FF"></i>
+                        </button>
+                        <button class="btn btn-default" id="btnTypeContractByYearNextTime">
+                            <i class="fas fa-arrow-alt-circle-right d-block" style="color:#26B4FF"></i>
+                        </button>
+                    </div>
+                    <div class="col-md-2" style="padding-left:0px;padding-right:0px;" id="btnSelectYear">
+                        <select class="form-control form-control-sm" id="checkYear" style="min-width:75px; height:30px;">
+                            @for (int i = DateTime.Now.Year; i > 1990; i--)
+                            {
+                                <option value="@i">@i</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="typeContract"></div>
+        <script>
+            $(document).ready(function () {
+                ShowViewLoading("#typeContract");
+                $.ajax({
+                    type: "GET",
+                    url: "/AppWork/_TotalTypeContract",
+                    success: function (data) {
+                        $("#typeContract").html(data);
+                    },
+                });
+                $("#btnSelectYear").hide();
+                $("#btnYear").hide();
+                $("#tabConstructionType").click(function () {
+                    $("#btnSelectYear").hide();
+                    $("#btnYear").hide();
+                });
+            })
+        </script>
+        <div class="tab-pane fade" id="typeContractByYear"></div>
+        <script>
+            $(document).ready(function () {
+                typeContractByYear(@DateTime.Now.Year);
+                CheckDisableButtonTypeContract(parseInt($("#checkYear").val()));
+                $("#tabConstructionTypebyYear").click(function () {
+                    $("#btnSelectYear").show();
+                    $("#btnYear").show();
+                });
+            })
+            function CheckDisableButtonTypeContract(e) {
+                if (e == @DateTime.Now.Year) {
+                    $("#btnTypeContractByYearNextTime").prop("disabled", true);
+                } else {
+                    $("#btnTypeContractByYearNextTime").prop("disabled", false);
+                }
+                if (e == 1991) {
+                    $("#btnTypeContractByYearLastTime").prop("disabled", true);
+                } else {
+                    $("#btnTypeContractByYearLastTime").prop("disabled", false);
+                }
+            }
+            function typeContractByYear(year) {
+                ShowViewLoading("#typeContractByYear");
+                $.ajax({
+                    type: "GET",
+                    url: "/AppWork/_TotalTypeContractByYear?time=" + year,
+                    success: function (data) {
+                        $("#typeContractByYear").html(data);
+                        $("#checkYear").val(year);
+                    },
+                });
+            }
+            $("#checkYear").change(function () {
+                typeContractByYear($(this).val());
+                CheckDisableButtonTypeContract(parseInt($("#checkYear").val()));
+            });
+            $("#btnTypeContractByYearLastTime").click(function () {
+                typeContractByYear(parseInt($("#checkYear").val()) - 1);
+                CheckDisableButtonTypeContract(parseInt($("#checkYear").val()) - 1);
+            });
+            $("#btnTypeContractByYearNextTime").click(function () {
+                typeContractByYear(parseInt($("#checkYear").val()) + 1);
+                CheckDisableButtonTypeContract(parseInt($("#checkYear").val()) + 1);
+            });
+        </script>
+    </div>
+</div>
+<hr class="container-m--x mt-0 mb-4">
+<div class="row">
+    <div class="col-md-12" id="delayedPayment">
+        <script>
+            $(document).ready(function () {
+                ShowViewLoading("#delayedPayment");
+                $.ajax({
+                    type: "GET",
+                    url: "/AppWork/_DelayedPayment",
+                    success: function (data) {
+                        $("#delayedPayment").html(data);
+                    },
+                });
+            })
+        </script>
+    </div>
+    <div class="col-md-12" id="delayedProcessing"></div>
+    <script>
+        $(document).ready(function () {
+            ShowViewLoading("#delayedProcessing");
+            $.ajax({
+                type: "GET",
+                url: "/AppWork/_DelayedProcessing",
+                success: function (data) {
+                    $("#delayedProcessing").html(data);
+                },
+            });
+        })
+    </script>
+    <div class="col-md-12" id="topContractDealine"></div>
+    <script>
+        $(document).ready(function () {
+            ShowViewLoading("#topContractDealine");
+            $.ajax({
+                type: "GET",
+                url: "/AppWork/_TopContractDealine",
+                success: function (data) {
+                    $("#topContractDealine").html(data);
+                },
+            });
+        })
+    </script>
+</div>
+<hr class="container-m--x mt-0 mb-4">
+<div id="topFiveConstruction"></div>
+<script>
+    $(document).ready(function () {
+        ShowViewLoading("#topFiveConstruction");
+        $.ajax({
+            type: "GET",
+            url: "/AppWork/_TopFiveConstruction",
+            success: function (data) {
+                $("#topFiveConstruction").html(data);
+            },
+        });
+    })
+</script>
+<hr class="container-m--x mt-4 mb-4">
+<div id="barCharts"></div>
+<script>
+    $(document).ready(function () {
+        ShowViewLoading("#barCharts");
+        $.ajax({
+            type: "GET",
+            url: "/AppWork/_BarCharts",
+            success: function (data) {
+                $("#barCharts").html(data);
+            },
+        });
+    })
+</script>

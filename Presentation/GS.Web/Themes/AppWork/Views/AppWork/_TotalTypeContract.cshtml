@@ -1,0 +1,37 @@
+﻿@using GS.Core.Domain.Contracts
+@model List<ConstructionTypeResult >
+<div class="card mb-4" style="border-top-width: 0px;">
+    @*<h6 class="card-header">Loại công trình</h6>*@
+    <div class="table-responsive">
+        <table class="table card-table">
+            <thead>
+                <tr>
+                    <th>Tên</th>
+                    <th>Tổng giá trị</th>
+                    <th>Tổng nghiệm thu</th>
+                    <th>Giá trị dở dang</th>
+                    <th>Tổng còn lại</th>
+                    <th>Tổng tạm ứng</th>
+                    <th>Tổng đã thanh toán</th>
+                </tr>
+            </thead>
+           @foreach (ConstructionTypeResult ct in Model)
+            {
+                <tbody>
+                    <tr>
+                        <td><a href="/Contract/List?ConstructionTypeId=@ct.TypeId"><span class="text-dark">@ct.TypeName</span><span>(</span><i class="lnr" style="color:red">@ct.TotalCount</i><span>)</span></a></td>
+                        <td style="color:#07936a">@ct.TotalMoney.ToVNStringNumber()</td>
+                        <td style="color:#07936a">@ct.TotalPaymentAcceptance.ToVNStringNumber()</td>
+                        <td style="color:#07936a"><span title="Dở dang chưa NT">@ct.TotalMoneyContractUnfinish.ToVNStringNumber()</span> / <span title="Dở dang chưa thực hiện">@ct.TotalMoneyContractUnfinish2.ToVNStringNumber()</span></td>
+                        @{
+                            var GTCL = ct.TotalMoney - ct.TotalPaymentAcceptance;
+                            <td style="color:#07936a">@GTCL.ToVNStringNumber()</td>
+                        }
+                        <td style="color:#07936a">@ct.TotalPaymentAdvance.ToVNStringNumber()</td>
+                        <td style="color:#07936a">@ct.TotalMoneyPaid.ToVNStringNumber()</td>
+                    </tr>
+                </tbody>
+            }
+        </table>
+    </div>
+</div>

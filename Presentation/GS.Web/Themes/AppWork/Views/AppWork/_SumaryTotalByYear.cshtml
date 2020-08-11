@@ -1,0 +1,161 @@
+﻿@model SumaryTotalByYearModel
+<link rel="stylesheet" href="/Themes/AppWork/Content/assets/vendor/css/pages/projects.css">
+<link rel="stylesheet" href="/Themes/AppWork/Content/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css">
+<script src="/Themes/AppWork/Content/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+<div class="row">
+    <div class="col-md-2" style="margin-top:13px;">
+        <div class="" style="margin-left: 20px;">
+            <div class="text-big" style="text-align:center;">
+                <a class="align-items-center text-dark" data-toggle="modal" href="#modalListContractByYear" data-year="@Model.Time" data-title="Danh sách giá trị của những hợp đồng năm @Model.Time" data-action="totalmoney"><span class="font-weight-bolder">@Model.TotalMoney</span></a>
+            </div>
+            <a href="/Contract/List?StartYear=@Model.Time" class="card-body media align-items-center text-dark" style="padding-top:5px;">
+                <i class="lnr lnr-diamond display-4 d-block text-primary" style="font-size:20px;"></i>
+                <span class="media-body d-block ml-3">
+                    <small class="text-muted">Giá trị hợp đồng</small>
+                </span>
+            </a>
+        </div>
+    </div>
+    <div class="col-md-2" style="margin-top:13px;">
+        <div class="">
+            <div class="text-big" style="text-align:center;">
+                <a class="align-items-center text-dark" data-toggle="modal" href="#modalListContractByYear" data-year="@Model.Time" data-title="Danh sách những hợp đồng NTKL năm @Model.Time" data-action="acceptance"><span class="font-weight-bolder">@Model.TotalMoneyAcceptance</span></a>
+            </div>
+            <a href="/Contract/List?StartYear=@Model.Time" class="card-body media align-items-center text-dark" style="padding-top:5px;">
+                <i class="lnr lnr-book display-4 d-block text-primary" style="font-size:20px;"></i>
+                <span class="media-body d-block ml-3">
+                    <small class="text-muted">Tổng giá trị NTKL</small>
+                </span>
+            </a>
+        </div>
+    </div>
+    <div class="col-md-2" style="margin-top:13px;">
+        <div>
+            <div class="text-big" style="text-align:center;">
+                <a class="align-items-center text-dark" data-toggle="modal" href="#modalListContractByYear" data-year="@Model.Time" data-title="Danh sách giá trị dở dang từng hợp đồng  năm @Model.Time" data-action="unfinish"><span class="font-weight-bolder" title="Dở dang chưa thực hiện">@Model.TotalMoneyContractunfinish</span></a>
+            </div>
+            <div class="text-big" style="text-align:center;">
+                <span class="font-weight-bolder" title="Dở dang chưa thực hiện">@Model.TotalMoneyContractUnfinish2</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2" style="margin-top:13px;">
+        <div class="">
+            <div class="text-big" style="text-align:center;">
+                <a class="align-items-center text-dark" data-toggle="modal" href="#modalListContractByYear" data-year="@Model.Time" data-title="Danh sách những hợp đồng đã tạm ứng năm @Model.Time" data-action="paymentadvance"><span class="font-weight-bolder">@Model.TotalPaymentAdvance</span></a>
+            </div>
+            <a href="/Contract/List?StartYear=@Model.Time" class="card-body media align-items-center text-dark" style="padding-top:5px;">
+                <i class="lnr lnr-checkmark-circle display-4 d-block text-primary" style="font-size:20px;"></i>
+                <span class="media-body d-block ml-3">
+                    <small class="text-muted">Giá trị đã tạm ứng</small>
+                </span>
+            </a>
+        </div>
+    </div>
+    <div class="col-md-2" style="margin-top:13px;">
+        <div class="">
+            <div class="text-big" style="text-align:center;">
+                <a class="align-items-center text-dark" data-toggle="modal" href="#modalListContractByYear" data-year="@Model.Time" data-title="Danh sách hợp đồng thanh toán năm @Model.Time" data-action="paymentpaid"><span class="font-weight-bolder">@Model.TotalPaymentPaid</span></a>
+            </div>
+            <a href="/Contract/List?StartYear=@Model.Time" class="card-body media align-items-center text-dark" style="padding-top:5px;">
+                <i class="lnr lnr-cart display-4 d-block text-primary" style="font-size:20px;"></i>
+                <span class="media-body d-block ml-3">
+                    <small class="text-muted">Tổng giá trị đã TT</small>
+                </span>
+            </a>
+        </div>
+    </div>
+    <div class="col-md-2" style="margin-top:13px;">
+        <div class="" style="margin-right: 20px;">
+            <div class="text-big" style="text-align:center;">
+                <span class="font-weight-bolder">@Model.TotalContract</span>
+            </div>
+            <a href="/Contract/List?StartYear=@Model.Time" class="card-body media align-items-center text-dark" style="padding-top:5px;">
+                <i class="lnr lnr-license display-4 d-block text-primary" style="font-size:20px;"></i>
+                <span class="media-body d-block ml-3">
+                    <small class="text-muted">Số hợp đồng</small>
+                </span>
+            </a>
+        </div>
+    </div>
+</div>
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="modalListContractByYear" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body" id="modal-content-scroll" style="padding:0.5625rem !important;">
+                <div class="content">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        SetEmptyModal('#modalListContractByYear');
+        $('#modalListContractByYear').on('show.bs.modal', function (event) {
+            var modal = $(this);
+            ShowViewLoading(modal.find('.content'));
+            kendo.ui.progress($("#modalListContractByYear"), true);
+            //lay thong tin tu button de hien thi popup
+            var button = $(event.relatedTarget);
+            if (!button)
+                return;
+            var _year = button.data('year');
+            modal.find('.modal-title').text(button.data('title'));
+            var _action = button.data('action');
+            var _url = "";
+            if (_action == "totalmoney")
+                _url = "/AppWork/_ListTotalContractInYear?year=" + _year;
+            if (_action == "acceptance")
+                _url = "/AppWork/_ListContractAcceptanceInYear?year=" + _year;
+            if (_action == "paymentadvance")
+                _url = "/AppWork/_ListContractInYearPaymentAdvance?year=" + _year;
+            if (_action == "paymentpaid")
+                _url = "/AppWork/_ListContractPaymentPaidInYear?year=" + _year;
+            if (_action == "unfinish")
+                _url = "/AppWork/_ListContractUnfinish?year=" + _year;
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: _url,
+                complete: function (data) {
+                    modal.find('.content').html(data.responseText);
+                    kendo.ui.progress($("#modalListContractByYear"), false);
+                    //new PerfectScrollbar(document.getElementById('#modal-content-scroll'));
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                },
+                traditional: true
+            });
+        });
+
+    });
+</script>
+<style>
+    .modal-dialog {
+        overflow-y: initial !important
+    }
+    .modal-body {
+        max-height: 350px;
+        overflow-y: auto;
+    }
+</style>
+@*<div class="col-md-4" style="margin-top:13px;">
+        <div class="card" style="margin-left: 20px;">
+            <a href="/Contract/List?StartYear=@Model.Time" class="card-body media align-items-center text-dark">
+                <i class="lnr lnr-tag display-4 d-block text-primary"></i>
+                <span class="media-body d-block ml-3">
+                    <span class="text-big">
+                        <span class="font-weight-bolder">@Model.TotalRemainingAmount</span>
+                    </span>
+                    <br>
+                    <small class="text-muted">Giá trị còn lại</small>
+                </span>
+            </a>
+        </div>
+    </div>*@

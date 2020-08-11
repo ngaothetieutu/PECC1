@@ -1,0 +1,33 @@
+﻿@model DelayPayment
+
+<div class="card mb-4" id="delayPayment">
+    <h6 class="card-header">Chậm tiến độ thanh toán <span style="color:red">(@Model.contractDelayPayment.Count())</span></h6>
+    <div style="margin-top:10px;">
+        @if (Model.contractDelayPayment.Count == 0)
+        {
+            <div style="margin-left:30px;">
+                <h6>Không có hợp đồng !</h6>
+            </div>
+        }
+        else if (Model.contractDelayPayment.Count < 5)
+        {
+            @foreach (ContractModel ct in Model.contractDelayPayment)
+            {
+                @await Html.PartialAsync("_ContractViewInfo", ct)
+            }
+        }
+        else
+        {
+            @for (int i = 0; i < 5; i++)
+            {
+                @await Html.PartialAsync("_ContractViewInfo", Model.contractDelayPayment[i])
+            }
+        }
+    </div>
+    <a href="/Contract/List?ContractMonitorStatus=1" class="card-footer d-block text-center text-dark small font-weight-semibold">@T("admin.common.showall")</a>
+</div>
+<script>
+    if (@Model.contractDelayPayment.Count == 0) {
+        $('#delayPayment').hide();
+    };
+</script>

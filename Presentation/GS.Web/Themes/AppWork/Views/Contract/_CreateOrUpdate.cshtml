@@ -1,0 +1,492 @@
+﻿@model ContractModel
+@*<div asp-validation-summary="All"></div>*@
+<input asp-for="Id" type="hidden" />
+<input asp-for="CreatedDate" type="hidden" />
+<input asp-for="UpdatedDate" type="hidden" />
+<input asp-for="ClassificationId" type="hidden" />
+<input asp-for="ContractRelateId" type="hidden" />
+<input asp-for="TaskIdBB" type="hidden" />
+
+<div class="content">
+    @if (Model.ClassificationId == (int)GS.Core.Domain.Contracts.ContractClassification.BB && Model.Id == 0)
+    {
+        <div>
+            <label style="color:#ff0000;">*</label><label style="color:#0c42f1;margin-left:5px;">@Model.suggestionCreatBB</label>
+        </div>
+    }
+    <div class="form-group" style="@(Model.ContractRelateId >0?"display:none":"")">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="ConstructionId" />
+            </div>
+            <div class="col-md-9">
+                <nop-select asp-for="ConstructionId" asp-items="@Model.AvailableContruction" asp-required="true" />
+                <span asp-validation-for="ConstructionId"></span>
+                <span class="field-validation-valid" style="padding-left:10px; display:none; font-size:13px; color:red" id="checkConstructionId"><span style='color:red;font-size:15px; padding-right: 5px;'>*</span>Không tim thấy công trình</span>
+                <script>
+                $(document).ready(function () {
+                    $("#ConstructionId").kendoComboBox({
+                    placeholder: "@T("AppWork.Contracts.Contract.Fields.ConstructionId.PlaceHolder")",
+                        filter: "contains",
+                        autoBind: false,
+                        minLength: 3,
+                    });
+                    if (@Model.ConstructionId == 0) {
+                        //neu chua thiet dat cong trinh mo dau, thi reset ve empty de yeu cau chon
+                        var comboboxConstructionId = $("#ConstructionId").data("kendoComboBox");
+                        comboboxConstructionId.select(-1);
+                        comboboxConstructionId.value("");
+                    }
+                    $("#ConstructionId").data("kendoComboBox").bind("change", ConstructionIdchange);
+                    $("#ConstructionId").data("kendoComboBox").bind("dataBound", ConstructionIdDataBound);
+                    function ConstructionIdchange() {
+                        if ($("#ConstructionId").data("kendoComboBox").select() == -1) {
+                            //set label thong bao ko tim thay
+                            $("#checkConstructionId").show();
+                            //remove gia tri vua nhap vao o commbobox
+                            $("#ConstructionId").data("kendoComboBox").select(-1);
+                        }
+                        else {
+                            $("#checkConstructionId").hide();
+                        }
+                    }
+                    function ConstructionIdDataBound() {
+                        $("#checkConstructionId").hide();
+                    }
+                })
+                </script>
+            </div>
+            <div class="col-md-1" style="margin-top: 10px;">
+                <button type="button" class="btn btn-xs btn-outline-primary" data-toggle="modal" data-target="#modal_InsertContractNew" data-url="/Construction/_Create" data-title="Thêm công trình">
+                    <span class="ion ion-md-add">@T("AppWork.Contracts.Contract.Fields.partiesAdd")</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="row">
+            @if (Model.classification != GS.Core.Domain.Contracts.ContractClassification.AB)
+            {
+                @if (Model.classification == GS.Core.Domain.Contracts.ContractClassification.BB)
+                {
+                    <div class="col-md-2">
+                        <label style="float:right; font-weight:500; font-size:13px;margin-top:11px;">@T("AppWork.Contracts.Contract.Fields.Code1BB")</label>
+                    </div>
+
+                }
+                @if (Model.classification == GS.Core.Domain.Contracts.ContractClassification.Appendix)
+                {
+                    <div class="col-md-2">
+                        <label style="float:right; font-weight:500; font-size:13px;margin-top:11px;">@T("AppWork.Contracts.Contract.Fields.Code1Appendix")</label>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-md-2">
+                    <app-label asp-for="Code1" />
+                </div>
+            }
+            <div class="col-md-9">
+                <nop-editor asp-for="Code1" asp-required="true" />
+                <span asp-validation-for="Code1"></span>
+                <span class="field-validation-valid" style="padding-left:10px; display:none; font-size:13px;" id="ckCode1"></span>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            $('#@Html.IdFor(model => model.Code1)').change(function () {
+                    var Code1 = $(this).val();
+                    if (Code1.length > 0) {
+                    $.ajax({
+                        url: "/Contract/CheckCode1?code1=" + Code1,
+                        type: "GET",
+                        success: function (msg) {
+                                if (msg.Code == "00") {
+                                $("#ckCode1").html("<p><span style='color:red;font-size:15px; padding-right: 5px;'>*</span>" + msg.Message + "<a href='/Contract/Detail?Guid=" + msg.ObjectInfo.ContractGuid + "' target=_blank>" + msg.ObjectInfo.Code1 + "</a>" + "</p>");
+                                $("#ckCode1").show();
+                                }
+                                else {
+                                $("#ckCode1").html("");
+                                $("#ckCode1").hide();
+                                }
+                            },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                                console.log("error");
+                            $("#ckCode1").hide();
+                            }
+                        });
+                    } else {
+                    $("#ckCode1").html("");
+                    $("#ckCode1").hide();
+                    }
+                })
+        });
+    </script>
+    @if (Model.classification == GS.Core.Domain.Contracts.ContractClassification.Appendix)
+    {
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-2">
+                    <label style="float:right; font-weight:500; font-size:13px;margin-top:11px;">@T("AppWork.Contracts.Contract.Fields.NameAppendix")</label>
+                </div>
+                <div class="col-md-9">
+                    <nop-editor asp-for="Name" asp-required="true" />
+                    <span asp-validation-for="Name"></span>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-2">
+                    <app-label asp-for="Name" />
+                </div>
+                <div class="col-md-9">
+                    <nop-editor asp-for="Name" asp-required="true" />
+                    <span asp-validation-for="Name"></span>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="form-group">
+        <div class="row">
+            @if (Model.ClassificationId != (int)GS.Core.Domain.Contracts.ContractClassification.AB)
+            {
+                @if (Model.ClassificationId == (int)GS.Core.Domain.Contracts.ContractClassification.BB)
+                {
+                    <div class="col-md-2">
+                        <label style="float:right; font-weight:500; font-size:13px;margin-top:11px;">Số hợp đồng BB</label>
+                    </div>
+                }
+                @if (Model.ClassificationId == (int)GS.Core.Domain.Contracts.ContractClassification.Appendix)
+                {
+                    <div class="col-md-2">
+                        <label style="float:right; font-weight:500; font-size:13px;margin-top:11px;">Số phụ lục</label>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-md-2">
+                    <app-label asp-for="Code" />
+                </div>
+            }
+            <div class="col-md-9">
+                <nop-editor asp-for="Code" asp-required="true" />
+                <span asp-validation-for="Code"></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="SignedDate" />
+            </div>
+            <div class="col-md-10">
+                <nop-editor asp-for="SignedDate" asp-required="true" />
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group" style="@(Model.ClassificationId == (int)GS.Core.Domain.Contracts.ContractClassification.Appendix?"display:none":"display:block")">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="StartDate" />
+            </div>
+            <div class="col-md-4">
+                <nop-editor asp-for="StartDate" asp-required="true" />
+            </div>
+            <div class="col-md-2">
+                <app-label asp-for="EndDate" />
+            </div>
+            <div class="col-md-4">
+                <nop-editor asp-for="EndDate" asp-required="true" />
+                <span asp-validation-for="EndDate"></span>
+            </div>
+        </div>
+    </div>
+    @*<div class="form-group">
+            <div class="row">
+                <div class="col-md-2">
+                    <app-label asp-for="SelectedContractPeriodIds" />
+                </div>
+                <div class="col-md-9">
+                    <nop-select asp-for="SelectedContractPeriodIds" asp-items="Model.AvailableContractPeriod" asp-multiple="true" />
+                </div>
+                <div class="col-md-1" style="margin-top: 4px;">
+                    <button type="button" class="btn btn-xs btn-outline-primary" data-toggle="modal" data-target="#modal_InsertContractNew" data-url="/ContractPeriod/_Create" data-title="Thêm giai đoạn">
+                        <span class="ion ion-md-add">@T("AppWork.Contracts.Contract.Fields.partiesAdd")</span>
+                    </button>
+                </div>
+            </div>
+        </div>*@
+    <div class="form-group" style="@(Model.classification != GS.Core.Domain.Contracts.ContractClassification.AB?"display:none":"")">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="SelectedContractFormIds" />
+            </div>
+            <div class="col-md-9">
+                <nop-select asp-for="SelectedContractFormIds" asp-items="Model.AvailableContractForm" asp-multiple="true" />
+
+            </div>
+            @*<div class="col-md-1" style="margin-top: 4px;">
+                    <button type="button" class="btn btn-xs btn-outline-primary" data-toggle="modal" data-target="#modal_InsertContractNew" data-url="/ContractForm/_Create" data-title="Thêm hình thức hợp đồng">
+                        <span class="ion ion-md-add">@T("AppWork.Contracts.Contract.Fields.partiesAdd")</span>
+                    </button>
+                </div>*@
+        </div>
+    </div>
+    <div class="form-group" style="@(Model.classification != GS.Core.Domain.Contracts.ContractClassification.AB?"display:none":"")">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="SelectedContractTypeIds" />
+            </div>
+            <div class="col-md-9">
+                <nop-select asp-for="SelectedContractTypeIds" asp-items="Model.AvailableContractType" asp-multiple="true" />
+                <span class="field-validation-valid" style="padding-left:10px; display:none; font-size:13px;" id="ckType"></span>
+            </div>
+            @*<div class="col-md-1" style="margin-top: 4px;">
+                    <button type="button" class="btn btn-xs btn-outline-primary" data-toggle="modal" data-target="#modal_InsertContractNew" data-url="/ContractType/_Create" data-title="Thêm loại hợp đồng">
+                        <span class="ion ion-md-add">@T("AppWork.Contracts.Contract.Fields.partiesAdd")</span>
+                    </button>
+                </div>*@
+        </div>
+    </div>
+    @if (!Model.AppendixAB)
+    {
+        <div class="form-group" style="@(Model.classification == GS.Core.Domain.Contracts.ContractClassification.AB?"display:none":"display:block")">
+            <div class="row">
+                <div class="col-md-2">
+                    <app-label asp-for="TotalAmount" />
+                </div>
+                <div class="col-md-9">
+                    <nop-editor asp-for="TotalAmountNumber" />
+                    <span asp-validation-for="TotalAmountNumber"></span>
+                    <span class="field-validation-valid" style="padding-left:10px; display:none; font-size:13px;" id="ckAmount"></span>
+                </div>
+            </div>
+        </div>
+    }
+    @if (Model.classification == GS.Core.Domain.Contracts.ContractClassification.BB && Model.TaskIdBB > 0)
+    {
+        <script>
+                    $(document).ready(function () {
+                        $('#@Html.IdFor(model => model.TotalAmountNumber)').change(function () {
+                    var TotalAmountNumber = $(this).val();
+                    var _taskId = @Model.TaskIdBB;
+                    if (TotalAmountNumber.length > 0) {
+                                $.ajax({
+                        url: "/Contract/CheckAmountBB?totalAmount=" + TotalAmountNumber + "&taskId=" + _taskId,
+                                    type: "GET",
+                                    success: function (msg) {
+                                if (msg.Code == "00") {
+                                            $("#ckAmount").html("<p><span style='color:red;font-size:15px; padding-right: 5px;'>*</span>" + msg.Message +"</p>");
+                                            $("#ckAmount").show();
+                                }
+                                else {
+                                            $("#ckAmount").html("");
+                                            $("#ckAmount").hide();
+                                }
+                            },
+                                    error: function (xhr, ajaxOptions, thrownError) {
+                                console.log("error");
+                                        $("#ckAmount").hide();
+                            }
+                        });
+                    } else {
+                                $("#ckAmount").html("");
+                                $("#ckAmount").hide();
+                    }
+                })
+                    });
+        </script>
+    }
+    @if (!Model.AppendixAB)
+    {
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-2">
+                    <app-label asp-for="CurrencyId" />
+                </div>
+                <div class="col-md-4">
+                    <nop-select asp-for="CurrencyId" asp-items="@Model.AvailableCurrency" />
+
+                </div>
+            </div>
+        </div>
+    }
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="Description" />
+            </div>
+            <div class="col-md-9">
+                <app-textarea asp-for="Description" />
+                <span asp-validation-for="Description"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" data-backdrop="static" data-keyboard="false" id="modal_InsertContractNew" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+                </div>
+                <div class="modal-body">
+                    <div id="proscontent">
+
+                    </div>
+                    <div class="content">
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+@if (Model.StatusId != (int)GS.Core.Domain.Contracts.ContractStatus.Draf && Model.Id > 0)
+{
+    <script>
+        $(document).ready(function () {
+            var comboboxConstructionId = $("#ConstructionId").data("kendoComboBox");
+            comboboxConstructionId.readonly(true);
+            $("#Code1").prop("readonly", "readonly");
+            $("#Code").prop("readonly", "readonly");
+            var _startDate = $("#StartDate").data("kendoDatePicker");
+            _startDate.readonly();
+            var _endDate = $("#EndDate").data("kendoDatePicker");
+            _endDate.readonly();
+            var _signDate = $("#SignedDate").data("kendoDatePicker");
+            _signDate.readonly();
+        });
+    </script>
+}
+<script>
+    $(document).ready(function () {
+    //Load ContractForm
+    var fomtIdsInput =
+                    $('#@Html.IdFor(model => model.SelectedContractFormIds)')
+            .data("kendoMultiSelect");
+    fomtIdsInput.setOptions({
+    autoClose: true,
+                filter: "contains"
+                });
+
+    @if (Model.AvailableContractForm.Count == 0)
+                  {
+                    <text>
+                        fomtIdsInput.setOptions({
+        enable: false,
+                            placeholder:
+            '@T("Admin.Catalog.Products.CustomerRoles.NoCustomerRolesAvailable")'
+                        });
+        fomtIdsInput._placeholder();
+        fomtIdsInput._enable();
+                    </text>
+                 }
+
+    //load contractType
+    var typeIdsInput =
+                    $('#@Html.IdFor(model => model.SelectedContractTypeIds)')
+    .data("kendoMultiSelect");
+
+    typeIdsInput.setOptions({
+    autoClose: true,
+                        filter: "contains"
+                });
+    // Check Task khi bỏ loại hợp đồng
+    typeIdsInput.bind("deselect", SelectedTypeIdsDeselect);
+    function SelectedTypeIdsDeselect(e) {
+        var _IdsType = $('#@Html.IdFor(model => model.SelectedContractTypeIds)').data("kendoMultiSelect").value();
+        var typeContractId = e.dataItem.value;
+        var contractId = @Model.Id;
+                    $.ajax({
+        type: "GET",
+                        url: "/Contract/EditContractCheckType?ContractId=" + contractId + "&ContractTypeId=" + typeContractId,
+                        success: function (msg) {
+                if (msg.Code == "00") {
+                                $("#ckType").html("<p><span style='color:red;font-size:15px; padding-right: 5px;'>*</span>" + "<span style='color:red;'>" + msg.Message +"</span>" +"</p>");
+                                $("#ckType").show();
+                                $('#@Html.IdFor(model => model.SelectedContractTypeIds)').data("kendoMultiSelect").value(_IdsType);
+                } else {
+                                $("#ckType").html("");
+                                $("#ckType").hide();
+                }
+            },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                console.log("error");
+                            $("#ckType").hide();
+            }
+        })
+                }
+@if (Model.AvailableContractType.Count == 0)
+    {
+                        <text>
+                    typeIdsInput.setOptions({
+    enable: false,
+                        placeholder:
+        '@T("Admin.Catalog.Products.CustomerRoles.NoCustomerRolesAvailable")'
+                    });
+    typeIdsInput._placeholder();
+    typeIdsInput._enable();
+                        </text>
+                }
+
+//load contractPeriod
+                @*var typeIdsInput =
+                    $('#@Html.IdFor(model => model.SelectedContractPeriodIds)')
+                        .data("kendoMultiSelect");
+                typeIdsInput.setOptions({
+                autoClose: true,
+                        filter: "contains"
+                    });
+
+                @if (Model.AvailableContractPeriod.Count == 0)
+            {
+                <text>
+                typeIdsInput.setOptions({
+                    enable: false,
+                    placeholder:
+                        '@T("Admin.Catalog.Products.CustomerRoles.NoCustomerRolesAvailable")'
+                });
+                    typeIdsInput._placeholder();
+                    typeIdsInput._enable();
+                </text>
+            }*@
+            SetEmptyModal('#modal_InsertContractNew');
+            $('#modal_InsertContractNew').on('show.bs.modal', function (event) {
+                kendo.ui.progress($("#modal_InsertContractNew"), true);
+                var modal = $(this);
+                //lay thong tin tu button de hien thi popup
+                var button = $(event.relatedTarget);
+                if (!button)
+                    return;
+                modal.find('.modal-title').text(button.data('title'));
+                $.ajax({
+                cache: false,
+                    type: "GET",
+                    url: button.data('url'),
+                    complete: function (data) {
+                    modal.find('.content').html(data.responseText);
+                    kendo.ui.progress($("#modal_InsertContractNew"), false);
+                },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                    kendo.ui.progress($("#modal_InsertContractNew"), false);
+                },
+                    traditional: true
+                });
+            });
+        });
+</script>
+
+

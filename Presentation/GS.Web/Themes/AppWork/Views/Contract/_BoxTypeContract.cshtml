@@ -1,0 +1,36 @@
+﻿@model ContractModel
+<div class="card mb-4">
+    @*<h6 class="card-header">@T("AppWork.Contracts.Contract.Fields.TypeContract")</h6>*@
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div class="text-muted">@T("AppWork.Contracts.Contract.Fields.ClassificationText")</div>
+            <div>
+                <a href="javascript:void(0)">@Model.classificationText</a>
+            </div>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <ul class="list-group list-group-flush">
+                    <div class="text-muted">@T("AppWork.Contracts.Contract.Fields.SelectedContractFormIds")</div>
+                @foreach (var FormName in Model.contractFormModels)
+                {
+                <li class="list-group-item d-flex" style="font-size:12px;">
+                    <strong>@FormName.Name</strong>
+                </li>
+                    
+                }
+            </ul>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <ul class="list-group list-group-flush">
+                    <div class="text-muted">@T("AppWork.Contracts.Contract.Fields.SelectedContractTypeIds")</div>
+                @foreach (var TypeName in Model.contractTypeModels)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center" style="font-size:12px;">
+                        <strong style="padding-right:5px;">@TypeName.Name</strong> : <small class="app-work-money" style="font-size:12px !important; padding-left:5px;">@TypeName.totalMoneyText</small>
+                    </li>
+                }
+            </ul>     
+        </li>        
+    </ul>
+</div>
+

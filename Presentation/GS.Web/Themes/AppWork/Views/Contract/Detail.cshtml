@@ -1,0 +1,1926 @@
+﻿@model ContractModel
+@using GS.Services.Customers
+@using GS.Services.Catalog
+@using GS.Services.Directory
+@inject IWorkContext workContext
+@inject ICustomerService customerService
+<link rel="stylesheet" href="/Themes/AppWork/Content/assets/vendor/css/pages/projects.css">
+<link rel="stylesheet" href="/Themes/AppWork/Content/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css">
+<script src="/Themes/AppWork/Content/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<input asp-for="CreatedDate" type="hidden" />
+<input asp-for="UpdatedDate" type="hidden" />
+@{
+    //page title
+    ViewBag.Title = Model.Name + T("AppWork.Contracts.Contract.EditContractDetails").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Contract");
+}
+<style>
+    /*.list-group-item div {
+        tabInsertContractPayment font-size: 12px;
+    }*/
+
+    small {
+        font-style: italic;
+    }
+
+    .list-task-plan {
+        border-bottom: 1px dashed #dcd0d0;
+        padding: 10px 0px 10px 0px;
+    }
+</style>
+
+<div class="container-fluid flex-grow-1 container-p-y">
+    <!-- Title, sumary-->
+    <div class="col-md-12 row">
+        <div class="media-body align-self-center col-md-12">
+            <h5 title="@T("AppWork.Contracts.Contract.Fields.ContructionName")">
+                <i class="fas fa-map-marker-alt" style="font-size:16px"></i>: @Model.ConstructionName  @if (@Model.procuringAgencyModelSideA != null)
+                {<small> - @Model.procuringAgencyModelSideA.Name</small>}
+            </h5>
+            <h5>
+                <small> @Model.Name (<i>@Model.Code</i>)</small>
+                <span title="@T("AppWork.Contracts.Contract.Fields.SignedDate")" style="padding-left:12px;  "><i class="pe-7s-pen" style="margin-right:5px;"></i> <strong>@Model.SignedDate.toDateVNString()</strong></span>
+            </h5>
+            @if ((Model.ClassificationId == (int)GS.Core.Domain.Contracts.ContractClassification.Appendix) || (Model.ClassificationId == (int)GS.Core.Domain.Contracts.ContractClassification.BB))
+            {
+            <p class="row">
+                &nbsp;&nbsp;<strong>Giá trị :</strong>&nbsp;&nbsp; <small class="app-work-money">@Model.TotalAmountText</small>
+            </p>
+            }
+            else
+            {
+                <p class="row">
+                    &nbsp;&nbsp;<span title="@T("AppWork.Contracts.Contract.Fields.TotalAmount")"><i class="lnr lnr-diamond" style="font-size:16px"></i> : <small class="app-work-money" id="TotalAmountContract">@Model.AllTotalAmountText</small></span>
+                    &nbsp;&nbsp;<span title="@T("AppWork.Contracts.Contract.Fields.TotalAmount")"><strong>Sản lượng của PECC1:</strong> <small class="app-work-money" id="TotalAmountContract">@Model.TotalAmountText</small></span>
+                    &nbsp;&nbsp;<span><strong>Sản lượng của liên danh :</strong>&nbsp;&nbsp; <small class="app-work-money" id="TotalAmountContact">@Model.totalAmountContact</small></span>
+                    &nbsp;&nbsp;<strong>Tổng giá trị BB' :</strong>&nbsp;&nbsp; <small class="app-work-money" id="TotalAmountBB">@Model.totalAmountBB</small>
+                </p>
+            }
+        </div>
+    </div>
+    <!-- /Title, sumary-->
+
+    @if (Model.classification == GS.Core.Domain.Contracts.ContractClassification.AB)
+    {
+        <div class="row" style="margin-bottom:5px;">
+            <div class="col-md-12">
+                <!-- Task -->
+                <div class="card mb-12">
+                    <h6 class="card-header with-elements">
+                        @if (Model.StatusId == (int)GS.Core.Domain.Contracts.ContractStatus.Liquidated || Model.StatusId == (int)GS.Core.Domain.Contracts.ContractStatus.Completed || Model.StatusId == (int)GS.Core.Domain.Contracts.ContractStatus.Settlemented)
+                        {
+                            <span class="card-header-title row">Thông tin chung</span>
+                        }
+                        else
+                        {
+                            <span class="card-header-title row">Thông tin chung</span>
+                        }
+                        @*<div class="card-header-elements ml-auto">
+            @if (Model.StatusId != (int)GS.Core.Domain.Contracts.ContractStatus.Completed)
+            {
+                <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#modalUnfinish" data-title="Giá trị dở dang" data-contractId="@Model.Id">
+                    <span class="ion ion-md-refresh"></span> Tính giá trị dở dang
+                </button>
+            }
+        </div>*@
+                    </h6>
+                    @*@await Html.PartialAsync("_PaymentPlan", Model)*@
+                    <div id="_paymentPlan" style="height:100%;padding:3px 10px 5px 5px; width:100%;"></div>
+                    <script>
+                        function ReloadPaymentPlan(ContractId) {
+                            ShowViewLoading("#_paymentPlan");
+                            $.ajax({
+                                type: "GET",
+                                url: "/Contract/_PaymentPlan?ContractId=" + ContractId,
+                                success: function (data) {
+                                    $("#_paymentPlan").html(data);
+                                    new PerfectScrollbar(document.getElementById('_paymentPlan'));
+                                },
+                            });
+                        }
+                        $(document).ready(function () {
+                            ReloadPaymentPlan(@Model.Id);
+                        })
+                    </script>
+                </div>
+            </div>
+
+        </div>
+        //gia tri do dang
+        <div class="row" style="margin-bottom:5px;">
+            <div class="col-md-12">
+                <!-- Task -->
+                <div class="card mb-12">
+                    <h6 class="card-header with-elements">
+                        <strong class="card-header-title">Giá trị dở dang</strong>
+                        @*<div class="card-header-elements ml-auto">
+                @if (Model.StatusId != (int)GS.Core.Domain.Contracts.ContractStatus.Completed)
+                {
+                    <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#modalUnfinish" data-title="Giá trị dở dang" data-contractId="@Model.Id">
+                        <span class="ion ion-md-refresh"></span> Tính giá trị dở dang
+                    </button>
+                }
+            </div>*@
+                    </h6>
+                    @*@await Html.PartialAsync("_PaymentPlan", Model)*@
+                    <div id="ContractUnfinish" style="height:100%;padding:3px 10px 5px 5px; width:100%;">
+                        @{
+                            var endDate = Model.EndDate;
+                            var timeNow = DateTime.Now;
+                            if (endDate > timeNow)
+                            {
+                                <div class="row" id="unfinishNow">
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-header with-elements">
+                                                <span class="card-header-title">Dở dang chưa nghiệm thu : &nbsp;</span><a href="#"><small data-toggle="tooltip" data-placement="bottom" title="Sau thuế" class="app-work-money">@Model.Unfinished1</small></a>
+                                            </div>
+                                            @if (Model.lstContractUnfinishModel.Count > 0)
+                                            {
+                                                <ul class="list-group list-group-flush" style="padding-left:30px; padding-right:30px; margin-bottom:5px;">
+                                                    @foreach (ContractUnfinishModel unfinish in Model.lstContractUnfinishModel)
+                                                    {
+                                                        <li class="list-task-plan row" style="padding-left:30px; padding-right:30px;">
+                                                            <div class="media align-items-center">
+                                                                <div class="media-body px-2">
+                                                                    <span style="color:red;">@unfinish.ContractTypeName</span> &nbsp; :  <small class="app-work-money" style="font-size:14px !important;padding-left:5px; color:#1e70cd;">@unfinish.OptionValue.ToVNStringNumber()</small>
+                                                                </div>
+                                                            </div>
+                                                            <div class="card-header-elements ml-auto">
+                                                                <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#modalUnfinishType" data-title="Giá trị dở dang chưa nghiệm thu" data-typeid="@unfinish.ContractTypeId">
+                                                                    <span class="ion ion-md-refresh"></span>
+                                                                </button>
+                                                            </div>
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-header with-elements">
+                                                <span class="card-header-title">Dở dang chưa thực hiện : &nbsp;</span><a href="#"><small data-toggle="tooltip" data-placement="bottom" title="Sau thuế" class="app-work-money">@Model.Unfinished2</small></a>
+                                                @*<div class="card-header-elements ml-auto">
+                                                    <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#modalUnfinishType" data-title="Giá trị dở dang chưa thực hiện" data-typeid="1000">
+                                                        <span class="ion ion-md-refresh"></span>
+                                                    </button>
+                                                </div>*@
+                                            </div>
+                                            @if (Model.lstContractUnfinish2Model.Count > 0)
+                                            {
+                                                <ul class="list-group list-group-flush" style="padding-left:30px; padding-right:30px; margin-bottom:5px;">
+                                                    @foreach (ContractUnfinishModel unfinish2 in Model.lstContractUnfinish2Model)
+                                                    {
+                                                        <li class="list-task-plan row" style="padding-left:30px; padding-right:30px;">
+                                                            <div class="media align-items-center">
+                                                                <div class="media-body px-2">
+                                                                    <span style="color:red;">@unfinish2.ContractTypeName</span> &nbsp; :  <small  class="app-work-money" style="font-size:14px !important;padding-left:5px; color:#1e70cd;">@unfinish2.OptionValue.ToVNStringNumber()</small>
+                                                                </div>
+                                                            </div>
+                                                            <div class="card-header-elements ml-auto">
+                                                                <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#modalUnfinishType" data-title="Giá trị dở dang chưa thực hiện" data-typeid="@unfinish2.ContractTypeId">
+                                                                    <span class="ion ion-md-refresh"></span>
+                                                                </button>
+                                                            </div>
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            if (timeNow > endDate)
+                            {
+                                <div class="row" id="unfinishHistory">
+                                    <div class="col-sm-4">
+                                        <div class="card">
+                                            <div class="card-header with-elements">
+                                                <span class="card-header-title">Dở dang chưa nghiệm thu : &nbsp;</span><a href="#"><small data-toggle="tooltip" data-placement="bottom" title="Sau thuế" class="app-work-money">@Model.Unfinished1</small></a>
+                                            </div>
+                                            @if (Model.lstContractUnfinishModel.Count > 0)
+                                            {
+                                                <ul class="list-group list-group-flush" style="padding-left:30px; padding-right:30px; margin-bottom:5px;">
+                                                    @foreach (ContractUnfinishModel unfinish in Model.lstContractUnfinishModel)
+                                                    {
+                                                        <li class="list-task-plan row" style="padding-left:30px; padding-right:30px;">
+                                                            <div class="media align-items-center">
+                                                                <div class="media-body px-2">
+                                                                    <span style="color:red;">@unfinish.ContractTypeName</span> &nbsp; :  <small class="app-work-money" style="font-size:14px !important;padding-left:5px; color:#1e70cd;">@unfinish.OptionValue.ToVNStringNumber()</small>
+                                                                </div>
+                                                            </div>
+                                                            <div class="card-header-elements ml-auto">
+                                                                <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#modalUnfinishType" data-title="Giá trị dở dang chưa nghiệm thu" data-typeid="@unfinish.ContractTypeId">
+                                                                    <span class="ion ion-md-refresh"></span>
+                                                                </button>
+                                                            </div>
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            }
+
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="card">
+                                            <div class="card-header with-elements">
+                                                <span class="card-header-title">Dở dang hiện tại : &nbsp;</span><a href="#"><small class="app-work-money" data-toggle="tooltip" data-placement="bottom" title="Sau thuế">@Model.Unfinished3</small></a>
+                                            </div>
+                                            @if (Model.lstContractUnfinishModel2.Count > 0)
+                                            {
+                                                <ul class="list-group list-group-flush" style="padding-left:30px; padding-right:30px; margin-bottom:5px;">
+                                                    @foreach (ContractUnfinishModel unfinish in Model.lstContractUnfinishModel2)
+                                                    {
+                                                        <li class="list-task-plan row" style="padding-left:30px; padding-right:30px;">
+                                                            <div class="media align-items-center">
+                                                                <div class="media-body px-2">
+                                                                    <span style="color:red;">@unfinish.ContractTypeName</span> &nbsp; :  <small class="app-work-money" style="font-size:14px !important;padding-left:5px; color:#1e70cd;">@unfinish.OptionValue.ToVNStringNumber()</small>
+                                                                </div>
+                                                            </div>
+                                                            <div class="card-header-elements ml-auto">
+                                                                <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#modalUnfinishType" data-title="Giá trị dở dang chưa nghiệm thu" data-typeid="@unfinish.ContractTypeId">
+                                                                    <span class="ion ion-md-refresh"></span>
+                                                                </button>
+                                                            </div>
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="card">
+                                            <div class="card-header with-elements">
+                                                <span class="card-header-title">Dở dang chưa thực hiện : &nbsp;</span><a><small class="app-work-money" data-toggle="tooltip" data-placement="bottom" title="Sau thuế">@Model.Unfinished2</small></a>
+                                                @*<div class="card-header-elements ml-auto">
+                                                    <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#modalUnfinishType" data-title="Giá trị dở dang chưa thực hiện" data-typeid="1000">
+                                                        <span class="ion ion-md-refresh"></span>
+                                                    </button>
+                                                </div>*@
+                                            </div>
+                                            @if (Model.lstContractUnfinish2Model.Count > 0)
+                                            {
+                                                <ul class="list-group list-group-flush" style="padding-left:30px; padding-right:30px; margin-bottom:5px;">
+                                                    @foreach (ContractUnfinishModel unfinish2 in Model.lstContractUnfinish2Model)
+                                                    {
+                                                        <li class="list-task-plan row" style="padding-left:30px; padding-right:30px;">
+                                                            <div class="media align-items-center">
+                                                                <div class="media-body px-2">
+                                                                    <span style="color:red;">@unfinish2.ContractTypeName</span> &nbsp; :  <small class="app-work-money" style="font-size:14px !important;padding-left:5px; color:#1e70cd;">@unfinish2.OptionValue.ToVNStringNumber()</small>
+                                                                </div>
+                                                            </div>
+                                                            <div class="card-header-elements ml-auto">
+                                                                <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#modalUnfinishType" data-title="Giá trị dở dang chưa thực hiện" data-typeid="@unfinish2.ContractTypeId">
+                                                                    <span class="ion ion-md-refresh"></span>
+                                                                </button>
+                                                            </div>
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--Hot box-->
+        <div class="row" style="margin-bottom:5px;">
+            <div class="col-md-6">
+                <!-- Task -->
+                <div class="card mb-6" style="min-height: 416px; max-height:416px;">
+                    <h6 class="card-header with-elements">
+                        <span class="card-header-title">Tiến độ công việc</span>
+                        <div class="card-header-elements ml-auto">
+                            <a class="btn icon-btn btn-sm btn-outline-success" href="#Task-tasks">
+                                <span class="ion ion-md-add"></span>
+                            </a>
+                        </div>
+                    </h6>
+                    @*@await Html.PartialAsync("_PaymentPlan", Model)*@
+                    <div id="tabTaskHomePlan" style="height:100%;padding:3px 10px 5px 5px; width:100%;"></div>
+
+                    <script>
+                    $(document).ready(function () {
+
+                         ShowViewLoading("#tabTaskHomePlan");
+                        $.ajax({
+                            type: "GET",
+                            url: "/Works/_TaskDeadLine?ContractId=@Model.Id",
+                            success: function (data) {
+                                $("#tabTaskHomePlan").html(data);
+                                new PerfectScrollbar(document.getElementById('tabTaskHomePlan'));
+                            },
+                        });
+                        })
+                    </script>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card mb-4" style="margin-bottom:10px!important;">
+                    <h6 class="card-header with-elements">
+                        <a class="text-dark" data-toggle="modal" href="#modalListContractAppendix" data-contractid="@Model.Id"><span class="card-header-title">Phụ lục hợp đồng</span></a>
+                        <div class="card-header-elements ml-auto">
+                            <a href="/Contract/Create?ClassificationId=@((int)GS.Core.Domain.Contracts.ContractClassification.Appendix)&ContractRelateId=@Model.Id" class="btn icon-btn btn-sm btn-outline-success" id="btnAddContractAppendix">
+                                <span class="ion ion-md-add"></span>
+                            </a>
+                        </div>
+                    </h6>
+                    <div id="_classificationAppendix" class="ps ps--active-y" style="height: 150px;padding:3px 10px 5px 5px">
+                        @await Html.PartialAsync("_ClassificationAppendix", Model)
+                    </div>
+                    <script>
+                        $(document).ready(function () {
+                            new PerfectScrollbar(document.getElementById('_classificationAppendix'));
+                        });
+                    </script>
+                </div>
+                <div class="card mb-6">
+                    <h6 class="card-header with-elements">
+                        <a  class="text-dark" href="#Task-tasks"><span class="card-header-title">Hợp đồng B-B'</span></a>
+                        <div class="card-header-elements ml-auto">
+                            @*hop dong ket thuc thi khong them moi*@
+                            @if (Model.StatusId != (int)GS.Core.Domain.Contracts.ContractStatus.Completed)
+                            {
+                                @*<a href="/Contract/Create?ClassificationId=@((int)GS.Core.Domain.Contracts.ContractClassification.BB)&ContractRelateId=@Model.Id" class="btn icon-btn btn-sm btn-outline-success" id="btnAddContractBB">
+                                    <span class="ion ion-md-add"></span>
+                                </a>*@
+                            }
+                        </div>
+                    </h6>
+                    <div id="_classificationBB" class="ps ps--active-y" style="height: 150px;padding:3px 10px 5px 5px">
+                        @await Html.PartialAsync("_ClassificationBB", Model)
+                    </div>
+                    <script>
+                        $(document).ready(function () {
+                            new PerfectScrollbar(document.getElementById('_classificationBB'));
+                        });
+                    </script>
+                </div>
+            </div>
+        </div>
+        <!-- / Hot box-->
+    }
+    else
+    {
+
+        @await Html.PartialAsync("_BoxContractBB", Model)
+
+    }
+
+    <!-- Startus, Peroid Progress -->
+    <div class="border-right-0 border-left-0 ui-bordered container-m--x mb-4">
+        <div class="row no-gutters row-bordered row-border-light">
+            <div class="col-md-6">
+                <div class="media-body container-p-x py-4">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <div>
+                            <strong class="text-primary text-large">@Model.ProgressNum%</strong><span style="padding-left:5px;">Thời gian thực hiện</span>
+                        </div>
+                        <div class="text-muted">
+                            <h5>
+                                @T("AppWork.Contracts.Contract.Fields.PeriodId"):
+                                @foreach (var item in Model.contractPeriodModels)
+                                {
+                                    @item.Name
+                                }
+                            </h5>
+                        </div>
+                    </div>
+                    <div class="progress" style="height: 4px;">
+                        <div class="progress-bar" style="width:@Model.ProgressNum%;"></div>
+                    </div>
+                    <i style="float:left;color:#ff6a00">@Model.StartDate.toDateVNString()</i>
+                    <i style="float:right;color:#ff6a00">@Model.EndDate.toDateVNString()</i>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="container-p-x py-4 row">
+                    <div class="col-sm-4">
+                        <div class="text-muted small">@T("AppWork.Contracts.Contract.Fields.Status")</div>
+                        <strong class="text-success text-big">@Model.StatusId.ToStatusContractVN()</strong>
+                    </div>
+                    @if (Model.StatusId != (int)GS.Core.Domain.Contracts.ContractStatus.Destroy)
+                    {
+                        @if (Model.StatusId == (int)GS.Core.Domain.Contracts.ContractStatus.Draf)
+                        {
+                            <div class="col-sm-4 row">
+                                <a class='btn btn-primary' href='javascript:approvContract();'><i class=''></i>Duyệt hợp đồng</a>
+                            </div>
+                        }
+                        @if (Model.StatusId == (int)GS.Core.Domain.Contracts.ContractStatus.Building)
+                        {
+                            <div class="col-sm-4 row" style="margin-left:10px;">
+                                <a class='btn btn-danger' href='javascript:CancelApprovalContract();' data-title="Hủy duyệt hợp đồng"><i class=''></i>Hủy duyệt</a>
+                            </div>
+                        }
+                        @if ((Model.StatusId != (int)GS.Core.Domain.Contracts.ContractStatus.Draf) && (Model.StatusId != (int)GS.Core.Domain.Contracts.ContractStatus.Liquidated) && (Model.StatusId != (int)GS.Core.Domain.Contracts.ContractStatus.Completed))
+                        {
+                            <div class="col-sm-4 row">
+                                <a class='btn btn-primary' data-toggle='modal' href='#tabContractLiquidation' data-title='Thanh lý hợp đồng'><i class=''></i>Thanh lý hợp đồng</a>
+                            </div>
+                        }
+                        @if (Model.StatusId == (int)GS.Core.Domain.Contracts.ContractStatus.Liquidated)
+                        {
+                            <div class="col-sm-4 row">
+                                <a class='btn btn-warning' data-toggle="modal" href="#tabContractFinish" data-title="Kết thúc hợp đồng"><i class=''></i>Kết thúc hợp đồng</a>
+                            </div>
+                        }
+                    }
+                    @if (Model.StatusId == (int)GS.Core.Domain.Contracts.ContractStatus.Destroy)
+                    {
+                        <div class="col-sm-4 row" style="margin-left:10px;">
+                            <a class='btn btn-primary' href='javascript:restoreContract();' data-title="Khôi phục lại hợp đồng"><i class=''></i>Khôi phục</a>
+                        </div>
+                    }
+
+                </div>
+                <script>
+                    function finishContract() {
+                                    bootbox.confirm({
+                                    message: 'Bạn có chắc chắn kết thúc hợp đồng',
+                            className: 'bootbox-sm',
+                            buttons: {
+                                        confirm: {
+                                            label: '@T("admin.common.yes")',
+                                },
+                                cancel: {
+                                            label: '@T("admin.common.no")',
+                                },
+                            },
+                            callback: function (result) {
+                                            if (result) {
+                                                kendo.ui.progress($(".progress-bar"), true);
+                                    $.ajax({
+                                                url: "/Contract/_ContractFinish?ContractId=@Model.Id",
+                                        type: "GET",
+                                        success: function (data) {
+                                                        ShowSuccessMessage(data.Message);
+                                                        location.reload();
+                                                    },
+                                    });
+                                            }
+                                        },
+                        });
+                    }
+
+                    function approvContract() {
+                        bootbox.confirm({
+                            message: 'Bạn có chắc chắn duyệt hợp đồng',
+                                    className: 'bootbox-sm',
+                                    buttons: {
+                                        confirm: {
+                                            label: '@T("admin.common.yes")',
+                                        },
+                                        cancel: {
+                                                        label: '@T("admin.common.no")',
+                                            },
+                                    },
+                                callback: function (result) {
+                                    if (result) {
+                                            kendo.ui.progress($(".progress-bar"), true);
+                                        $.ajax({
+                                            url: "/Contract/_ContractApprove?ContractId=@Model.Id",
+                                            type: "GET",
+                                            success: function (data) {
+                                                ShowSuccessMessage(data.Message);
+                                                location.reload();
+                                            },
+                                        });
+                                    }
+                                },
+                        });
+
+                    }
+                    function CancelApprovalContract() {
+                        bootbox.confirm({
+                            message: 'Bạn có chắc chắn hủy duyệt hợp đồng',
+                            className: 'bootbox-sm',
+                            buttons: {
+                                confirm: {
+                                    label: '@T("admin.common.yes")',
+                                },
+                                cancel: {
+                                    label: '@T("admin.common.no")',
+                                },
+                            },
+                            callback: function (result) {
+                                if (result) {
+                                    kendo.ui.progress($(".progress-bar"), true);
+                                    $.ajax({
+                                        url: "/Contract/_CancelApprovalContract?ContractId=" +@Model.Id,
+                                        type: "GET",
+                                        success: function (msg) {
+                                            if (msg.Code == "00") {
+                                                ShowSuccessMessage(msg.Message);
+                                                location.reload();
+                                            }
+                                            if (msg.Code == "01") {
+                                                ShowErrorMessage(msg.Message);
+                                            }
+                                        },
+                                    });
+                                }
+                            },
+                        });
+                    }
+                    // function khoi phuc lai trang thai nhap cua hop dong dang bi huy
+                    function restoreContract() {
+                        bootbox.confirm({
+                            message: 'Bạn có chắc chắn khôi phục hợp đồng',
+                            className: 'bootbox-sm',
+                            buttons: {
+                                confirm: {
+                                    label: '@T("admin.common.yes")',
+                                },
+                                cancel: {
+                                    label: '@T("admin.common.no")',
+                                },
+                            },
+                            callback: function (result) {
+                                if (result) {
+                                    kendo.ui.progress($(".progress-bar"), true);
+                                    $.ajax({
+                                        url: "/Contract/_RestoreContract?ContractId=" +@Model.Id,
+                                        type: "GET",
+                                        success: function (msg) {
+                                            if (msg.Code == "00") {
+                                                ShowSuccessMessage(msg.Message);
+                                                location.reload();
+                                            }
+                                            if (msg.Code == "01") {
+                                                ShowErrorMessage(msg.Message);
+                                            }
+                                        },
+                                    });
+                                }
+                            },
+                        });
+                    }
+                </script>
+            </div>
+        </div>
+    </div>
+    <!-- / Startus, Peroid Progress -->
+
+    <div class="row">
+        <div class="col">
+            <!--Procuring Agency-->
+            <div id="tabContractJointInfo">
+                @await Html.PartialAsync("_ContractJointInfo", Model)
+            </div>
+            <script>
+                function LoadTabContractJointInfo()
+                {
+                    kendo.ui.progress($("#tabContractJointInfo"), true);
+                    $.ajax({
+                        cache: false,
+                        type: "GET",
+                        url: "/Contract/_ContractJointInfo?contractId=@Model.Id",
+                        complete: function (data) {
+                            kendo.ui.progress($("#tabContractJointInfo"), false);
+                            $("#tabContractJointInfo").html(data.responseText);
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            alert(thrownError);
+                        },
+                        traditional: true
+                    });
+                }
+
+            </script>
+            <!--/Procuring Agency-->
+            <!-- Task, acceptance -->
+            <div class="nav-tabs-top mb-4">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#Task-tasks">@T("AppWork.Contracts.Contract.Detail.TaskTile").Text</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#Acceptance-tasks">@T("AppWork.Contracts.Contract.Detail.TaskAcceptanceTitle").Text</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#ContractSettlement-tasks">@T("AppWork.Contracts.Contract.Detail.TaskSettlementTitle").Text</a>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <!-- Tasks tab -->
+                    <div class="tab-pane fade show active" id="Task-tasks">
+                        @await Html.PartialAsync("_ContractTasks", Model)
+                    </div>
+                    <!-- / Tasks tab -->
+                    <!-- Acceptance-tab -->
+                    <div class="tab-pane fade" id="Acceptance-tasks">
+                        @await Html.PartialAsync("_ContractAcceptance", Model)
+                    </div>
+                    <script>
+                            function LoadTabContractAcceptance(){
+                            //console.log("khoi luong");
+                            kendo.ui.progress($("#Acceptance-tasks"), true);
+                            $.ajax({
+                                cache: false,
+                                type:"GET",
+                                url: "/Contract/_ContractAcceptance?ContractId="+@Model.Id+"&TypeId=1",
+                                success: function (data) {
+                                    kendo.ui.progress($("#Acceptance-tasks"), false);
+                                    $("#Acceptance-tasks").html(data);
+                                    },
+                                error: function (xhr, ajaxOptions, thrownError) {
+                                    kendo.ui.progress($("#Acceptance-tasks"), false);
+                                        alert(thrownError);
+                                },
+                            })
+                        }
+                    </script>
+                    <!-- /  Acceptance-tab  -->
+                    <!-- Settlement-tab -->
+                    <div class="tab-pane fade" id="ContractSettlement-tasks">
+                        @await Html.PartialAsync("_ContractSettlement", Model)
+                    </div>
+                    <script>
+                        function LoadTabContractSettlement() {
+                            kendo.ui.progress($("#ContractSettlement-tasks"), true);
+                            $.ajax({
+                                cache: false,
+                                type:"GET",
+                                url: "/Contract/_ContractSettlement?ContractId="+@Model.Id,
+                                success: function (data) {
+                                    kendo.ui.progress($("#ContractSettlement-tasks"), false);
+                                    $("#ContractSettlement-tasks").html(data);
+                                    },
+                                error: function (xhr, ajaxOptions, thrownError) {
+                                    kendo.ui.progress($("#ContractSettlement-tasks"), false);
+                                        alert(thrownError);
+                                },
+                            })
+                        }
+                    </script>
+                    <!-- / Settlement-tab -->
+                </div>
+            </div>
+            <!-- / Task, acceptance -->
+            <!-- payment plan, payment transaction -->
+            <div class="nav-tabs-top mb-4">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#PaymentPlan-info">@T("AppWork.Contracts.Contract.Detail.PaymentPlanTitle").Text</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#PaymentAcceptance-info">@T("AppWork.Contracts.Contract.Detail.PaymentAcceptanceTitle").Text</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#Acceptance-Noibo" id="ContractAcceptanceNoiBo">Nghiệm thu nội bộ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#PaymentTransaction-info" id="paymentTransaction">@T("AppWork.Contracts.Contract.Detail.PaymentTransactionTitle").Text</a>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <!-- Tasks plan -->
+                    <div class="tab-pane fade show active" id="PaymentPlan-info">
+                        <div id="tabContractPaymentPlan">
+                            @await Html.PartialAsync("_ContractPaymentPlan", Model)
+                        </div>
+
+                        <script>
+                            function loadContractPaymentPlan() {
+                                ShowViewLoading("#tabContractPaymentPlan");
+                                    $.ajax({
+                                        type: "GET",
+                                        url: "/Contract/_ContractPaymentPlan?ContractId=@Model.Id",
+                                        success: function (data) {
+                                            $("#tabContractPaymentPlan").html(data);
+                                        }
+                                    });
+                                }
+
+    function loadContractPaymentRequest(planId) {
+
+            ShowViewLoading('#ContractPaymentRequest_' + planId);
+            var ContractId = $("#Id").val();
+            $.ajax({
+            cache: false,
+            type: "GET",
+                url: "/Contract/_ContractPaymentRequest?ContractId=" + ContractId+"&PaymentPlanId=" + planId,
+            success: function (data) {
+                $('#ContractPaymentRequest_' + planId).html(data);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            },
+            traditional: true
+            });
+         }
+    function DeleteContractPaymentRequest(id,planid) {
+
+        bootbox.confirm({
+        message: '@T("admin.common.deleteconfirmation")',
+        className: 'bootbox-sm',
+        buttons: {
+            confirm: {
+                label: '@T("admin.common.yes")',
+            },
+            cancel: {
+                label: '@T("admin.common.no")',
+            },
+        },
+        callback: function (result) {
+            if (result) {
+                kendo.ui.progress($("#ContractPaymentRequest_" + planid), true);
+                $.ajax({
+                    cache: false,
+                    type: "GET",
+                    url: "/Contract/DeleteContractPaymentRequest?Id=" + id,
+                    success: function (msg) {
+                        ShowSuccessMessage(msg.Message);
+                        kendo.ui.progress($("#ContractPaymentRequest_" + planid), false);
+                        loadContractPaymentRequest(planid);
+                        //giam di 1 don vi luc xoa yeu cau
+                        var _countChild = parseInt($("#spanContractPaymentRequestCount_" + planid).html());
+                        _countChild = _countChild - 1;
+                        $("#spanContractPaymentRequestCount_" + planid).html(_countChild);
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert(thrownError);
+                        kendo.ui.progress($("#ContractPaymentRequest_" + planid), false);
+                    },
+                    traditional: true
+                });
+            }
+        },
+        });
+    }
+    function DeleteContractPaymentPlan(id) {
+        kendo.ui.progress($("#AcceptanceCreate"), true);
+        bootbox.confirm({
+        message: '@T("admin.common.deleteconfirmation")',
+        className: 'bootbox-sm',
+        buttons: {
+            confirm: {
+                label: '@T("admin.common.yes")',
+            },
+            cancel: {
+                label: '@T("admin.common.no")',
+            },
+        },
+        callback: function (result) {
+            if (result) {
+                $.ajax({
+                    cache: false,
+                    type: "GET",
+                    url: "/Contract/DeleteContractPaymentPlan?Id=" + id,
+                    success: function (msg) {
+                        ShowSuccessMessage(msg.Message);
+                        kendo.ui.progress($("#AcceptanceCreate"), false);
+                        loadContractPaymentPlan();
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert(thrownError);
+                    },
+                    traditional: true
+                });
+            }
+        },
+        });
+    }
+                            $(document).ready(function () {
+                                SetEmptyModal('#modalContractPaymentPlan');
+            $('#modalContractPaymentPlan').on('show.bs.modal', function (event) {
+                var modal = $(this);
+                ShowViewLoading(modal.find('.content'));
+                kendo.ui.progress($("#modalContractPaymentPlan"), true);
+                //lay thong tin tu button de hien thi popup
+                var button = $(event.relatedTarget);
+                if (!button)
+                    return;
+                var _id = button.data('id');
+                var _typeid = button.data('typeid');
+                var _planid = button.data('planid');
+                var _acceptanceId = button.data('acceptanceid');
+                modal.find('.modal-title').text(button.data('title'));
+                var _action = button.data('action');
+                var _url = "";
+                if (_action == "request")
+                    _url = "/Contract/_ContractPaymentRequestAdd?PaymentPlanId=" + _planid + "&PaymentRequestId=" + _id + "&TypeId=" + _typeid;
+                if (_action == "payment")
+                    _url = "/Contract/_ListContractPayment?paymentRequestId=" + _id + "&acceptanceId=" + _acceptanceId;
+                if (_url.length==0)
+                    _url = "/Contract/_ContractPaymentPlanAdd?ContractId=@Model.Id&PaymentPlanId=" + _id + "&TypeId=" + _typeid;
+                $.ajax({
+                    cache: false,
+                    type: "GET",
+                    url: _url,
+                    complete: function (data) {
+                        modal.find('.content').html(data.responseText);
+                        kendo.ui.progress($("#modalContractPaymentPlan"), false);
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert(thrownError);
+                    },
+                    traditional: true
+                });
+            });
+
+        });
+                        </script>
+                        <div class="modal fade" data-backdrop="static" data-keyboard="false" id="modalContractPaymentPlan" style="display: none;" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title"></h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+                                    </div>
+                                    <div class="modal-body" style="padding:0.5625rem !important;">
+                                        <div class="content">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /Tasks plan -->
+                    <div class="tab-pane fade" id="PaymentAcceptance-info">
+                        <div id="tabPaymentAcceptance">
+                            @await Html.PartialAsync("_ContractPaymentAcceptance", Model)
+                        </div>
+                        <script>
+                            function LoadContractPaymentAcceptance() {
+                                kendo.ui.progress($("#tabPaymentAcceptance"), true);
+                                    $.ajax({
+                                        type: "GET",
+                                        url: "/Contract/_ContractPaymentAcceptance?ContractId=@Model.Id",
+                                        success: function (data) {
+                                            kendo.ui.progress($("#tabPaymentAcceptance"), false);
+                                            $("#tabPaymentAcceptance").html(data);
+                                        }
+                                    });
+                            }
+
+                            $(document).ready(function () {
+                                SetEmptyModal('#tabContractPaymentAcceptance');
+                                $('#tabContractPaymentAcceptance').on('show.bs.modal', function (event) {
+                                    kendo.ui.progress($("#contentCreate"), true);
+                                    var modal = $(this);
+                                    //lay thong tin tu button de hien thi popup
+                                    var button = $(event.relatedTarget);
+                                    if (!button)
+                                        return;
+                                    var _id = button.data('id');
+                                    modal.find('.modal-title').text(button.data('title'));
+                                    $.ajax({
+                                        cache: false,
+                                        type: "GET",
+                                        url: "/Contract/_ContractPaymentAcceptanceAdd?ContractId=@Model.Id&PaymenyAcceptanceId=" + _id,
+                                        complete: function (data) {
+                                            kendo.ui.progress($("#contentCreate"), false);
+                                            modal.find('.content').html(data.responseText);
+                                        },
+                                        error: function (xhr, ajaxOptions, thrownError) {
+                                            alert(thrownError);
+                                        },
+                                        traditional: true
+                                    });
+                                });
+                                });
+                            function DeletePaymentAcceptance(id) {
+                                    kendo.ui.progress($("#AcceptanceCreate"), true);
+                                    bootbox.confirm({
+                                    message: '@T("admin.common.deleteconfirmation")',
+                                    className: 'bootbox-sm',
+                                    buttons: {
+                                        confirm: {
+                                            label: '@T("admin.common.yes")',
+                                        },
+                                        cancel: {
+                                            label: '@T("admin.common.no")',
+                                        },
+                                    },
+                                    callback: function (result) {
+                                        if (result) {
+                                            $.ajax({
+                                                cache: false,
+                                                type: "GET",
+                                                url: "/Contract/DeletePaymentAcceptance?Id=" + id,
+                                                success: function (msg) {
+                                                    $("#tabContractJoinEdit .close").click();
+                                                    ShowSuccessMessage(msg.Message);
+                                                    kendo.ui.progress($("#AcceptanceCreate"), false);
+                                                    LoadContractPaymentAcceptance();
+                                                },
+                                                error: function (xhr, ajaxOptions, thrownError) {
+                                                    alert(thrownError);
+                                                },
+                                                traditional: true
+                                            });
+                                        }
+                                    },
+                                    });
+                                }
+                        </script>
+                        <div class="modal fade" data-backdrop="static" data-keyboard="false" id="tabContractPaymentAcceptance" style="display: none;" aria-hidden="true">
+                            <div class="modal-dialog modal-max">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title"></h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+                                    </div>
+                                    <div class="modal-body" style="padding:0.5625rem !important;">
+                                        <div id="contentCreate" class="content">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Payment tabAcceptance-Noibo -->
+                    <div class="tab-pane fade" id="Acceptance-Noibo">
+                        <div id="tabAcceptanceNoibo">
+                            @await Html.PartialAsync("_ContractAcceptanceNoiBo", Model)
+                        </div>
+                    </div>
+                    @*<script>
+                            function loadContractAcceptanceNoiBo() {
+                                kendo.ui.progress($("#tabAcceptanceNoibo"), true);
+                                $.ajax({
+                                    cache: false,
+                                    type: "GET",
+                                    url: "/Contract/_ContractAcceptanceNoiBo?ContractId=@Model.Id",
+                                    success: function (data) {
+                                        kendo.ui.progress($("#tabAcceptanceNoibo"), false);
+                                        $("#tabAcceptanceNoibo").html(data);
+                                    },
+                                    error: function (xhr, ajaxOptions, thrownError) {
+                                        kendo.ui.progress($("#tabAcceptanceNoibo"), false);
+                                        alert(thrownError);
+                                    },
+                                });
+                            }
+                        </script>*@
+                    <!-- / Payment tabAcceptance-Noibo -->
+                    <!-- Payment transaction -->
+                    <div class="tab-pane fade" id="PaymentTransaction-info">
+                        <div id="tabTaskPayment">
+                            <div class="card-header py-3" style=" border-bottom-width: 0px !important;">
+                            </div>
+                            @await Html.PartialAsync("_TaskPayment", Model)
+                        </div>
+                        <script>
+                            $(document).ready(function () {
+                                loadPaymentList();
+                            });
+                        </script>
+                    </div>
+                    <!-- / Payment transaction -->
+
+                </div>
+            </div>
+            <!-- / payment plan, payment transaction-->
+            <!-- Attached files -->
+            <!-- / Attached files -->
+            <!-- Contract BB', Appendix -->
+            <!-- / payment plan, payment transaction-->
+            <!-- Properties info, discussion, log -->
+            <div class="nav-tabs-top mb-4">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#Properties-info">@T("AppWork.Contracts.Contract.Detail.PropertiesTitle").Text</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#Discussion-info">@T("AppWork.Contracts.Contract.Detail.DiscussionTitle").Text</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#Activity-info" id="Tab-Activity-Info">@T("AppWork.Contracts.Contract.Detail.ActivityTitle")</a>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <!-- Discussion-tab -->
+                    <div class="tab-pane fade show active" id="Properties-info">
+                        <div class="card-body">
+                            <table class="table user-view-table m-0">
+                                <tr>
+                                    <td style="font-weight:bold">@T("AppWork.Contracts.Contract.Fields.Code")</td>
+                                    <td>@Model.Code</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight:bold">@T("AppWork.Contracts.Contract.Fields.Code1")</td>
+                                    <td>@Model.Code1</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight:bold">@T("AppWork.Contracts.Contract.Fields.ConstructionId")</td>
+                                    <td>@Model.ConstructionName</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight:bold">@T("AppWork.Contracts.Contract.Fields.PaymentInfo")</td>
+                                    <td>@Model.PaymentInfo</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight:bold">@T("AppWork.Contracts.Contract.Fields.Description")</td>
+                                    <td>@Model.Description</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- Discussion-tab -->
+                    <div class="tab-pane fade" id="Discussion-info">
+                        <div class="card-body">
+                            <label>Thảo luận</label>
+                        </div>
+                    </div>
+                    <!-- /  Discussion-tab  -->
+                    <!-- tab-Activity -->
+                    <div class="tab-pane fade" id="Activity-info">
+                        <div class="card-body">
+                            <div id="tabActivity">
+                                @await Html.PartialAsync("_TaskActivity", Model)
+                            </div>
+                            <script>
+                                $(document).ready(function () {
+                                    $("#Tab-Activity-Info").click(function () {
+                                        loadContractLogList();
+                                    });
+                                });
+                            </script>
+                        </div>
+                    </div>
+                    <!-- / Activity -->
+
+                </div>
+            </div>
+            <div id="tabContractFiles">
+                @await Html.PartialAsync("_ContractFiles", Model)
+            </div>
+            <script>
+                function LoadTabContractFiles()
+                {
+                    kendo.ui.progress($("#tabContractFiles"), true);
+                    $.ajax({
+                        cache: false,
+                        type: "GET",
+                        url: "/Contract/_ContractFiles?contractGuid=@Model.ContractGuid",
+                        complete: function (data) {
+                            kendo.ui.progress($("#tabContractFiles"), false);
+                            $("#tabContractFiles").html(data.responseText);
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            alert(thrownError);
+                        },
+                        traditional: true
+                    });
+                }
+
+            </script>
+            <!-- / Properties info, discussion, log -->
+        </div>
+        <div class="col-md-4 col-xl-3">
+
+            <!-- Project details -->
+            @await Html.PartialAsync("_BasicInfo", Model)
+            <!-- / Project details -->
+            <!-- _BoxTypeContract -->
+            @await Html.PartialAsync("_BoxTypeContract", Model)
+            <!-- /_BoxTypeContract -->
+            <!-- Leaders -->
+            <div class="card mb-4 ">
+                <h6 class="card-header with-elements">
+                    <span class="card-header-title">@T("AppWork.Contracts.Contract.Fields.Expect")</span>
+                </h6>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <div class="media align-items-center">
+                            <div @*class="media-body px-2" *@ style="color:#0fbbea">
+                                @Model.StartDate.toDateVNString() - @Model.EndDate.toDateVNString()
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <!-- / Leaders -->
+            <!-- Participants -->
+            <div id="TabContractResourceInfor">
+                @await Html.PartialAsync("_ContractResource", Model)
+            </div>
+            <script>
+            function loadContractResource() {
+                //console.log("to do");
+                $.ajax({
+                    type: "GET",
+                    url: "/Contract/_ContractResource?ContractId=@Model.Id",
+                    success: function (data) {
+                        $("#TabContractResourceInfor").html(data);
+                    }
+                })
+            }
+            </script>
+            <!-- / Participants -->
+
+        </div>
+    </div>
+
+</div>
+@*nghiem thu noi bo*@
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="tabContractAcceptanceNoiBo" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-big">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@T("admin.contract.detail.addcontractacceptance")</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body" style="padding:0.5625rem !important;">
+                <div id="AcceptanceCreate" class="content">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        //LoadContractAcceptanceTask();
+        SetEmptyModal('#tabContractAcceptanceNoiBo');
+        $('#tabContractAcceptanceNoiBo').on('show.bs.modal', function (event) {
+            kendo.ui.progress($("#contentCreate"), true);
+            var modal = $(this);
+            //lay thong tin tu button de hien thi popup
+            var button = $(event.relatedTarget);
+            if (!button)
+                return;
+            var _id = button.data('id');
+            var _payId = button.data('payid');
+            modal.find('.modal-title').text(button.data('title'));
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "/Contract/_ContractAcceptanceNoiBoAdd?ContractId=@Model.Id&AcceptanceId=" + _id + "&PaymentAccepId=" + _payId ,
+                complete: function (data) {
+                    kendo.ui.progress($("#contentCreate"), false);
+                    modal.find('.content').html(data.responseText);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                },
+                traditional: true
+            });
+            });
+        });
+</script>
+<script>
+    $(document).ready(function () {
+       // LoadContractAcceptanceTask();
+        SetEmptyModal('#tabContractAcceptance');
+        $('#tabContractAcceptance').on('show.bs.modal', function (event) {
+            kendo.ui.progress($("#contentCreate"), true);
+            var modal = $(this);
+            //lay thong tin tu button de hien thi popup
+            var button = $(event.relatedTarget);
+            if (!button)
+                return;
+            var _id = button.data('id');
+            var _taskId = button.data('taskid');
+            var _TypeId = button.data('type');
+            var _payId = button.data('payid');
+            modal.find('.modal-title').text(button.data('title'));
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "/Contract/_ContractAcceptanceAdd?ContractId=@Model.Id&AcceptanceId=" + _id + "&TypeId=" + _TypeId + "&TaskId=" + _taskId + "&PaymentAccepId=" + _payId ,
+                complete: function (data) {
+                    kendo.ui.progress($("#contentCreate"), false);
+                    modal.find('.content').html(data.responseText);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                },
+                traditional: true
+            });
+            });
+        });
+</script>
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="tabContractAcceptance" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-big">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@T("admin.contract.detail.addcontractacceptance")</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body" style="padding:0.5625rem !important;">
+                <div id="AcceptanceCreate" class="content">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        SetEmptyModal('#tabTaskResource');
+        $('#tabTaskResource').on('show.bs.modal', function (event) {
+            kendo.ui.progress($("#contentCreate"), true);
+            var modal = $(this);
+            //console.log("to do");
+            //lay thong tin tu button de hien thi popup
+            var button = $(event.relatedTarget);
+            if (!button)
+                return;
+            //var _id = button.data('id');
+            var _taskId = button.data('taskid');
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "/Works/_TaskResourceAdd?TaskId=" + _taskId,
+                complete: function (data) {
+                    kendo.ui.progress($("#contentCreate"), false);
+                    modal.find('.content').html(data.responseText);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                },
+                traditional: true
+            });
+        });
+    });
+     //xoa nghiem thu noi bo , nghiem thu khoi luong
+        function DeleteContractAcceptance(id) {
+        kendo.ui.progress($("#AcceptanceCreate"), true);
+        bootbox.confirm({
+        message: '@T("admin.common.deleteconfirmation")',
+        className: 'bootbox-sm',
+        buttons: {
+            confirm: {
+                label: '@T("admin.common.yes")',
+            },
+            cancel: {
+                label: '@T("admin.common.no")',
+            },
+        },
+        callback: function (result) {
+            if (result) {
+                $.ajax({
+                    cache: false,
+                    type: "GET",
+                    url: "/Contract/DeleteContractAcceptance?Id=" + id,
+                    success: function (data) {                       
+                        if (data.Message == "00") {
+                             $("#tabContractJoinEdit .close").click();
+                            ShowSuccessMessage(data.Message);
+                            kendo.ui.progress($("#AcceptanceCreate"), false);
+                            //neu xoa nghiem thu khoi luong
+                            if (data.ObjectInfo.TypeId == @((int)GS.Core.Domain.Contracts.ContractAcceptancesType.KhoiLuong)) {
+                                LoadTabContractAcceptance();
+                            }
+                            //neu xoa nghiem thu noi bo
+                            else if (data.ObjectInfo.TypeId == @((int)GS.Core.Domain.Contracts.ContractAcceptancesType.NoiBo))
+                            {
+                                loadContractAcceptanceNoiBo();
+                            }
+                                else if (data.ObjectInfo.TypeId == @((int)GS.Core.Domain.Contracts.ContractAcceptancesType.TamUng))
+                            {
+                                $("#modalAdvanceQuantity .close").click();
+                                loadContractTaskChild(data.ObjectInfo.ContractId, 0);
+                            }
+                            else {
+                                    loadContractTaskChild(data.ObjectInfo.ContractId, 0);
+                                //console.log("xoa nghiem thu noi bo");
+                                $("#modalContractAccepptaceTask .close").click();
+                            }
+                        }
+                        else {
+                            ShowErrorMessage(data.Message);
+                        }
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert('@T("Admin.common.request.error")');
+                    },
+                    traditional: true
+                });
+            }
+        },
+    });
+    }
+    // xoa ContractSettlement
+    function DeleteContractSettlement(id) {
+        kendo.ui.progress($("#listContractSettlement"), true);
+        bootbox.confirm({
+        message: '@T("admin.common.deleteconfirmation")',
+        className: 'bootbox-sm',
+        buttons: {
+            confirm: {
+                label: '@T("admin.common.yes")',
+            },
+            cancel: {
+                label: '@T("admin.common.no")',
+            },
+        },
+        callback: function (result) {
+            if (result) {
+                $.ajax({
+                    cache: false,
+                    type: "GET",
+                    url: "/Contract/DeleteContractSettlement?Id=" + id,
+                    success: function (data) {
+                        ShowSuccessMessage(data.Message);
+                        kendo.ui.progress($("#listContractSettlement"), false);
+                        LoadTabContractSettlement();
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert('@T("Admin.common.request.error")');
+                    },
+                    traditional: true
+                });
+            }
+            else {
+                kendo.ui.progress($("#listContractSettlement"), false);
+            }
+        },
+    });
+}
+</script>
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="tabTaskResource" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@T("admin.contract.detail.tabTaskResource")</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body" style="padding:0.5625rem !important;">
+                <div id="contentCreate" class="content">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="InsertContractPaymentType1" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="content">
+
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // Script Goi Modal "tabInsertContractPayment" ngoài Detail
+    $(document).ready(function () {
+        SetEmptyModal('#InsertContractPaymentType1');
+        $('#InsertContractPaymentType1').on('show.bs.modal', function (event) {
+            var modal = $(this);
+            kendo.ui.progress(modal.find('.content'), true);
+            //lay thong tin tu button de hien thi popup
+            var button = $(event.relatedTarget);
+            if (!button)
+                return;
+            var _id = button.data('id');
+            var _contractid = button.data('contractid');
+            var _requestid = button.data('requestid');
+            var _acceptanceid = button.data('acceptanceid');
+            var _type = button.data('type');
+            modal.find('.modal-title').text(button.data('title'));
+            var _isReceipts = parseInt(button.data('receipts')) == 1;
+            var modal = $(this);
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "/Contract/_InsertPayment?ContractId=" + _contractid + "&Id=" + _id + "&IsReceipts=" + _isReceipts + "&PaymentRequestId=" + _requestid + "&AcceptanceId=" + _acceptanceid + "&TypeId=" + _type,
+                complete: function (data) {
+                    kendo.ui.progress(modal.find('.content'), false);
+                    modal.find('.content').html(data.responseText);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                },
+                traditional: true
+            });
+        });
+    });
+</script>
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="tabContractLiquidation" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="content">
+
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // Script Goi Modal "tabInsertContractPayment" ngoài Detail
+    $(document).ready(function () {
+        SetEmptyModal('#tabContractLiquidation');
+        $('#tabContractLiquidation').on('show.bs.modal', function (event) {
+            var modal = $(this);
+            kendo.ui.progress(modal.find('.content'), true);
+            //lay thong tin tu button de hien thi popup
+            var button = $(event.relatedTarget);
+            if (!button)
+                return;
+            modal.find('.modal-title').text(button.data('title'));
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "/Contract/_ContractLiquidation?ContractId=@Model.Id",
+                complete: function (data) {
+                    kendo.ui.progress(modal.find('.content'), false);
+                    modal.find('.content').html(data.responseText);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                },
+                traditional: true
+            });
+        });
+    });
+</script>
+@*Modal ContractFinish*@
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="tabContractFinish" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="content">
+
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // Script Goi Modal "tabInsertContractPayment" ngoài Detail
+    $(document).ready(function () {
+        SetEmptyModal('#tabContractFinish');
+        $('#tabContractFinish').on('show.bs.modal', function (event) {
+            var modal = $(this);
+            kendo.ui.progress(modal.find('.content'), true);
+            //lay thong tin tu button de hien thi popup
+            var button = $(event.relatedTarget);
+            if (!button)
+                return;
+            modal.find('.modal-title').text(button.data('title'));
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "/Contract/_ContractFinish?ContractId=@Model.Id",
+                complete: function (data) {
+                    kendo.ui.progress(modal.find('.content'), false);
+                    modal.find('.content').html(data.responseText);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                },
+                traditional: true
+            });
+        });
+    });
+</script>
+
+@*nghiem thu BB*@
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="tabContractAcceptanceBB" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="content">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Script Goi Modal "tabContractAcceptanceBB" ngoài Detail
+    $(document).ready(function () {
+        SetEmptyModal('#tabContractAcceptanceBB');
+        $('#tabContractAcceptanceBB').on('show.bs.modal', function (event) {
+            var modal = $(this);
+            kendo.ui.progress(modal.find('.content'), true);
+            //lay thong tin tu button de hien thi popup
+            var button = $(event.relatedTarget);
+            if (!button)
+                return;
+            var _taskId = button.data('taskid');
+            var _Id = button.data('id');
+            modal.find('.modal-title').text(button.data('title'));
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "/Contract/_ContractAcceptanceBBAdd?ContractId=@Model.Id&TaskId=" + _taskId + "&Id=" + _Id,
+                complete: function (data) {
+                    kendo.ui.progress(modal.find('.content'), false);
+                    modal.find('.content').html(data.responseText);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                },
+                traditional: true
+            });
+        });
+    });
+    //huy nghiem thu BB tren cong viec
+    function DeleteAcceptanceBB(Id) {
+         bootbox.confirm({
+        message: '@T("admin.common.deleteconfirmation")',
+        className: 'bootbox-sm',
+        buttons: {
+            confirm: {
+                label: '@T("admin.common.yes")',
+            },
+            cancel: {
+                label: '@T("admin.common.no")',
+            },
+        },
+        callback: function (result) {
+            if (result) {
+                //kendo.ui.progress($("#ContractPaymentRequest_" + planid), true);
+                $.ajax({
+                    cache: false,
+                    type: "GET",
+                    url: "/Contract/_DeleteAcceptanceBB?Id=" + Id,
+                    success: function (msg) {
+                        //console.log(msg);
+                        //kendo.ui.progress($("#ContractPaymentRequest_" + planid), false);
+                         $('#ContractTaskChild_0').removeClass("isloaded");
+                        loadContractTaskChild(@Model.Id,0);
+                        ShowSuccessMessage(msg.Message);
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert(thrownError);
+                        //kendo.ui.progress($("#ContractPaymentRequest_" + planid), false);
+                    },
+                    traditional: true
+                });
+            }
+        },
+        });
+    }
+</script>
+@*thanh toan BB*@
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="tabInsertContractPaymentBB" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="content">
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+     $(document).ready(function () {
+         SetEmptyModal('#tabInsertContractPaymentBB');
+         $('#tabInsertContractPaymentBB').on('show.bs.modal', function (event) {
+            var modal = $(this);
+            kendo.ui.progress(modal.find('.content'), true);
+            //lay thong tin tu button de hien thi popup
+            var button = $(event.relatedTarget);
+            if (!button)
+                return;
+            var _taskId = button.data('taskid');
+            var _Id = button.data('id');
+            modal.find('.modal-title').text(button.data('title'));
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "/Contract/_ContractPaymentBBAdd?ContractId=@Model.Id&TaskId=" + _taskId + "&Id=" + _Id,
+                complete: function (data) {
+                    kendo.ui.progress(modal.find('.content'), false);
+                    modal.find('.content').html(data.responseText);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                },
+                traditional: true
+            });
+        });
+    });
+</script>
+@*Modal Unfinish*@
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="modalUnfinish" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="content" style="margin-top: 5px;">
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+     $(document).ready(function () {
+         SetEmptyModal('#modalUnfinish');
+         $('#modalUnfinish').on('show.bs.modal', function (event) {
+            var modal = $(this);
+            kendo.ui.progress(modal.find('.content'), true);
+            //lay thong tin tu button de hien thi popup
+            var button = $(event.relatedTarget);
+            if (!button)
+                 return;
+             //var _contractId = button.data('contractId');
+             var _title = button.data('title');
+             modal.find('.modal-title').text(_title);
+             $.ajax({
+                 cache: false,
+                 type: "GET",
+                 url: "/Contract/_Unfinished?contractId=@Model.Id",
+                 complete: function (data) {
+                     kendo.ui.progress(modal.find('.content'), false);
+                     modal.find('.content').html(data.responseText);
+                 },
+                 error: function (xhr, ajaxOptions, thrownError) {
+                     alert(thrownError);
+                 },
+                 traditional: true
+             });
+        });
+    });
+</script>
+@*gia tri do dang chua nghiem thu*@
+
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="modalUnfinishType" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="content" style="margin-top: 5px;">
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+     $(document).ready(function () {
+         SetEmptyModal('#modalUnfinishType');
+         $('#modalUnfinishType').on('show.bs.modal', function (event) {
+            var modal = $(this);
+            kendo.ui.progress(modal.find('.content'), true);
+            //lay thong tin tu button de hien thi popup
+            var button = $(event.relatedTarget);
+            if (!button)
+                 return;
+             var _title = button.data('title');
+             var _type = button.data('typeid');
+             modal.find('.modal-title').text(_title);
+             $.ajax({
+                 cache: false,
+                 type: "GET",
+                 url: "/Contract/_ContractUnfinish?contractId=@Model.Id&ContractTypeId=" + _type,
+                 complete: function (data) {
+                     kendo.ui.progress(modal.find('.content'), false);
+                     modal.find('.content').html(data.responseText);
+                 },
+                 error: function (xhr, ajaxOptions, thrownError) {
+                     alert(thrownError);
+                 },
+                 traditional: true
+             });
+        });
+    });
+</script>
+
+@*quyet toan hop dong *@
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="tabContractSettlement" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-big">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="content">
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+     $(document).ready(function () {
+         SetEmptyModal('#tabContractSettlement');
+         $('#tabContractSettlement').on('show.bs.modal', function (event) {
+            var modal = $(this);
+            kendo.ui.progress(modal.find('.content'), true);
+            //lay thong tin tu button de hien thi popup
+            var button = $(event.relatedTarget);
+            if (!button)
+                return;
+             modal.find('.modal-title').text(button.data('title'));
+             var _id = button.data('id');
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "/Contract/_ContractSettlementAdd?ContractId=@Model.Id&Id="+_id,
+                complete: function (data) {
+                    kendo.ui.progress(modal.find('.content'), false);
+                    modal.find('.content').html(data.responseText);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                },
+                traditional: true
+            });
+        });
+    });
+</script>
+
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="tabInsertContractPayment" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="content">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Script Goi Modal "tabInsertContractPayment" ngoài Detail
+    $(document).ready(function () {
+        SetEmptyModal('#tabInsertContractPayment');
+        $('#tabInsertContractPayment').on('show.bs.modal', function (event) {
+            var modal = $(this);
+            //lay thong tin tu button de hien thi popup
+            var button = $(event.relatedTarget);
+            if (!button)
+                return;
+            var _id = button.data('id');
+            var _contractid = button.data('contractid');
+            var _requestid = button.data('requestid');
+            var _acceptanceid = button.data('acceptanceid');
+            var _type = button.data('type');
+            var _taskId = button.data('taskid');
+            modal.find('.modal-title').text(button.data('title'));
+            var _isReceipts = parseInt(button.data('receipts')) == 1;
+            kendo.ui.progress(modal.find('.content'), true);
+            var modal = $(this);
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "/Contract/_InsertPayment?ContractId=" + _contractid + "&Id=" + _id + "&IsReceipts=" + _isReceipts + "&PaymentRequestId=" + _requestid + "&AcceptanceId=" + _acceptanceid + "&TypeId=" + _type + "&TaskId=" + _taskId,
+                complete: function (data) {
+                    kendo.ui.progress(modal.find('.content'), false);
+                    modal.find('.content').html(data.responseText);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                },
+                traditional: true
+            });
+        });
+    });
+</script>
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="tapInsertProcuringAgencyTask" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm liên danh cho công việc</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body" style="padding:0.5625rem !important;">
+                <div id="contentCreate" class="content">
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="modalListContractAppendix" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Danh sách phụ lục của hợp đồng <h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body" style="padding:0.5625rem !important;">
+                <div id="contentCreate" class="content">
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        SetEmptyModal('#tapInsertProcuringAgencyTask');
+        $('#tapInsertProcuringAgencyTask').on('show.bs.modal', function (event) {
+            var modal = $(this);
+            //lay thong tin tu button de hien thi popup
+            var button = $(event.relatedTarget);
+            if (!button)
+                return;
+            var _contractId = $("#Id").val();
+            var _taskId = button.data('taskid');
+            kendo.ui.progress(modal.find('.content'), true);
+            var modal = $(this);
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "/Works/_ProcuringAgencyTask?contractId=" + _contractId + "&taskId=" + _taskId,
+                complete: function (data) {
+                    kendo.ui.progress(modal.find('.content'), false);
+                    modal.find('.content').html(data.responseText);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                },
+                traditional: true
+            });
+        });
+        // Modal list ContractAppendix
+        SetEmptyModal('#modalListContractAppendix');
+        $('#modalListContractAppendix').on('show.bs.modal', function (event) {
+            var modal = $(this);
+            //lay thong tin tu button de hien thi popup
+            var button = $(event.relatedTarget);
+            if (!button)
+                return;
+            var _contractId = button.data('contractid');
+            kendo.ui.progress(modal.find('.content'), true);
+            var modal = $(this);
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "/Contract/_ListContractAppendix?ContractId=" + _contractId,
+                complete: function (data) {
+                    kendo.ui.progress(modal.find('.content'), false);
+                    modal.find('.content').html(data.responseText);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                },
+                traditional: true
+            });
+        });
+    });
+</script>
+@*end quyet toan hop dong *@
+<style>
+    .modal-big {
+        max-width: 63rem;
+    }
+
+    .modal-max {
+        max-width: 71rem;
+    }
+
+    .modal-md {
+        max-width: 35rem;
+    }
+
+    .scrollbar {
+        margin-left: 30px;
+        float: left;
+        /*height: 300px;*/
+        width: 90%;
+        background: #fff;
+        overflow-y: scroll;
+        margin-bottom: 25px;
+    }
+
+    .force-overflow {
+        /*min-height: 450px;*/
+    }
+
+    .scrollbar-primary::-webkit-scrollbar {
+        width: 12px;
+        background-color: #F5F5F5;
+    }
+
+    .scrollbar-primary::-webkit-scrollbar-thumb {
+        border-radius: 10px;
+        -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+        background-color: #4285F4;
+    }
+
+    .scrollbar-primary::-webkit-scrollbar-thumb {
+        border-radius: 10px;
+        -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+        background-color: #4285F4;
+    }
+
+    .number-input-short .k-numerictextbox {
+        width: 120px !important;
+    }
+
+    .number-input-long .k-numerictextbox {
+        width: 150px !important;
+    }
+</style>

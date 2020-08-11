@@ -1,0 +1,7 @@
+﻿@model List<ContractPaymentAcceptanceSubModel>
+@foreach (ContractPaymentAcceptanceSubModel ps in Model)
+{
+    <text>
+        @await Html.PartialAsync("_ContractPaymentAcceptanceSubAdd", ps)
+    </text>
+}

@@ -1,0 +1,48 @@
+﻿@model ContractPeriodModel
+<div class="card mb-4">
+    <div class="card-body" id="modal_InsertContractPeriod">
+        @await Html.PartialAsync("_CreateOrUpdate", Model)
+        <a id="btnAdd_ContractPeriod" href="javascript:void(0);" name="save" class="btn btn-success" style="float:right;margin-right:5px; ">
+            <i class="fas fa-save" style="margin-right:5px;"></i>
+            @T("Admin.Common.Save")
+        </a>
+    </div>
+</div>
+<script>
+    
+        function ReloadContractPeriods(obj) {
+            var widget = $("#SelectedContractPeriodIds").getKendoMultiSelect();
+            var dataSource = widget.dataSource;
+            dataSource.add({
+                value: obj.Id,
+                text: obj.Name
+            });
+            dataSource.sync();
+        }
+    $(document).ready(function () {
+        $("#btnAdd_ContractPeriod").click(function () {
+            var postData = {
+                Name: $("#modal_InsertContractPeriod #Name").val()
+            }
+            $.ajax({
+                cache: false,
+                type: 'POST',
+                url: "/ContractPeriod/_Create",
+                data: postData,
+                success: function (msg) {
+                    console.log(msg);
+                    if (msg.Code == "00") {
+                        $("#modal_InsertContractNew .close").click();
+                        ShowSuccessMessage(msg.Message);
+                        ReloadContractPeriods(msg.ObjectInfo);
+                    }
+                    else {
+                        ShowErrorMessage(msg.Message);
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                }
+            });
+        });
+    });
+</script>

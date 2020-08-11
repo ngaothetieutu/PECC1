@@ -1,0 +1,184 @@
+﻿@model ContractPaymentSearchModel
+<nop-antiforgery-token />
+<div class="content">
+    <div class="container-fluid flex-grow-1 container-p-y">
+        <div class="card">
+            <div class="card-body pb-2">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="form-label">Từ khoá </label>
+                        </div>
+                        <div class="col-md-9">
+                            <nop-editor asp-for="Keysearch" />
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="form-label">Hạng mục công việc</label>
+                        </div>
+                        <div class="col-md-9">
+                            <nop-select asp-for="SelectListTaskId" asp-items="Model.AvailableTasks" asp-multiple="true">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <label style="font-weight:500; font-size:13px; margin-top:15px;">Thu/Chi</label>
+                    </div>
+                    <div class="custom-controls-stacked row col-md-9" style="padding-top:10px;padding-left:30px;">
+                        <label class="custom-control custom-radio col-md-4">
+                            <input name="radioIsreceipt" type="radio" class="custom-control-input" checked="checked" id="all" value="0">
+                            <span class="custom-control-label">Tất cả</span>
+                        </label>
+                        <label class="custom-control custom-radio col-md-4">
+                            <input name="radioIsreceipt" type="radio" class="custom-control-input" id="thu" value="1">
+                            <span class="custom-control-label">Thu</span>
+                        </label>
+                        <label class="custom-control custom-radio col-md-4">
+                            <input name="radioIsreceipt" type="radio" class="custom-control-input" id="chi" value="2">
+                            <span class="custom-control-label">Chi</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <label style="font-weight:500; font-size:13px; margin-top:15px;">Thanh toán/ Tạm ứng</label>
+                    </div>
+                    <div class="custom-controls-stacked row col-md-9"  style="padding-top:13px;padding-left:30px;">
+                        <label class="custom-control custom-radio col-md-4">
+                            <input name="radioType" type="radio" class="custom-control-input" checked="checked" id="all" value="0">
+                            <span class="custom-control-label">Tất cả</span>
+                        </label>
+                        <label class="custom-control custom-radio col-md-4">
+                            <input name="radioType" type="radio" class="custom-control-input" id="all" value="1">
+                            <span class="custom-control-label">Tạm ứng</span>
+                        </label>
+                        <label class="custom-control custom-radio col-md-4">
+                            <input name="radioType" type="radio" class="custom-control-input" id="thu" value="2">
+                            <span class="custom-control-label">Thanh toán</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="text-right mt-3">
+                        <div class="row">
+                            <button type="button" class="btn btn-primary" id="btnContractPaymentSearch">@T("Admin.Common.Search")</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="form-horizontal">
+    <div class="panel-group">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div id="contractpayment-grid"></div>
+                <script>
+                     
+                    $("#btnContractPaymentSearch").click(function () {
+                        var grid = $('#contractpayment-grid').data('kendoGrid');
+                        grid.dataSource.page(1); //new search. Set page size to 1
+                        return false;
+                    }); 
+                    $(document).ready(function () {
+                        function SearchContractPaymentData() {
+                            var _isReceipts = $('input[name=radioIsreceipt]:checked').val();
+                            var _typeId = $('input[name=radioType]:checked').val();
+                            //console.log(_isReceipts);
+                            var _data = {
+                                TypeId: $('#@Html.IdFor(model => model.TypeId)').val(),
+                                Keysearch: $('#@Html.IdFor(model => model.Keysearch)').val(),
+                                SelectListTaskId: $('#@Html.IdFor(model => model.SelectListTaskId)').val(),
+                                IsReceipts: parseInt(_isReceipts),
+                                TypeId: parseInt(_typeId),
+                                ContractId:$('#Id').val(),
+                            };
+                            addAntiForgeryToken(_data);
+                            return _data;
+                        };
+                        
+                        $("#contractpayment-grid").kendoGrid({
+                            dataSource: {
+                                type: "json",
+                                transport: {
+                                    read: {
+                                        url: "@Html.Raw(Url.Action("_TasksPayment", "Contract"))",
+                                        type: "POST",
+                                        dataType: "json",
+                                        data: SearchContractPaymentData
+                                    }
+                                },
+                                schema: {
+                                    data: "Data",
+                                    total: "Total",
+                                    errors: "Errors"
+                                },
+                                error: function(e) {
+                                    display_kendoui_grid_error(e);
+                                    // Cancel the changes
+                                    this.cancelChanges();
+                                },
+                                pageSize: @(Model.PageSize),
+                                serverPaging: true,
+                                serverFiltering: true,
+                                serverSorting: true
+                            },
+                            pageable: {
+                                refresh: true,
+                                pageSizes: [@(Model.AvailablePageSizes)],
+                                @await Html.PartialAsync("_GridPagerMessages")
+                            },
+                            editable: {
+                                confirmation: "@T("Admin.Common.DeleteConfirmation")",
+                                mode: "inline"
+                            },
+                            scrollable: false,
+                            columns: [
+                            {
+                                    field: "Code",
+                                    title: "@T("AppWork.Contracts.ContractPayment.Fields.Code")"
+                                },{
+                                    field: "CreatedDate",
+                                    title: "@T("AppWork.Contracts.ContractPayment.Fields.CreatedDate")",
+                                    type: "date",
+                                    format: "{0:dd/MM/yyyy}"
+                                },{
+                                    field: "TotalAmountText",
+                                    title: "@T("AppWork.Contracts.ContractPayment.Fields.Amount")",
+                                    //template: "#=(Amount == 0) ? '' : kendo.toString(Amount,'n0')#"
+                                    //format: "{0:##,#}"
+                                },{
+                                    field: "CurrencyName",
+                                title: "@T("AppWork.Contracts.ContractPayment.Fields.CurrencyId")"
+                                },{
+                                    field: "PaymentDate",
+                                    title: "@T("AppWork.Contracts.ContractPayment.Fields.PaymentDate")",
+                                    type: "date",
+                                    format: "{0:dd/MM/yyyy}"
+                                },{
+                                    field: "IsReceipts",
+                                    title: "@T("AppWork.Contracts.ContractPayment.Fields.IsReceipts")",
+                                    attributes: { style: "text-align:center" },
+                                    template: '<input type="checkbox" disabled #=IsReceipts? \'checked="checked"\' : "" # class="chkbx" />'
+                                },{
+                                    field: "Id",
+                                title: "@T("Admin.Common.Edit")",
+                                width: 100,
+                                headerAttributes: { style: "text-align:center" },
+                                    attributes: { style: "text-align:center" },
+                                    template: "<button type='button' class='btn btn-default edit-payment' data-toggle='modal' data-target='\\#InsertContractPaymentType1' data-id='#=Id#'  data-title='Sửa thanh toán' ><i class='fas fa-edit' ></i>@T("Admin.Common.Edit")</button>"
+                                }
+                            ]
+                            });
+                        });
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+

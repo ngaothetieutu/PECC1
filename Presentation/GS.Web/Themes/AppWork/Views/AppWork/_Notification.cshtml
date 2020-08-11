@@ -1,0 +1,13 @@
+﻿<div class="panel panel-default">
+    <ul class="list-group messages-list" id="listNotification">
+        @foreach (var notification in Model)
+        {
+            <li class="list-group-item">
+                <b style="color:cadetblue !important"> @notification.CreatorName</b>
+                @notification.Subject :
+                <i style="color:black !important;font-size:14px;">@notification.Body</i>
+                <i class="ion @notification.TypeIcon d-block text-dark text-big">&nbsp;&nbsp; @notification.DistanceTime</i>
+            </li>
+        }
+    </ul>
+</div>

@@ -1,0 +1,166 @@
+﻿@model string
+@inject IWorkFileService workFileService
+
+@using GS.Core;
+@using GS.Services.Works
+@using GS.Web.Framework.UI;
+@using GS.Web.Areas.Admin.Infrastructure.Mapper.Extensions;
+
+@{
+    //Model: dau vao la 1 chuoi id cac file Id, dc ngan cach boi dau ","
+
+    //register CSS and JS
+    Html.AddCssFileParts("/Themes/AppWork/Content/assets/vendor/libs/dropzone/dropzone.css");
+    Html.AddScriptParts("/Themes/AppWork/Content/assets/vendor/libs/dropzone/dropzone.js");
+
+    //other variables
+    var randomNumber = CommonHelper.GenerateRandomInteger();
+    var clientId = "workfile" + randomNumber;
+    var workfileitems = new List<WorkFileModel>();
+    string _ids = Model;
+
+    //_ids = "78,79"; //test
+    if (!string.IsNullOrEmpty(_ids))
+    {
+        workfileitems = workFileService.GetWorkFileByIds(_ids).Select(c => c.ToModel<WorkFileModel>()).ToList();
+    }
+    bool isAlterRow = false;
+
+}
+<div id="@(clientId + "value")">
+    <input type="hidden" asp-for="@Model" />
+</div>
+<script>
+    var @("myDropzone"+clientId) = null; //luu thong tin object de thuc hien event
+
+    var @("myFileUpload"+clientId) =[];//luu thong tin file da upload, dang du lieu co cau truc
+    @if (workfileitems.Count > 0)
+    {
+        <text>
+    @("myFileUpload"+clientId)=@(Html.Raw(workfileitems.toStringJson()));
+        </text>
+    }
+    //thiet dat lai gia tri chuoi file id
+    function ResetValue@(clientId)() {
+
+        var file_up_names = @("myFileUpload"+clientId);
+        console.log(file_up_names);
+        var _ids = null;
+        for (var i = 0; i < file_up_names.length; ++i) {
+            if (_ids)
+                _ids = _ids + "," + file_up_names[i].Id;
+            else
+                _ids = file_up_names[i].Id;
+        }
+        $("#@(clientId + "value") input").val(_ids);
+    }
+
+    ///Xoa file da upload
+    function DeleteFileUploaded@(clientId)(fileId) {
+        if (confirm('@T("AppWork.WorkFile.ConfirmDelete")')) {
+            DeleteWorkFile(fileId);
+            $("#fileuploaded_" + fileId).hide(500);
+            //remove mang neu co
+            var file_up_names = @("myFileUpload"+clientId);
+            var i = 0;
+            for (i = 0; i < file_up_names.length; ++i) {
+                if (file_up_names[i].Id == fileId) {
+                    break;
+                }
+
+            }
+            if (i <@("myFileUpload"+clientId).length) {
+                @("myFileUpload"+clientId).splice(i, 1);
+                ResetValue@(clientId)();
+            }
+        }
+
+    }
+    $(document).ready(function () {
+        $('#dropzone-@clientId').dropzone({
+            url: "/WorkFile/SaveDropzoneJsUploadedFiles",
+            parallelUploads: 1,
+            maxFiles:10,//toi da 10 file
+            maxFilesize: 500,//500M
+            addRemoveLinks: true,
+            autoProcessQueue: true,//ko tu dong upload
+            dictDefaultMessage: "@T("AppWork.WorkFile.DropFileOrClickUpload")",
+            dictRemoveFile: "@T("AppWork.WorkFile.RemoveFile")",
+            dictFallbackMessage: "@T("AppWork.WorkFile.BrowerNoSupport")",//Your browser does not support drag'n'drop file uploads.
+            dictFileTooBig: "@T("AppWork.WorkFile.FileToBig")",//"File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB.",
+            dictInvalidFileType:  "@T("AppWork.WorkFile.FileNotAllow")",//"You can't upload files of this type.",
+            dictResponseError:  "@T("AppWork.WorkFile.ErrorFromServer")",//"Server responded with {{statusCode}} code.",
+            dictCancelUpload:  "@T("AppWork.WorkFile.CancelUpload")",//"Cancel upload",
+            dictCancelUploadConfirmation:  "@T("AppWork.WorkFile.ConfirmCancelUpload")",//"Are you sure you want to cancel this upload?",
+            dictMaxFilesExceeded:  "@T("AppWork.WorkFile.NoMoreUpload")",//"You can not upload any more files.",
+            init: function () {
+                @("myDropzone"+clientId) = this; //closure
+            },
+            success(files, data) {
+                if (data.length > 0) {
+                    @("myFileUpload"+clientId).push(data[0]);
+                    ResetValue@(clientId)();
+                }
+            },
+            removedfile: function (file) {
+                var i = 0;
+                for (i = 0; i < @("myFileUpload"+clientId).length; ++i) {
+                    var _fname = @("myFileUpload" + clientId)[i].FileName + @("myFileUpload" + clientId)[i].Extension;
+                    if (_fname == file.name) {
+                        DeleteWorkFile(@("myFileUpload"+clientId)[i].Id)
+                        break;
+                    }
+                }
+                if (i <@("myFileUpload"+clientId).length) {
+                    file.previewElement.remove();
+                    @("myFileUpload"+clientId).splice(i, 1);
+                    ResetValue@(clientId)();
+                }
+            }
+
+        });
+
+        $("#uploadfiles_@clientId").click(function () {
+            @("myDropzone"+clientId).processQueue();
+                });
+
+    })
+</script>
+<div class="card mb-4">
+    <div class="row card-header">
+        <nop-label asp-for="@Model" class="col-md-6" />
+        <div class="col-md-6">
+            <button id="uploadfiles_@clientId" style="visibility:hidden" class="btn btn-success pull-right">@T("AppWork.WorkFile.UploadAllFile")</button>
+        </div>
+    </div>
+    <div class="card-body">
+
+        <div class="dropzone needsclick dz-clickable" id="dropzone-@clientId">
+            <div class="dz-message needsclick">
+                @T("AppWork.WorkFile.DropFileOrClickUpload")
+            </div>
+        </div>
+    </div>
+    @if (workfileitems.Count > 0)
+    {
+        <div class="list-group">
+            <h6 class="card-header">
+                @T("AppWork.WorkFile.FileUploaded")
+            </h6>
+            @foreach (var item in workfileitems)
+            {
+                if (isAlterRow)
+                {
+                    <div class="list-group-item list-group-item-primary" id="fileuploaded_@item.Id"><a href="@item.DownloadUrl">@(item.FileName + item.Extension) - <span style="font-style:italic">@item.ContentLength Kb</span></a><a href="javascript:DeleteFileUploaded@(clientId)(@item.Id);" class="close pull-right" style="color:red"><i class="ion ion-ios-remove-circle d-block"></i></a></div>
+                }
+                else
+                {
+                    <div class="list-group-item list-group-item-secondary" id="fileuploaded_@item.Id"><a href="@item.DownloadUrl">@(item.FileName + item.Extension)- <span style="font-style:italic">@item.ContentLength Kb</span></a><a href="javascript:DeleteFileUploaded@(clientId)(@item.Id);" class="close pull-right" style="color:red"><i class="ion ion-ios-remove-circle d-block"></i></a></div>
+                }
+                isAlterRow = !isAlterRow;
+            }
+        </div>
+    }
+
+</div>
+

@@ -1,0 +1,155 @@
+﻿@model ContractModel
+@Html.HiddenFor(c => c.Id)
+<div class="card-body">
+    <div class="card-header  with-elements">
+        <div class="card-header-elements ml-auto">
+            @*hop dong ket thuc thi khong them moi*@
+            @if (Model.StatusId != (int)GS.Core.Domain.Contracts.ContractStatus.Completed && Model.StatusId != (int)GS.Core.Domain.Contracts.ContractStatus.Draf)
+            {
+                <button type="button" class="btn btn-xs btn-outline-primary" data-toggle="modal" data-target="#modalContractPaymentPlan" data-title="Thêm mới tiến độ thanh toán" data-id="0" data-typeid="2">
+                    <i class="ion ion-md-add"></i>&nbsp;Tiến độ thanh toán
+                </button><button type="button" class="btn btn-xs btn-outline-primary" data-toggle="modal" data-target="#modalContractPaymentPlan" data-title="Thêm mới tiến độ tạm ứng" data-typeid="1" data-id="0">
+                    <i class="ion ion-md-add"></i>&nbsp; Thêm tiến độ tạm ứng
+                </button>
+            }
+            </div>
+    </div>
+
+    @foreach (var pmpl in Model.lstContractPaymentPlan)
+    {
+        <div class="row list-task-plan">
+            <div class="col-md-12">
+                <div class="project-task-item">
+                    <span>
+                        <i class="far fa-calendar-alt"></i>
+                        <span>@pmpl.Description</span>
+                        <span class="badge badge-warning font-weight-normal ml-2">Đang theo dõi</span>
+                        @if (pmpl.lstPaymentPlanContract.Count > 0)
+                        {
+                            <i class="ion ion-ios-wallet"></i><a href="javascript:void(0);" data-toggle="modal" data-target="#modalAppendixIdContractPaymentPlan" data-title="Danh sách phụ lục tiến độ thanh toán" data-paymentplanid="@pmpl.Id" style="font-size:13px !important;"><i>Phụ lục</i>(<span style="color:red">@pmpl.lstPaymentPlanContract.Count</span>)</a>
+                        }
+                    </span>
+                    <div class="d-flex align-items-center">
+                        <div class="project-task-actions btn-group">
+                            <button type="button" class="btn btn-default btn-xs btn-round icon-btn borderless md-btn-flat hide-arrow dropdown-toggle" data-toggle="dropdown">
+                                <i class="ion ion-ios-more"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                @if (pmpl.TypeId == (int)GS.Core.Domain.Contracts.ContractPaymentType.Advance)
+                                {
+                                    <a class="dropdown-item" href="javascript:void(0)" data-toggle="modal" data-target="#modalContractPaymentPlan" data-title="Sửa tạm ứng" data-id="@pmpl.Id"><i class="pe-7s-tools"></i>&nbsp;@T("admin.common.edit")</a>
+                                }
+                                else
+                                {
+                                    <a class="dropdown-item" href="javascript:void(0)" data-toggle="modal" data-target="#modalContractPaymentPlan" data-title="Sửa thanh toán" data-id="@pmpl.Id"><i class="pe-7s-tools"></i>&nbsp;@T("admin.common.edit")</a>
+                                }
+                                <a class="dropdown-item" href="javascript:DeleteContractPaymentPlan(@pmpl.Id)"><i class="pe-7s-trash"></i>&nbsp;@T("admin.common.delete")</a>
+                                @if (pmpl.TypeId == (int)GS.Core.Domain.Contracts.ContractPaymentType.Advance)
+                                {
+                                    <a class="dropdown-item" href="javascript:void(0)" data-toggle="modal" data-target="#modalContractPaymentPlan" data-title="Thêm đề nghị tạm ứng" data-action="request" data-planid="@pmpl.Id" data-id="0" data-typeid="@pmpl.TypeId"><i class="pe-7s-plus"></i>&nbsp;Thêm mới yêu cầu tạm ứng</a>
+                                }
+                                else
+                                {
+                                    <a class="dropdown-item" href="javascript:void(0)" data-toggle="modal" data-target="#modalContractPaymentPlan" data-title="Thêm đề nghị thanh toán" data-action="request" data-planid="@pmpl.Id" data-id="0" data-typeid="@pmpl.TypeId"><i class="pe-7s-plus"></i>&nbsp;Thêm mới yêu cầu thanh toán</a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @if (pmpl.TypeId != (int)GS.Core.Domain.Contracts.ContractPaymentType.Payment)
+            {
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <i class="fas fa-list-ul"></i>&nbsp;<a href="javascript:void(0);" data-toggle="collapse" data-target="#ContractPaymentRequest_@pmpl.Id">Yêu cầu(<span style="color:red" id="spanContractPaymentRequestCount_@pmpl.Id">@pmpl.RequestCount</span>)</a>
+                        </div>
+                        <div class="col-md-3">
+                            <i class="lnr lnr-diamond"></i>&nbsp;@pmpl.AmountText
+                        </div>
+                        <div class="col-md-3">
+                            <i class="fas fa-balance-scale"></i>&nbsp;@pmpl.PercentNum.ToPercentString();
+                        </div>
+                        <div class="col-md-3">
+                            <i class="fas fa-calendar-alt"></i>&nbsp;@pmpl.PayDate.toDateVNString()
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <i class="fas fa-list-ul"></i>&nbsp;<a href="javascript:void(0);" data-toggle="collapse" data-target="#ContractPaymentRequest_@pmpl.Id">Yêu cầu(<span style="color:red" id="spanContractPaymentRequestCount_@pmpl.Id">@pmpl.RequestCount</span>)</a>
+                        </div>
+                        <div class="col-md-3">
+                            <i class="lnr lnr-diamond"></i>&nbsp;@pmpl.AmountSummary
+                        </div>
+                        <div class="col-md-3">
+                            <i class="fas fa-balance-scale"></i>&nbsp;@pmpl.PercentNum.ToPercentString();
+                        </div>
+                        <div class="col-md-3">
+                            <i class="fas fa-calendar-alt"></i>&nbsp;@pmpl.PayDate.toDateVNString()
+                        </div>
+                    </div>
+                </div>
+            }
+            <div class="col-md-12" style="padding-left:10px">
+                <div id="ContractPaymentRequest_@pmpl.Id" class="collapse card">
+                </div>
+                <script>
+                        $(document).ready(function () {
+                            $('#ContractPaymentRequest_@pmpl.Id').on('shown.bs.collapse', function (event) {
+                                loadContractPaymentRequest(@pmpl.Id);
+                            });
+                        });
+                </script>
+            </div>
+        </div>
+    }
+</div>
+<script>
+    $(document).ready(function () {
+        SetEmptyModal('#modalAppendixIdContractPaymentPlan');
+        $('#modalAppendixIdContractPaymentPlan').on('show.bs.modal', function (event) {
+            var modal = $(this);
+            ShowViewLoading(modal.find('.content'));
+            //lay thong tin tu button de hien thi popup
+            var button = $(event.relatedTarget);
+            if (!button)
+                return;
+            var _paymentplanId = button.data('paymentplanid');
+            modal.find('.modal-title').html(button.data('title'));
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "/Contract/_ContractAppendixEditPaymentPlanList?paymentPlanId=" + _paymentplanId,
+                complete: function (data) {
+                    modal.find('.content').html(data.responseText);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                },
+                traditional: true
+            });
+        });
+    });
+</script>
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="modalAppendixIdContractPaymentPlan" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body" style="padding:0.5625rem !important;">
+                <div class="content">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

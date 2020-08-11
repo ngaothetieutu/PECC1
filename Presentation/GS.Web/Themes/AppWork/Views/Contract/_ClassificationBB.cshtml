@@ -1,0 +1,41 @@
+﻿@model ContractModel
+@using GS.Services.Contracts
+@inject IContractService _contractService
+
+
+   @if (Model.classification == GS.Core.Domain.Contracts.ContractClassification.AB)
+    {
+    @*<ul class="list-group list-group-flush">*@
+       @foreach (var ContractRelate in Model.contractRelateModels)
+        {
+            <div class="list-task-plan">
+                <div class="row">
+                    <div class="col-md-9">
+                        <i class="ion ion-ios-wallet" style="padding:5px;"></i>&nbsp;<strong><a class="text-dark" href="/Contract/Detail?guid=@ContractRelate.ContractGuid" target="_blank">@ContractRelate.Name</a></strong>&nbsp;&nbsp;
+                    </div>
+                    <div class="col-md-3" style="text-align:right; padding-left:0xp!important;">
+                        <i class="lnr lnr-diamond">@ContractRelate.TotalAmountText</i>
+                    </div>
+                </div>                               
+                <div class="row">
+                    <div class="col-md-9">
+                        <i class="fas fa-calendar-alt" style="padding: 5px;"></i>@ContractRelate.StartDate.toDateVNString()
+                        <i class="lnr lnr-arrow-right app-work-icon-hot"></i>@ContractRelate.EndDate.toDateVNString()
+                    </div>
+                    <div class="col-md-3" style="text-align:right">
+                        <div class="btn-group project-actions">
+                            <button type="button" class="btn btn-sm btn-default icon-btn borderless btn-round md-btn-flat dropdown-toggle hide-arrow" data-toggle="dropdown">
+                                <i class="ion ion-ios-more"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a class="dropdown-item" href="Detail?guid=@ContractRelate.ContractGuid"> @T("admin.common.detail")</a>
+                                <a class="dropdown-item" href="Edit?guid=@ContractRelate.ContractGuid">@T("admin.common.Edit")</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+    @*</ul>*@
+    }

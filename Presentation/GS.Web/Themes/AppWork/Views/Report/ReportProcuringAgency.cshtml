@@ -1,0 +1,113 @@
+﻿@model ReportProcuringAgencySearchModel
+
+@{
+    //page title
+    ViewBag.Title = T("AppWork.Menu.Report.ProcuringAgency").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Report_ProcuringAgency");
+}
+<div>
+    <div class="modal-body" style="padding-left:0px;padding-right:0px;">
+        <div class="content">
+            <div class="container-fluid flex-grow-1 container-p-y" style="padding-left:0px;padding-right:0px;">
+                <div class="card">
+                    <div class="card-body pb-2">
+                        <div class="row">
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label class="form-label">Chủ đầu tư</label>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <nop-select asp-for="SelectedProcuringAgencyIds" asp-items="Model.ProcuringAgencyCode" asp-multiple="true" />
+                                    <script>
+                                            $(document).ready(function() {
+                                                var rolesIdsInput =
+                                                    $('#@Html.IdFor(model => model.SelectedProcuringAgencyIds)')
+                                                        .data("kendoMultiSelect");
+                                                rolesIdsInput.setOptions({
+                                                    autoClose: true,
+                                                    filter: "contains"
+                                                });
+
+                                                @if (Model.ProcuringAgencyCode.Count == 0)
+                                                {
+                                                    <text>
+                                                        rolesIdsInput.setOptions({
+                                                            enable: false,
+                                                            placeholder:
+                                                                'Chọn chủ đầu tư ...'
+                                                        });
+                                                        rolesIdsInput._placeholder();
+                                                        rolesIdsInput._enable();
+                                                    </text>
+                                                }
+                                            });
+                                    </script>
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <label class="form-label">Ngày ký</label>
+                            </div>
+                            <div class="col-md-2">
+                                <input placeholder="Từ ngày" <nop-editor asp-for="datetimeFrom" />
+                            </div>
+                            <div class="col-md-2">
+                                <input placeholder="Đến ngày" <nop-editor asp-for="datetimeTo" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8"></div>
+            <div class="col-md-2 text-right mt-3">
+                <form asp-controller="Report" asp-action="ExportReportProcuringAgency" method="post" id="export-excel-selected-form">
+                    <input type="hidden" id="StringProcuringAgencyId" name="StringProcuringAgencyId" value="" />
+                    <input type="hidden" id="datetimeFrom" name="datetimeFrom" value="" />
+                    <input type="hidden" id="datetimeTo" name="datetimeTo" value="" />
+                </form>
+                <button id="btnExportExcel" class="btn btn-success">Xuất ra Excel</button>
+            </div>
+            <div class="col-md-1 text-right mt-3">
+                <button type="button" id="btnReportProcuringAgency" class="btn btn-primary">Tìm kiếm</button>&nbsp;
+            </div>
+        </div>
+        <div id="view-ReportProcuringAgency"></div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#btnReportProcuringAgency").click(function () {
+            ShowViewLoading("#view-ReportProcuringAgency");
+            searchReportProcuringAgency();
+        });
+        $("#btnExportExcel").click(function () {
+            var SelectedProcuringAgencyIds = $("#@Html.IdFor(c=>c.SelectedProcuringAgencyIds)").val();
+            var StringProcuringAgencyId = SelectedProcuringAgencyIds.join(",");
+            var datetimeFrom = $("#@Html.IdFor(c=>c.datetimeFrom)").val();
+            var datetimeTo = $("#@Html.IdFor(c=>c.datetimeTo)").val();
+            $('#export-excel-selected-form #StringProcuringAgencyId').val(StringProcuringAgencyId);
+            $('#export-excel-selected-form #datetimeFrom').val(datetimeFrom);
+            $('#export-excel-selected-form #datetimeTo').val(datetimeTo);
+            $('#export-excel-selected-form').submit();
+        });
+    });
+    function searchReportProcuringAgency() {
+        var data = {
+            SelectedProcuringAgencyIds: $("#@Html.IdFor(c=>c.SelectedProcuringAgencyIds)").val(),
+            datetimeFrom: $("#@Html.IdFor(c=>c.datetimeFrom)").val(),
+            datetimeTo: $("#@Html.IdFor(c=>c.datetimeTo)").val(),
+        }
+        $.ajax({
+            type: "POST",
+            data: data,
+            url: "/Report/_ReportProcuringAgency",
+            success: function (data) {
+                $("#view-ReportProcuringAgency").html(data);
+            }
+        })
+    }
+</script>

@@ -1,0 +1,205 @@
+﻿@model PaymentExpenditureModel
+@{
+    //page title
+    ViewBag.Title = T("AppWork.Contracts.PaymentExpenditure").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("PaymentExpenditure_List");
+}
+<div class="card mb-4">
+    <div style="display:none">
+        @Html.TextBoxFor(c => c.Id, new { @id = "PaymentExpenditureId" })
+    </div>
+    <h6 class="card-header">
+        @T("AppWork.Contracts.PaymentExpenditure.AddNew")
+        <small>
+            <i class="fa fa-arrow-circle-left"></i>
+            <a asp-action="List">@T("AppWork.Contracts.PaymentExpenditure.BackToList")</a>
+        </small>
+        <button id="btnSave" class="btn btn-success" style="float:right;margin-right:5px;">
+            <i class="far fa-save" style="margin-right:5px;">
+            </i>@T("Admin.Common.Save")
+        </button>
+        @if (Model.Id > 0)
+        {
+            <span id="btnDelete" class="btn btn-danger" style="float:right;margin-right: 5px;">
+                <i class="fas fa-trash"></i>
+                @T("Admin.Common.Delete")
+            </span>
+        }
+    </h6>
+    <div class="card-body">
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-3">
+                    <app-label asp-for="UnitName" />
+                </div>
+                <div class="col-md-9" style="padding-top:8px;">
+                    <strong style="color:#02bc77">@Model.UnitName</strong>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-3">
+                    <app-label asp-for="TotalMoney" />
+                </div>
+                <div class="col-md-9" style="padding-top:8px;">
+                    <strong class="app-work-money">@Model.TotalMoney</strong>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-3">
+                    <app-label asp-for="CurrencyId">
+                </div>
+                <div class="col-md-9">
+                    <nop-select asp-for="CurrencyId" asp-items="Model.AvailableCurrency" />
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-3">
+                    <app-label asp-for="Name" />
+                </div>
+                <div class="col-md-9">
+                    <nop-editor asp-for="Name" asp-required="Name" />
+                    <span asp-validation-for="Name"></span>
+
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-3">
+                    <app-label asp-for="Code">
+                </div>
+                <div class="col-md-9">
+                    <nop-editor asp-for="Code" asp-required="Code" />
+                    <span asp-validation-for="Code"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-3">
+                    <app-label asp-for="Description" />
+                </div>
+                <div class="col-md-9">
+                    <nop-textarea asp-for="Description" asp-required="Description" />
+                    <span asp-validation-for="Description"></span>
+
+                </div>
+            </div>
+        </div>
+        @*<nop-editor asp-for="WorkFileIds" />*@
+        <div class="card mb-4">
+            <h6 class="card-header">
+                Thanh toán theo hạng mục công việc
+            </h6>
+            <div class="text-muted small ml-3">
+            </div>
+            <div id="lstPayment" class="card-body">
+                <div class="row" style="padding-bottom:10px;">
+                    <div class="col-md-8">
+                        <b>Hạng mục</b>
+                    </div>
+                    <div class="col-md-4">
+                        <b>Giá trị thanh toán</b>
+                    </div>
+                </div>
+                @foreach (ContractPaymentModel payment in Model.lstContractPayment)
+                {
+                    @await Html.PartialAsync("_ContractPaymentAdd", payment);
+                }
+            </div>
+            @*<div class="card-footer justify-content-between align-items-center px-0 pt-0 pb-3">
+                    <div class="row" style="padding-top:23px;">
+                        <div class="col-md-2 text-center">
+                            <b>Tổng</b>
+                        </div>
+                    </div>
+                </div>*@
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#btnSave").click(function () {
+            var lstContractPayment = [];
+            $(".PaymentExpenditure").each(function () {
+                var TaskId = $(this).data("taskid");
+                var Amount = ConvertToNumber("#Amount_" + TaskId);
+                var _contractPayment = {
+                    TaskId: TaskId,
+                    Amount: Amount,
+                    Code: "test",
+                    Description:"test",
+                };
+                lstContractPayment.push(_contractPayment);
+            });
+            @*var WorkFileIds = $("#@Html.IdFor(c=>c.WorkFileIds)").val();
+            if (WorkFileIds.length > 0) {
+                var SelectedListFileId = WorkFileIds.split(',');
+            }*@
+            var _data = {
+                Id: @Model.Id,
+                Name: $("#@Html.IdFor(c=>c.Name)").val(),
+                CurrencyId:$("#@Html.IdFor(c=>c.CurrencyId)").val(),
+                Code : $("#@Html.IdFor(c=>c.Code)").val(),
+                Description: $("#@Html.IdFor(c=>c.Description)").val(),
+                UnitId:@Model.UnitId,
+                PaymentAdvanceId: @Model.PaymentAdvanceId,
+                AcceptanceId: @Model.AcceptanceId,
+                //SelectedListFileId: SelectedListFileId,
+                lstContractPayment: lstContractPayment,
+            };
+            $.ajax({
+                type: "POST",
+                url: "/PaymentExpenditure/Create",
+                data: _data,
+                success: function (data) {
+                    ShowSuccessMessage(data.Message);
+                    document.location.href = '/PaymentExpenditure/List';
+                },
+                error: function () {
+                    ShowErrorMessage(data.Message);
+                    alert('@T("Admin.common.request.error")');
+                },
+            });
+        });
+        $("#btnDelete").click(function () {
+            bootbox.confirm({
+            message: '@T("admin.common.deleteconfirmation")',
+            className: 'bootbox-sm',
+            buttons: {
+                confirm: {
+                    label: '@T("admin.common.yes")',
+                },
+                cancel: {
+                    label: '@T("admin.common.no")',
+                },
+            },
+            callback: function (result) {
+                if (result) {
+                    $.ajax({
+                        cache: false,
+                        type: "GET",
+                        url: "/PaymentExpenditure/DeletePaymentExpenditure?Id=@Model.Id",
+                        success: function (msg) {
+                            ShowSuccessMessage(msg.Message);
+                            document.location.href = '/PaymentExpenditure/List';
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            alert(thrownError);
+                        },
+                        traditional: true
+                    });
+                }
+            }
+            });
+        });
+    });
+</script>

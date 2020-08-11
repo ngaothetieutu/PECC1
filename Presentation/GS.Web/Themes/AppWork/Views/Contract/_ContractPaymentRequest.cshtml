@@ -1,0 +1,59 @@
+﻿@model ContractPaymentRequestListModel
+<input asp-for="ContractId" type="hidden" />
+<div class="card-body">
+    @if (Model.Data.Count() > 0)
+    {
+        @foreach (var item in Model.Data)
+        {
+            <div class="row list-task-plan" style="font-style:italic">
+                <div class="col-md-3">
+                    #@item.Code&nbsp;:&nbsp;@item.Name
+                </div>
+                <div class="col-md-3">
+                    @T("AppWork.Contracts.ContractPaymentRequest.Fields.TotalAmount"): @item.TotalAmount.ToVNStringNumber()
+                </div>
+                <div class="col-md-3">
+                    <a href="" data-toggle="modal" data-target="#modalContractPaymentPlan" data-id="@item.Id" data-action="payment" data-closemodal="close" data-title="Các khoản thu">@T("AppWork.Contracts.ContractPaymentRequest.Fields.AmountPayment"): @item.AmountPayment</a>
+                </div>
+                <div class="col-md-2">
+                    <i class="far fa-clock"></i> @item.EndDate.toDateVNString()
+                </div>
+                <div class="col-md-1">
+                    <div class="d-flex align-items-center">
+                        <div class="project-task-actions btn-group">
+                            <button type="button" class="btn btn-default btn-xs btn-round icon-btn borderless md-btn-flat hide-arrow dropdown-toggle" data-toggle="dropdown">
+                                <i class="ion ion-ios-more"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                @if (!item.IsPaymented)
+                                {
+                                    <a class='dropdown-item' data-toggle='modal' href='#tabInsertContractPayment' data-receipts="1" data-title="Tạo giao dịch tiền về" data-requestid="@item.Id" data-contractid="@item.ContractId" data-id="0" data-type="@item.TypeId"><i class='pe-7s-gleam'></i> Tạo giao dịch tiền về</a>
+                                }
+                                <a class='dropdown-item' data-toggle='modal' href='#modalContractPaymentPlan' data-title="Sửa đề nghị thanh toán" data-planid="@Model.PaymentPlanId" data-id="@item.Id" data-action="request"><i class='pe-7s-tools'></i> @T("Admin.Common.Edit")</a>
+                                <a class="dropdown-item" href="javascript:DeleteContractPaymentRequest(@item.Id,@item.PaymentPlanId)"><i class='pe-7s-trash'></i>@T("Admin.Common.Delete")</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        @if (Model.TypeId != (int)GS.Core.Domain.Contracts.ContractPaymentType.Advance)
+        {
+            <a href="javascript:void(0)" style="font-size:16px;" class="btn btn-lg btn-outline-primary" data-toggle="modal" data-target="#modalContractPaymentPlan" data-title="Thêm đề nghị thanh toán" data-action="request" data-planid="@Model.PaymentPlanId" data-typeid="@Model.TypeId"><i class="ion ion-md-add"></i>&nbsp;Thêm yêu cầu thanh toán</a>
+        }
+        else
+        {
+            <a href="javascript:void(0)" style="font-size:16px;" class="btn btn-lg btn-outline-primary" data-toggle="modal" data-target="#modalContractPaymentPlan" data-title="Thêm đề nghị tạm ứng" data-action="request" data-planid="@Model.PaymentPlanId" data-typeid="@Model.TypeId"><i class="ion ion-md-add"></i>&nbsp;Thêm yêu cầu tạm ứng</a>
+        }
+
+    }
+</div>
+
+
+
+
+
+

@@ -1,0 +1,106 @@
+﻿@model ReportContractUnfinishSearchModel
+
+@{
+    //page title
+    ViewBag.Title = T("AppWork.Menu.Report.ContractUnfinish").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Report_ContractUnfinish");
+}
+<div>
+    <div class="modal-body" style="padding-left:0px;padding-right:0px;">
+        <div class="content">
+            <div class="container-fluid flex-grow-1 container-p-y" style="padding-left:0px;padding-right:0px;">
+                <div class="card">
+                    <div class="card-body pb-2">
+                        <div class="row">
+                            <div class="col-md-2">
+                                <label class="form-label">Tên công trình</label>
+                            </div>
+                            <div class="col-md-4">
+                                <nop-select asp-for="SelectedConstructionIds" asp-items="Model.ConstructionIds" asp-multiple="true" />
+                                <script>
+                                            $(document).ready(function() {
+                                                var rolesIdsInput =
+                                                    $('#@Html.IdFor(model => model.SelectedConstructionIds)')
+                                                        .data("kendoMultiSelect");
+                                                rolesIdsInput.setOptions({
+                                                    autoClose: true,
+                                                    filter: "contains"
+                                                });
+
+                                                @if (Model.ConstructionIds.Count == 0)
+                                                {
+                                                    <text>
+                                                        rolesIdsInput.setOptions({
+                                                            enable: false,
+                                                            placeholder:
+                                                                'Chọn công trình ...'
+                                                        });
+                                                        rolesIdsInput._placeholder();
+                                                        rolesIdsInput._enable();
+                                                    </text>
+                                                }
+                                            });
+                                </script>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Thời gian</label>
+                            </div>
+                            <div class="col-md-4">
+                                <input placeholder="Chọn ngày ..." <nop-editor asp-for="time" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+
+            </div>
+            <div class="col-md-2 text-right mt-3">
+                <form asp-controller="Report" asp-action="ExportReportContractUnfinish" method="post" id="export-excel-selected-form">
+                    <input type="hidden" id="stringConstructionIds" name="stringConstructionIds" value="" />
+                    <input type="hidden" id="time" name="time" value="" />
+                </form>
+                <button id="btnExportExcel" class="btn btn-success">Xuất ra Excel</button>
+            </div>
+            <div class="col-md-1 text-right mt-3">
+                <button type="button" id="btnReportContractUnfinish" class="btn btn-primary">
+                    Tìm kiếm
+                </button>&nbsp;
+            </div>
+        </div>
+        <div id="view-reportContractUnfinish"></div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#btnReportContractUnfinish").click(function () {
+            ShowViewLoading("#view-reportContractUnfinish");
+            searchReportContract();
+        });
+        $("#btnExportExcel").click(function () {
+            var SelectedConstructionIds = $("#@Html.IdFor(c=>c.SelectedConstructionIds)").val();
+            var stringConstructionIds = SelectedConstructionIds.join(",");
+            var time = $("#@Html.IdFor(c=>c.time)").val();
+            $('#export-excel-selected-form #stringConstructionIds').val(stringConstructionIds);
+            $('#export-excel-selected-form #time').val(time);
+            $('#export-excel-selected-form').submit();
+        });
+        function searchReportContract() {
+            var data = {
+                SelectedConstructionIds: $("#@Html.IdFor(c=>c.SelectedConstructionIds)").val(),
+                time: $("#@Html.IdFor(c=>c.time)").val()
+            }
+            $.ajax({
+                type: "POST",
+                data: data,
+                url: "/Report/_ReportContractUnfinish",
+                success: function (data) {
+                    $("#view-reportContractUnfinish").html(data);
+                },
+            })
+        };
+    })
+</script>

@@ -1,0 +1,5 @@
+﻿@model ContractAcceptanceModel
+@foreach (ContractAcceptanceSubModel acsub in Model.listAcceptanceSub)
+{
+    @await Html.PartialAsync("_ContractAcceptanceSubAdd", acsub);
+}

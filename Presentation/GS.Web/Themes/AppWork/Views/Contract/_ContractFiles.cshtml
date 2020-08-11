@@ -1,0 +1,184 @@
+﻿@model ContractModel
+@using GS.Services.Contracts
+@inject IContractService _contractService
+
+<div class="card mb-4">
+    <h6 class="card-header">
+        @T("AppWork.Contracts.Contract.Fields.WorkFiles")
+        
+    </h6>
+    <div class="card-body p-3">
+        <div class="row no-gutters">
+            @if (Model.workFileModels.Count > 0)
+            {
+                foreach (var fmodel in Model.workFileModels)
+                {
+                    <div class="col-md-6 col-lg-12 col-xl-6 p-1">
+
+                        <div class="project-attachment ui-bordered p-2">
+                            @switch (fmodel.mimeTypeGroup)
+                            {
+                                case GS.Core.MimeTypeGroup.Image:
+                                    {
+                                        <text>
+                                            <div class="project-attachment-img" style="background-image: url(@fmodel.DownloadUrl)">
+                                                
+                                            </div>
+                                        </text>
+                                        break;
+                                    }
+                                case GS.Core.MimeTypeGroup.Text:
+                                    {
+                                        <text>
+                                            <div class="project-attachment-file display-4">
+                                                <i class="far fa-file-pdf"></i>
+                                            </div>
+                                        </text>
+                                        break;
+                                    }
+                                case GS.Core.MimeTypeGroup.Application:
+                                    {
+                                        <text>
+                                            <div class="project-attachment-file display-4">
+                                                <i class="far fa-file-archive"></i>
+                                            </div>
+                                        </text>
+                                        break;
+                                    }
+                            }
+
+                            <div class="media-body ml-3">
+                                <strong class="project-attachment-filename">@(fmodel.FileName+fmodel.Extension)</strong>
+                                <div class="text-muted small">@fmodel.ContentLengthText - <i>@Html.Raw(string.Format(T("AppWork.Contracts.Contract.Fields.WorkFiles.UploadInfo").Value, fmodel.CreatorName, fmodel.CreatedDate.toDateVNString(true)))</i></div>
+                                <div>
+                                    <a href="@fmodel.DownloadUrl">@T("AppWork.Contracts.Contract.Fields.WorkFiles.Download")</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:DeleteWorkFileContract(@fmodel.Id);">@T("AppWork.Contracts.Contract.Fields.WorkFiles.Delete")</a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                }             
+                    <div class="card-header with-elements">                        
+                        <div class="card-header-elements ml-auto">
+                            <button type="button" class="btn btn-xs btn-outline-primary" data-toggle="modal" data-target="#tabContractFileUpload" data-id="" data-typeid="1">
+                                <span class="ion ion-md-add"></span> @T("admin.common.add")
+                            </button>
+                        </div>
+                    </div>
+                   
+            }
+            else
+            {
+                <text>
+                    <a style="width:100%;text-align:center" data-toggle="modal" data-target="#tabContractFileUpload" href="javascript:void(0);" data-id="" data-typeid="1"><h3><i class="lnr lnr-cloud-upload d-block" style="font-size:64px"></i>@T("AppWork.Contracts.Contract.Fields.WorkFiles.NewUpload")</h3></a>
+                </text>
+            }
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="tabContractFileUpload" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@T("AppWork.Contracts.Contract.Fields.WorkFiles")</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="content">
+                    <nop-editor asp-for="workFileIds" />
+                    <input type="hidden" id="hidContractFileTypeId" />
+                    <input type="hidden" id="hidContractEntityId" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">@T("admin.common.no")</button>
+                <button type="button" class="btn btn-primary" id="btnAdd_ContractFiles">@T("admin.common.yes")</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function DeleteWorkFileContract(fileId) {
+        bootbox.confirm({
+            message: '@T("admin.common.deleteconfirmation")',
+            className: 'bootbox-sm',
+            buttons: {
+                confirm: {
+                    label: '@T("admin.common.yes")',                    
+                },
+                cancel: {
+                    label: '@T("admin.common.no")',
+
+                },
+            },
+            callback: function (result) {
+                if (result) {
+                    var postData = { Id: fileId, ContractGuid: '@Model.ContractGuid'  };
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "/WorkFile/DeleteWorkFile",
+                        data: postData,
+                        complete: function (data) {
+                            LoadTabContractFiles();
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            alert(thrownError);
+                        },
+                        traditional: true
+                    });
+                }
+            },
+        });
+        
+        
+    }
+    $(document).ready(function () {
+        SetEmptyModal('#tabContractFileUpload');  
+        $('#tabContractFileUpload').on('show.bs.modal', function (event) {
+            var modal = $(this);
+            //lay thong tin tu button de hien thi popup
+            var button = $(event.relatedTarget);
+            if (!button)
+                return;
+            var _entityId = button.data('id');
+            var _typeId = button.data('typeid');
+            
+            $("#hidContractFileTypeId").val(_typeId);
+            $("#hidContractEntityId").val(_entityId);
+
+        });
+        $("#btnAdd_ContractFiles").click(function () {
+            //luu thong tin file da upoad
+
+            if ($("#workFileIds").val().length > 0) {
+
+                var postData = {
+                    ContractGuid: '@Model.ContractGuid',
+                    FileIds: $("#workFileIds").val(),
+                    TypeId: $("#hidContractFileTypeId").val(),
+                    EntityId: $("#hidContractEntityId").val(),
+                };
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "/WorkFile/UpdateContractWorkFiles",
+                    data: postData,
+                    complete: function (data) {
+                        //close model
+                        $("#tabContractFileUpload .close").click();
+                        //load du lieu partial view
+                        LoadTabContractFiles();
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert(thrownError);
+                    },
+                    traditional: true
+                });
+            }
+        });
+    })
+</script>

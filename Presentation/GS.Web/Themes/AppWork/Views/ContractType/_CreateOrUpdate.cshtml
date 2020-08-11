@@ -1,0 +1,18 @@
+@model ContractTypeModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+
+<div class="content">
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="Name" />
+            </div>
+            <div class="col-md-10">
+                <nop-editor asp-for="Name" asp-required="true" />
+                <span asp-validation-for="Name"></span>
+            </div>
+        </div>
+    </div>
+</div>

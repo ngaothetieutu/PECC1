@@ -1,0 +1,439 @@
+﻿@model ContractModel
+@using GS.Services.Contracts
+@inject IContractService _contractService
+
+<div class="card mb-4">
+    <h6 class="card-header">@T("AppWork.Contracts.Contract.Fields.Parties")</h6>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-sm-6 col-xl-6">
+                <div class="card mb-4">
+                    <div class="card-header with-elements">
+                        <span class="card-header-title">@T("AppWork.Contracts.Contract.Fields.partiesA")</span>
+                        @if (Model.procuringAgencyModelSideA == null)
+                        {
+                            <div class="card-header-elements ml-auto">
+                                <button type="button" class="btn btn-xs btn-outline-primary" data-toggle="modal" data-target="#tabContractJoinEdit" data-side="1" data-title="Thêm bên A" data-name="Chủ đầu tư: ">
+                                    <span class="ion ion-md-add"></span> @T("AppWork.Contracts.Contract.Fields.partiesAdd")
+                                </button>
+                            </div>
+                        }
+                    </div>
+                    @if (Model.procuringAgencyModelSideA == null)
+                    {
+                        <ul class="list-group list-group-flush">
+
+                            <li class="list-group-item">
+                                <div class="media align-items-center">
+                                    <label>Chưa có thông tin bên A.</label>
+                                </div>
+                            </li>
+                        </ul>
+                    }
+                    else
+                    {
+                        <ul class="list-group list-group-flush">
+
+                            <li class="list-group-item">
+                                <div class="media align-items-center">
+                                    <div class="media-body px-2">
+                                        @if (Model.StatusId != (int)GS.Core.Domain.Contracts.ContractStatus.Completed)
+                                        {
+                                            <a href="javascript:void(0)" class="text-dark" data-toggle="modal" data-target="#tabContractJointDetail" data-id="@Model.procuringAgencyModelSideA.Id">@Model.procuringAgencyModelSideA.Name</a>
+                                        }
+                                    </div>
+                                    <a href="javascript:DeleteContractJoint(@Model.procuringAgencyModelSideA.Id);" class="d-block text-light text-large font-weight-light">×</a>
+                                </div>
+
+                                <div class="media align-items-center">
+                                    <div class="media-body px-2">
+                                        <i>@T("AppWork.Contracts.ProcuringAgency.Fields.Representer") :  </i>
+                                        <i>@Model.procuringAgencyModelSideA.Representer</i>
+                                    </div>
+                                </div>
+                            </li>
+
+                        </ul>
+                    }
+
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-6">
+                <div class="card mb-4">
+                    <div class="card-header with-elements">
+                        <span class="card-header-title">@T("AppWork.Contracts.Contract.Fields.partiesB")</span>
+                        <div class="card-header-elements ml-auto">
+                            @if (Model.StatusId != (int)GS.Core.Domain.Contracts.ContractStatus.Completed)
+                            {
+                                <button type="button" class="btn btn-xs btn-outline-primary" data-toggle="modal" data-target="#tabContractJoinEdit" data-side="0" data-title="Thêm bên B" data-name="Liên danh: ">
+                                    <span class="ion ion-md-add"></span> @T("AppWork.Contracts.Contract.Fields.partiesAdd")
+                                </button>
+                            }
+                            </div>
+                    </div>
+
+                    @foreach (var item in Model.procuringAgencyModelSideB)
+                    {
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <div class="media align-items-center">
+                                    <div class="media-body px-2">
+                                        <a href="javascript:void(0)" class="text-dark" data-toggle="modal" data-target="#tabContractJointDetail" data-id="@item.Id">@item.Name</a>
+                                    </div>
+                                    <a  href="javascript:DeleteContractJoint(@item.Id);" class="d-block text-light text-large font-weight-light">×</a>
+                                </div>
+                                <div class="media align-items-center">
+                                    <div class="media-body px-2">
+                                        <i>@T("AppWork.Contracts.ProcuringAgency.Fields.Representer") :  </i>
+                                        <i>@item.Representer</i>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    }
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+@*</div>*@
+
+<script>
+    $(document).ready(function () {
+        //SetEmptyModal('#tabContractJoinEdit');
+        $('#tabContractJoinEdit').on('show.bs.modal', function (event) {
+            var modal = $(this);
+            //lay thong tin tu button de hien thi popup
+            var button = $(event.relatedTarget);
+            if (!button)
+                return;
+            var _side = button.data('side');
+            modal.find('.modal-title').text(button.data('title'));
+            modal.find('.modal-name').text(button.data('name'));
+            $("#ContractJoinIsSideA").val(_side);
+        });
+        SetEmptyModal('#tabContractJointDetail');
+        $('#tabContractJointDetail').on('show.bs.modal', function (event) {
+            var modal = $(this);
+            //lay thong tin tu button de hien thi popup
+            var button = $(event.relatedTarget);
+            if (!button)
+                return;
+            var _id = button.data('id');
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "/ProcuringAgency/_Detail?id=" + _id,
+                complete: function (data) {
+                    modal.find('.content').html(data.responseText);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                },
+                traditional: true
+            });
+        });
+    });
+    function DeleteContractJoint(fileId) {
+        bootbox.confirm({
+            message: '@T("admin.common.deleteconfirmation")',
+            className: 'bootbox-sm',
+            buttons: {
+                confirm: {
+                    label: '@T("admin.common.yes")',
+                },
+                cancel: {
+                    label: '@T("admin.common.no")',
+                },
+            },
+            callback: function (result) {
+                if (result) {
+                    var postData = { _ContractId: '@Model.Id', _ProCuringAgencyId: fileId  };
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "/Contract/DeleteContractJoint",
+                        data: postData,
+                        success: function (msg) {
+                            if (msg.Code == "01") {
+                                ShowErrorMessage(msg.Message);
+                                return;
+                            }
+                            $("#tabContractJoinEdit .close").click();
+                            ShowSuccessMessage(msg.Message);
+                            LoadTabContractJointInfo();
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            alert(thrownError);
+                        },
+                        traditional: true
+                    });
+                }
+            },
+        });
+
+
+    }
+</script>
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="tabContractJoinEdit" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body" style="padding-bottom: 0px;">
+                <div class="content">
+                    <input type="hidden" id="ContractJoinIsSideA" />
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5 class="modal-name"></h5>
+                                    </div>
+                                    <div class="col-md-6" style="text-align: right;">
+                                        <a id="btnNewContract" href="#newContract" data-toggle="collapse">@T("AppWork.Contracts.Contract.Fields.addNewContract")</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12" id="DivProcuringAge">
+                                <input id="ProcuringAgencyId" style="width: 100%;" />
+                                <script>
+                                    function SearchProcuringAgencyData() {
+                                        var _data = { Name: $("#ProcuringAgencyId").data("kendoComboBox").text() };
+                                        return _data;
+                                    }
+                                    function onProcuringAgencyEditChange() {
+                                        var value = this.value();
+                                        //alert(value);
+                                    }
+                                    $(document).ready(function () {
+
+                                        $("#ProcuringAgencyId").kendoComboBox({
+                                            placeholder: "Chọn thông tin...",
+                                            dataTextField: "Name",
+                                            dataValueField: "Id",
+                                            filter: "contains",
+                                            autoBind: false,
+                                            minLength: 3,
+                                            dataSource: {
+                                                type: "json",
+                                                serverFiltering: false,
+                                                transport: {
+                                                    read: {
+                                                        /**/
+                                                        url: "/Contract/SearchProcuringAgency",
+                                                        /**/
+                                                        data: SearchProcuringAgencyData
+                                                    },
+                                                },
+                                            },
+                                            change: onProcuringAgencyEditChange
+                                        });
+                        $("#btnAdd_ContractJoint").click(function () {
+
+                            var procuringAgencyId = $("#ProcuringAgencyId").data('kendoComboBox').value();
+                            if (!(procuringAgencyId > 0)) {
+                                alert("Bạn chưa chọn thông tin");
+                                return false;
+                            }
+                            var _isSideA = parseInt($("#ContractJoinIsSideA").val()) == 1;
+                            var postData = {
+                                ContractId: @Model.Id,
+                                ProcuringAgencyId: procuringAgencyId,
+                                IsSideA: _isSideA
+                            };
+                            $.ajax({
+                                cache: false,
+                                url: "/Contract/InsertContractJoint",
+                                type: 'post',
+                                data: postData,
+                                dataType: 'json',
+                                error: function (xhr, ajaxOptions, thrownError) {
+
+                                },
+                                success: function (msg) {
+                                    console.log(msg);
+                                    if (msg.Code == "00") {
+                                        $("#tabContractJoinEdit .close").click();
+                                        ShowSuccessMessage(msg.Message);
+                                        LoadTabContractJointInfo();
+                                    }
+                                    else {
+                                        ShowErrorMessage(msg.Message);
+                                    }
+
+                                }
+                            });
+                                        });
+                                    });
+
+
+                                </script>
+                            </div>
+                            <div class="col-md-12" style="margin-top:5px;">
+                                <div id="newContract" class="collapse" style=" border: 1px solid rgba(24,28,33,0.06); border-radius: .25rem;">
+                                    <div class="form-group" style="margin:5px;">
+                                        <div class="row" style="margin-top:5px;">
+                                            <div class="col-md-3">
+                                                <h5 style="padding-top: 10px;">@T("appwork.contracts.procuringagency.fields.name")</h5>
+                                            </div>
+                                            <div class="col-md-9">
+                                                <input id="procuringagencyName" class="form-control" style="width:100%" placeholder="@T("appwork.contracts.procuringagency.fields.name")" />
+                                            </div>
+                                        </div>
+                                        <div class="row" style="margin-top:5px;">
+                                            <div class="col-md-3">
+                                                <h5 style="padding-top: 10px;">@T("appwork.contracts.procuringagency.fields.representer")</h5>
+                                            </div>
+                                            <div class="col-md-9">
+                                                <input id="procuringagencyRepresenter" class="form-control" style="width:100%" placeholder="@T("appwork.contracts.procuringagency.fields.representer")" />
+                                            </div>
+                                        </div>
+                                        <div class="row" style="margin-top:5px;">
+                                            <div class="col-md-3">
+                                                <h5 style="padding-top: 10px;">@T("appwork.contracts.procuringagency.fields.position")</h5>
+                                            </div>
+                                            <div class="col-md-9">
+                                                <input id="procuringagencyPosition" class="form-control" style="width:100%" placeholder="@T("appwork.contracts.procuringagency.fields.position")" />
+                                            </div>
+                                        </div>
+                                        <div class="row" style="margin-top:5px;">
+                                            <div class="col-md-3">
+                                                <h5 style="padding-top: 10px;">@T("appwork.contracts.procuringagency.fields.companyaddress")</h5>
+                                            </div>
+                                            <div class="col-md-9">
+                                                <input id="procuringagencyCompanyaddress" class="form-control" style="width:100%" placeholder="@T("appwork.contracts.procuringagency.fields.companyaddress")" />
+                                            </div>
+                                        </div>
+                                        <div class="row" style="margin-top:5px;">
+                                            <div class="col-md-3">
+                                                <h5 style="padding-top: 10px;">@T("appwork.contracts.procuringagency.fields.taxcode")</h5>
+                                            </div>
+                                            <div class="col-md-9">
+                                                <input id="procuringagencyTaxcode" class="form-control" style="width:100%" placeholder="@T("appwork.contracts.procuringagency.fields.taxcode")" />
+                                            </div>
+                                        </div>
+                                        <div class="row" style="margin-top:5px;">
+                                            <div class="col-md-3">
+                                                <h5 style="padding-top: 10px;">@T("appwork.contracts.procuringagency.fields.companyphone")</h5>
+                                            </div>
+                                            <div class="col-md-9">
+                                                <input id="procuringagencyCompanyphone" class="form-control" style="width:100%" placeholder="@T("appwork.contracts.procuringagency.fields.companyphone")" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style="text-align:right; margin-bottom:5px; margin-right:5px;">
+                                        <button type="button" class="btn btn-primary" id="btnAddchose_ContractJoint">@T("admin.common.addAndChose")</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <script>
+                                $(document).ready(function () {
+                                    $("#btnAddchose_ContractJoint").click(function () {
+                                        var _data = {
+                                            Name: $("#procuringagencyName").val(),
+                                            Representer: $("#procuringagencyRepresenter").val(),
+                                            Position: $("#procuringagencyPosition").val(),
+                                            CompanyAddress: $("#procuringagencyCompanyaddress").val(),
+                                            TaxCode: $("#procuringagencyTaxcode").val(),
+                                            CompanyPhone: $("#procuringagencyCompanyphone").val()
+                                        }
+                                        $.ajax({
+                                            type: "POST",
+                                            url: "/ProcuringAgency/_Create",
+                                            data: _data,
+                                            success: function (data) {
+                                                console.log(data);
+                                                if (data.Code == "00") {
+                                                    var _isSideA = parseInt($("#ContractJoinIsSideA").val()) == 1;
+                                                    var postData = {
+                                                        ContractId: @Model.Id,
+                                                        ProcuringAgencyId: data.ObjectInfo.Id,
+                                                        IsSideA: _isSideA
+                                                    };
+                                                    $.ajax({
+                                                        cache: false,
+                                                        url: "/Contract/InsertContractJoint",
+                                                        type: 'post',
+                                                        data: postData,
+                                                        dataType: 'json',
+                                                        error: function (xhr, ajaxOptions, thrownError) {
+
+                                                        },
+                                                        success: function (msg) {
+                                                            console.log(msg);
+                                                            if (msg.Code == "00") {
+                                                                $("#tabContractJoinEdit .close").click();
+                                                                ShowSuccessMessage(msg.Message);
+                                                                LoadTabContractJointInfo();
+                                                            }
+                                                            else {
+                                                                ShowErrorMessage(msg.Message);
+                                                            }
+
+                                                        }
+                                                    });
+                                                }
+                                                else {
+                                                    $("#tabContractJoinEdit .close").click();
+                                                    ShowSuccessMessage("Có lỗi trong quá trình xử lý !");
+                                                }
+                                            }
+                                        })
+                                    })
+                                })
+                            </script>
+                        </div>
+                        <script>
+                            var isShow = true;
+                            $(document).ready(function () {
+                                $("#btnNewContract").click(function () {
+                                    if (isShow) {
+                                        $("#DivProcuringAge").hide();
+                                    }
+                                    else {
+                                        $("#DivProcuringAge").show();
+                                    }
+                                    isShow = !isShow;
+                                    if ($('#btnAdd_ContractJoint').prop("disabled")) {
+                                        $("#btnAdd_ContractJoint").prop('disabled', false);
+                                    }
+                                    else {
+                                        $("#btnAdd_ContractJoint").prop('disabled', true);
+                                    }
+                                })
+                                $('#tabContractJointDetail').on('hidden.bs.modal', function () {
+                                    SetEmptyModal('#tabContractJoinEdit');
+                                })                               
+                            })
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btnAdd_ContractJoint">@T("admin.common.add")</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">@T("admin.common.cancel")</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="tabContractJointDetail" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@T("AppWork.Contracts.ProcuringAgency.Detail")</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="content">
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

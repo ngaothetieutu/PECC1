@@ -1,0 +1,196 @@
+﻿@model GS.Web.Models.Works.TaskGroupSearchModel
+
+@{
+    //page title
+    ViewBag.Title = T("AppWork.Works.TaskGroup").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Category_task_group");
+}
+
+<nop-antiforgery-token />
+<div class="content-header clearfix">
+    <h5 class="pull-left">
+        @T("AppWork.Works.TaskGroup")
+    </h5>
+    <div class="pull-right" style="margin-bottom:5px;">
+        <a asp-action="Create" class="btn btn-success">
+            <i class="fa fa-plus-square"></i>
+            @T("Admin.Common.AddNew")
+        </a>
+    </div>
+</div>
+@*<div class="ui-bordered px-4 pt-4 mb-4" style="padding-bottom: 24px;">
+        <div class="form-row">
+            <div class="col-md-10">
+                <label class="form-label">@T("AppWork.Works.TaskGroup.Fields.Name")</label>
+                <nop-editor asp-for="Name" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label d-none d-md-block">&nbsp;</label>
+                <button type="button" class="btn btn-secondary btn-block" id="btnSearch">@T("Admin.Common.Search")</button>
+            </div>
+        </div>
+    </div>*@
+<div class="content">
+    <div class="form-horizontal">
+        <div class="panel-group">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div id="categories-grid"></div>
+                    <script>
+                        $(document).ready(function() {
+                            $("#categories-grid").kendoGrid({
+                                dataSource: {
+                                    type: "json",
+                                    transport: {
+                                        read: {
+                                            url: "@Html.Raw(Url.Action("List", "TaskGroup"))",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: additionalData
+                                        }
+                                    },
+                                    schema: {
+                                        data: "Data",
+                                        total: "Total",
+                                        errors: "Errors"
+                                    },
+                                    error: function(e) {
+                                        display_kendoui_grid_error(e);
+                                        // Cancel the changes
+                                        this.cancelChanges();
+                                    },
+                                    serverPaging: false,
+                                    serverFiltering: true,
+                                    serverSorting: true
+                                },
+                                editable: {
+                                    confirmation: "Bạn có chắc chắn xóa chỉ tiêu này không",
+                                    mode: "inline"
+                                },
+                                detailInit: detailInit,
+                                scrollable: false,
+                                columns: [
+                                     {
+                                    field: "Name",
+                                    title: "Tên",
+                                    headerAttributes: { style: "text-align:center" },
+                                    attributes: { style: "text-align:left" },
+                                    template: '#=CountChild>0?Name+" &nbsp;(<span class=\'gs-grid-has-child\'>"+CountChild+"</span>)":Name#'
+                                },{
+                                        field: "Ratio",
+                                        title: "@T("AppWork.Works.TaskGroup.Fields.Ratio")",
+                                        Width: 150,
+                                        headerAttributes: { style: "text-align:center" },
+                                        attributes: { style: "text-align:center" },
+                                    },
+                                 {
+                                    field: "Id",
+                                    title: '@T("admin.common.Edit")',
+                                    width: 100,
+                                    headerAttributes: { style: "text-align:center" },
+                                    attributes: { style: "text-align:center" },
+                                    template: '<a class="btn btn-default" href="Edit/#=Id#"><i class="fas fa-edit"></i>@T("Admin.Common.Edit")</a>'
+                                }
+                                ]
+                            });
+                        });
+                        function detailInit(e) {
+                            var data = {
+                                Name:$("#@Html.IdFor(c=>c.Name)").val(),
+                                ParentId: e.data.Id
+                            };
+                            //console.log(data);
+                            addAntiForgeryToken(data);
+                            $("<div/>").appendTo(e.detailCell).kendoGrid({
+                                dataSource: {
+                                    type: "json",
+                                    transport: {
+                                        read: {
+                                            url: "@Html.Raw(Url.Action("List", "TaskGroup"))",
+                                        type: "POST",
+                                        dataType: "json",
+                                        data: data
+                                    }
+                                },
+                                schema: {
+                                    data: "Data",
+                                    total: "Total",
+                                    errors: "Errors"
+                                },
+                                error: function(e) {
+                                    display_kendoui_grid_error(e);
+                                    // Cancel the changes
+                                    this.cancelChanges();
+                                },
+                                serverPaging: false,
+                                serverFiltering: true,
+                                serverSorting: true
+                            },
+                                editable: {
+                                confirmation: "Bạn có chắc chắn xóa chỉ tiêu này không",
+                                mode: "inline"
+                                },
+                            detailInit: detailInit,
+                            scrollable: false,
+                            columns: [
+                                 {
+                                    field: "Name",
+                                    title: "Tên",
+                                    headerAttributes: { style: "text-align:center" },
+                                    attributes: { style: "text-align:left" },
+                                    template: '#=CountChild>0?Name+" &nbsp;(<span class=\'gs-grid-has-child\'>"+CountChild+"</span>)":Name#'
+                                },{
+                                    field: "Ratio",
+                                    title: "@T("AppWork.Works.TaskGroup.Fields.Ratio")",
+                                    Width: 150,
+                                    headerAttributes: { style: "text-align:center" },
+                                    attributes: { style: "text-align:center" },
+                                    },
+                                 {
+                                    field: "Id",
+                                    title: '@T("admin.common.Edit")',
+                                    width: 100,
+                                    headerAttributes: { style: "text-align:center" },
+                                    attributes: { style: "text-align:center" },
+                                    template: '<a class="btn btn-default" href="Edit/#=Id#"><i class="fas fa-edit"></i>@T("Admin.Common.Edit")</a>'
+                                }
+                            ]
+                            });
+                        }
+                    </script>
+
+                    <script type="text/javascript">
+                        $(document).ready(function() {
+                            //search button
+                            $('#search-categories').click(function() {
+                                //search
+                                var grid = $('#categories-grid').data('kendoGrid');
+                                grid.dataSource.read();
+                                return false;
+                            });
+                        });
+
+                        function additionalData() {
+                            var data = {
+                               Name:$("#@Html.IdFor(c=>c.Name)").val(),
+                            };
+                            addAntiForgeryToken(data);
+                            return data;
+                        }
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .gs-grid-has-child {
+        color: #b41515;
+        font-weight: bold;
+    }
+
+    #btnleft {
+        margin-right: 10px;
+    }
+</style>

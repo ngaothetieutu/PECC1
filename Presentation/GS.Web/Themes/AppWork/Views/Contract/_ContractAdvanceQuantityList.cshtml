@@ -1,0 +1,43 @@
+﻿@model ContractAcceptanceListModel
+@if (Model.Data.Count() > 0)
+{
+    foreach (ContractAcceptanceModel Accep in Model.Data)
+    {
+        <div class="row list-task-plan">
+            <div class="col-md-12">
+                <div class="project-task-item">
+                    <span>
+                        <i class="fas fa-calendar-check"></i>
+                        <span>@Accep.Name &nbsp;</span>(<i class="fas fa-calendar-alt"/>@Accep.ApprovalDate.toDateVNString())
+                        <span class="badge badge-success font-weight-normal ml-2"></span>
+                    </span>
+                    <div class="d-flex align-items-center">
+                        <div class="project-task-actions btn-group">
+                            <button type="button" class="btn btn-default btn-xs btn-round icon-btn borderless md-btn-flat hide-arrow dropdown-toggle" data-toggle="dropdown">
+                                <i class="ion ion-ios-more"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a class='dropdown-item' data-toggle='modal' href='#tabContractAcceptance' data-id='@Accep.Id' data-type='@((int)GS.Core.Domain.Contracts.ContractAcceptancesType.TamUng)' data-title='Sửa tạm ứng sản lượng'><i class='fas fa-edit'></i>@T("Admin.Common.Edit")</a>
+                                <a class="dropdown-item" href="javascript:DeleteContractAcceptance(@Accep.Id)"><i class='fas fa-trash-alt'></i>@T("Admin.Common.Delete")</a>
+                                <a class='dropdown-item' data-toggle='modal' href='#tabInsertContractPayment' data-taskid="@Accep.TaskId" data-type="@((int)GS.Core.Domain.Contracts.ContractPaymentType.Advance)" data-receipts="0" data-title="Tạo khoản chi" data-contractid="@Accep.ContractId" data-acceptanceid="@Accep.Id" data-id="0"><i class='pe-7s-gleam'></i>Tạo khoản chi </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-3">
+                        <i class="lnr lnr-diamond"></i> &nbsp;@Accep.TotalAmountText
+                    </div>
+                    <div class="col-md-3">
+                        Tỷ lệ khoán : @Accep.Ratio
+                    </div>
+                    <div class="col-md-6">
+                        Giá trị thực nhận:<span style="color:red"> @Accep.TotalAmountReceived</span><span>/</span> @Accep.TotalAmountMaxReceived
+                    </div>                    
+                </div>
+            </div>
+        </div>
+    }
+}

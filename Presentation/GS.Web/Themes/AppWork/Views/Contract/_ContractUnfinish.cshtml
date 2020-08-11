@@ -1,0 +1,45 @@
+﻿@model ContractUnfinishSearchModel
+<div class="container-fluid flex-grow-1 container-p-y">
+    <div style="display:none;">
+        <nop-editor asp-for="ContractId" />
+        <nop-editor asp-for="ContractTypeId" />
+    </div>
+    <div class="col-sm-12 row">
+        <div class="col-sm-4">
+            Ngày tính 
+        </div>
+        <div class="col-sm-6" style="padding-left: 22px;">
+            <nop-editor asp-for="DaySearch" />
+        </div>
+    </div>
+    <div id="lstContractUnfinish" style="padding-top:20px;">
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        getContractUnfinish();
+        $("#@Html.IdFor(c=>c.DaySearch)").change(function () {
+            getContractUnfinish();
+        })
+    });
+    function getContractUnfinish() {
+        var _data = {
+            ContractId: $("#@Html.IdFor(c=>c.ContractId)").val(),
+            ContractTypeId: $("#@Html.IdFor(c=>c.ContractTypeId)").val(),
+            DaySearch: $("#@Html.IdFor(c=>c.DaySearch)").val()
+        }
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: _data,
+            url: "/Contract/_ContractUnfinishSearch",
+            success: function (data) {
+                $("#lstContractUnfinish").html(data);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            },
+        })
+    }
+</script>

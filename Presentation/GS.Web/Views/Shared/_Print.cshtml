@@ -1,0 +1,31 @@
+﻿@using GS.Core
+@inject GS.Services.Localization.ILanguageService languageService
+@inject GS.Core.Domain.Common.CommonSettings commonSettings
+@inject IThemeContext themeContext
+@inject IWorkContext workContext;
+@{
+    var themeName = themeContext.WorkingThemeName;
+}
+<!DOCTYPE html>
+<html lang="@languageService.GetTwoLetterIsoLanguageName(workContext.WorkingLanguage)" @Html.GSPageCssClasses()>
+<head>
+    <title>@Html.GSTitle()</title>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+    <link href="@Url.Content($"~/Themes/{themeName}/Content/css/print.css")" rel="stylesheet" type="text/css" />
+    <script src="@Url.Content("~/lib/jquery/jquery-3.3.1.min.js")"></script>
+    @*/when jQuery migrate script logging is active you will see the log in the browser console*@
+    @if (commonSettings.JqueryMigrateScriptLoggingActive)
+    {
+        <script src="@Url.Content("~/lib/jquery-migrate/jquery-migrate-3.0.1.js")"></script>
+    }
+    else
+    {
+        <script src="@Url.Content("~/lib/jquery-migrate/jquery-migrate-3.0.1.min.js")"></script>
+    }
+    @Html.GSInlineScripts(this.Url, ResourceLocation.Head)
+</head>
+<body>
+    @RenderBody()
+    @Html.GSInlineScripts(this.Url, ResourceLocation.Footer)
+</body>
+</html>

@@ -1,0 +1,178 @@
+﻿@model TaskSearchModel
+<div id="tasks-grid-trees"></div>
+<script>
+    $(document).ready(function() {
+        $("#tasks-grid-trees").kendoGrid({
+            dataSource: {
+                type: "json",
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("ListTaskContractAcceptances", "Works"))",
+                        type: "POST",
+                        dataType: "json",
+                        data: additionalData
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                serverPaging: false,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            editable: {
+                confirmation: "Bạn có chắc chắn xóa chỉ tiêu này không",
+                mode: "inline"
+            },
+            detailInit: detailInit,
+            scrollable: false,
+            columns: [
+                {
+                    field: "Name",
+                    title: "Tên",
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:left" },
+                    template: '#=CountContractAcceptance>0?Name+" &nbsp;(<span class=\'gs-grid-has-child\'>"+CountContractAcceptance+"</span>)":Name#'
+                }
+                ,{
+                field: "StartDate",
+                title: '@T("AppWork.Works.Task.Fields.StartDate")',
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                type: "date",
+                format: "{0:dd/MM/yyyy}"
+                },
+                {
+                    field: "EndDate",
+                    title: '@T("AppWork.Works.Task.Fields.EndDate")',
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                    type: "date",
+                    format: "{0:dd/MM/yyyy}"
+                }
+            ]
+        });
+    });
+    function detailInit(e) {
+        var data = {
+            ContractId:@Model.ContractId,
+            TaskId: e.data.Id
+        };
+        //console.log(data);
+        addAntiForgeryToken(data);
+        $("<div/>").appendTo(e.detailCell).kendoGrid({
+            dataSource: {
+                type: "json",
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("ListContractAcceptanceTasks", "Works"))",
+                    type: "POST",
+                    dataType: "json",
+                    data: data
+                }
+            },
+            schema: {
+                data: "Data",
+                total: "Total",
+                errors: "Errors"
+            },
+            error: function(e) {
+                display_kendoui_grid_error(e);
+                // Cancel the changes
+                this.cancelChanges();
+            },
+            serverPaging: false,
+            serverFiltering: true,
+            serverSorting: true
+        },
+            editable: {
+            confirmation: "Bạn có chắc chắn xóa chỉ tiêu này không",
+            mode: "inline"
+            },
+        //detailInit: detailInit,
+        scrollable: false,
+        columns: [
+                {
+                field: "Code",
+                title: '@T("AppWork.Contracts.ContractAcceptance.Fields.Code")',
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:left" },
+                //template: '#=CountChild>0?Name+" &nbsp;(<span class=\'gs-grid-has-child\'>"+CountChild+"</span>)":Name#'
+            },
+            {
+                field: "ApprovalDate",
+                title: '@T("AppWork.Contracts.ContractAcceptance.Fields.ApprovalDate")',
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                type: "date",
+                format: "{0:dd/MM/yyyy}"
+            },
+            {
+                field: "TotalAmount",
+                title: '@T("AppWork.Contracts.ContractAcceptance.Fields.TotalAmount")',
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+
+            }, {
+                field: "Ratio",
+                title: '@T("AppWork.Contracts.ContractAcceptance.Fields.Ratio")',
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+
+            },
+                {
+                field: "Id",
+                title: '@T("admin.common.Edit")',
+                width: 100,
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                    template: "<button type='button' class='btn btn-default' data-toggle='modal' data-target='\\#tabContractAcceptance' data-id='#=Id#'  data-title='Sửa thanh toán' ><i class='fas fa-edit' ></i>@T("Admin.Common.Edit")</button>"
+            },
+            {
+                field: "Id",
+                title: '@T("admin.common.delete")',
+                width: 100,
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                template: '<a class="btn btn-default" href="javascript:DeleteContractAcceptance(#=Id#)"><i class="fas fa-trash-alt"></i>Xoá</a>'
+            }
+        ]
+        });
+    }
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        //search button
+        $('#search-categories').click(function() {
+            //search
+            var grid = $('#tasks-grid-trees').data('kendoGrid');
+            grid.dataSource.read();
+            return false;
+        });
+    });
+    function additionalData() {
+        var data = {
+            ContractId:@Model.ContractId,
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+</script>
+<style>
+    .gs-grid-has-child {
+        color: #b41515;
+        font-weight: bold;
+    }
+
+    #btnleft {
+        margin-right: 10px;
+    }
+</style>

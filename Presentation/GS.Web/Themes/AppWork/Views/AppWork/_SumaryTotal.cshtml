@@ -1,0 +1,53 @@
+﻿@model SumaryTotalModel
+
+<div class="card d-flex w-100 mb-4">
+    <div class="row no-gutters row-bordered row-border-light h-100">
+        <div class="col-sm-6 col-md-4 col-lg-6 align-items-center" style="padding-bottom:15px;padding-top:15px;padding-left:5px;padding-right:5px;">
+            <div class="text-big" style="text-align:center; width:100%;">
+                <span class="font-weight-bolder">@Model.TotalMoney</span>
+            </div>
+            <a href="/Contract/List" class="card-body media align-items-center text-dark" style="padding:0px;">
+                <i class="lnr lnr-diamond display-4 d-block text-primary" style="font-size:20px;"></i>
+                <span class="media-body d-block ml-3">
+                    <small class="text-muted">Tổng giá trị hợp đồng</small>
+                </span>
+            </a>
+        </div>
+        <div class="col-sm-6 col-md-4 col-lg-6 align-items-center" style="padding-bottom:15px;padding-top:15px;padding-left:5px;padding-right:5px;">
+            <div class="text-big" style="text-align:center; width:100%;">
+                <span class="font-weight-bolder">@Model.TotalMoneyAcceptance</span>
+            </div>
+            <a href="/Contract/List" class="card-body media align-items-center text-dark" style="padding:0px;">
+                <i class="lnr lnr-book display-4 d-block text-primary" style="font-size:20px;"></i>
+                <span class="media-body d-block ml-3">
+                    <small class="text-muted">Tổng giá trị NTKL</small>
+                </span>
+            </a>
+        </div>
+        <div class="d-flex col-sm-6 col-md-4 col-lg-6 align-items-center" style="padding-bottom:15px;padding-top:15px;padding-left:5px;padding-right:5px;">
+            <a href="/Contract/List" class="card-body media align-items-center text-dark" style="padding:0px;">
+                <i class="ion ion-ios-hourglass d-block display-4 d-block text-primary" style="font-size:20px;"></i>
+                <span class="media-body d-block ml-3">
+                    <span class="text-big">
+                        <span class="font-weight-bolder" title="Tổng giá trị dở dang chưa nghiệm thu">@Model.TotalUnfinish1</span>
+                    </span>
+                    <br>
+                    <span class="text-big">
+                        <span class="font-weight-bolder" title="Tổng giá trị dở dang chưa thực hiện">@Model.TotalUnfinish2</span>
+                    </span>
+                </span>
+            </a>
+        </div>
+        <div class="col-sm-6 col-md-4 col-lg-6 align-items-center" style="padding-bottom:15px;padding-top:15px;padding-left:5px;padding-right:5px;">
+            <div class="text-big" style="text-align:center; width:100%;">
+                <span class="font-weight-bolder">@Model.TotalRemainingAmount</span>
+            </div>
+            <a href="/Contract/List" class="card-body media align-items-center text-dark" style="padding:0px;">
+                <i class="lnr lnr-tag display-4 d-block text-primary" style="font-size:20px;"></i>
+                <span class="media-body d-block ml-3">
+                    <small class="text-muted">Giá trị chưa NTKL</small>
+                </span>
+            </a>
+        </div>
+    </div>
+</div>

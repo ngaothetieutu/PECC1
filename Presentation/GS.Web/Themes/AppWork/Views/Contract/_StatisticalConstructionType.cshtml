@@ -1,0 +1,28 @@
+﻿@using GS.Core.Domain.Contracts
+@model List<ConstructionTypeResultByYear>
+
+@foreach (ConstructionTypeResultByYear obj in Model)
+{
+<div class="card mt-3" style="background-color:#f9fc66;">
+    <div class="row">
+        <div class="col-6 col-sm-3 col-md pr-4 pl-4" style="padding-top: 5px;padding-bottom: 5px;">
+            <i class="text-dark">Tổng giá trị các hợp đồng: </i><br /><i style="color:#1c40ba;font-weight:bold">@obj.TotalMoney.ToVNStringNumber()</i>
+        </div>
+        <div class="col-6 col-sm-3 col-md pr-4" style="padding-top: 5px;padding-bottom: 5px;">
+            <i class="text-dark">Tổng giá trị đã NTKL: </i><br /><i style="color:#1c40ba;font-weight:bold">@obj.TotalPaymentAcceptance.ToVNStringNumber()</i>
+        </div>
+        @{
+            var GTCL = obj.TotalMoney - obj.TotalPaymentAcceptance;
+            <div class="col-6 col-sm-3 col-md pr-4" style="padding-top: 5px;padding-bottom: 5px;">
+                <i class="text-dark">Tổng giá trị còn lại: </i><br /><i style="color:#1c40ba;font-weight:bold">@GTCL.ToVNStringNumber()</i>
+            </div>
+        }
+        <div class="col-6 col-sm-3 col-md pr-4" style="padding-top: 5px;padding-bottom: 5px;">
+            <i class="text-dark">Tổng giá trị đã tạm ứng: </i><br /><i style="color:#1c40ba;font-weight:bold">@obj.TotalPaymentAdvance.ToVNStringNumber()</i>
+        </div>
+        <div class="col-6 col-sm-3 col-md pr-4" style="padding-top: 5px;padding-bottom: 5px;">
+            <i class="text-dark">Tổng giá trị đã thanh toán: </i><br /><i style="color:#1c40ba;font-weight:bold">@obj.TotalMoneyPaid.ToVNStringNumber()</i>
+        </div>
+    </div>
+</div>
+}

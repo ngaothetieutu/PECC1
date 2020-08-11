@@ -1,0 +1,50 @@
+﻿@model ContractModel
+<div class="card-body">  
+    <div class="content" id="listContractAcceptance">
+        @foreach (var acs in Model.lstContractAcceptanceSub)
+        {
+            <div class="row list-task-plan">
+                <div class="col-md-12">
+                    <div class="project-task-item">
+                        <div class="col-md-6">
+                            <i class="fas fa-calendar-check"></i>
+                            <span>@acs.Description</span>
+                            @*<span class="badge badge-success font-weight-normal ml-2">Hoàn thành</span>*@
+                        </div>
+                        <div class="col-md-3">
+                            <i class="fas fa-coins"></i>&nbsp;<label class="app-work-money">@acs.TotalAmountText</label>
+                        </div>
+                        <div class="col-md-3">
+                            <i class="fas fa-calendar-alt"></i>&nbsp;<label >@acs.DateAproval</label>
+                        </div>
+                    </div>
+                </div>
+                @*<div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <i class=""></i>&nbsp;<label class="app-work-money">@acs.TotalAmountText</label>
+                        </div>
+                        <div class="col-md-3">
+                        </div>
+                        <div class="col-md-3">
+                        </div>
+                    </div>
+                </div>*@
+            </div>
+        }
+    </div>
+    <div class="project-task-list custom-controls-stacked">
+        <div id="ContractAcceptanceTask"></div>
+        @*<script>
+            function LoadContractAcceptanceTask() {
+                $.ajax({
+                    type: "GET",
+                    url: "/Contract/_ContractAcceptance?contractId=" +@Model.Id,
+                    success: function (data) {
+                        $("#Acceptance-tasks").html(data);
+                    }
+                })
+            }           
+        </script>*@
+    </div>
+</div>

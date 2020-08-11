@@ -1,0 +1,59 @@
+﻿@model GS.Web.Models.Unit.CustomerUnitSearchModel
+
+<input asp-for="UnitId" type="hidden" />
+<div class="form-group">
+    <div class="row">
+        <div class="col-md-12 row" style="margin-top:10px; margin-bottom:10px;">
+            <div class="col-md-6">
+                @Html.TextBoxFor(m => m.srKeywordCustomer, new { @class = "form-control", @placeholder = @T("Username.Or.FullName...") })
+            </div>
+            <div class="col-md-4">
+                <button type="button" class="btn bg-blue" id="btnSearchCustomer">
+                    <i class="fa fa-search"></i>
+                    @T("AppWork.Unit.Search.Title")
+                </button>
+            </div>
+        </div>
+        <div class="col-md-12 row">
+            <div class="col-md-6" id="SearchCustomerList"></div>
+            <div class="col-md-6" id="CheckCutomerList"></div>
+        </div>
+    </div>
+</div>
+<script>
+    function LoadCheckCutomerList()
+    {
+        $.ajax({
+            type: "GET",
+            url: '/Unit/_SelectListCustomer?UnitId=@(Model.UnitId)',
+            success: function (data) {
+                $("#CheckCutomerList").html(data);
+            }
+        });
+    }
+    $(document).ready(function (e) {
+        LoadCheckCutomerList();
+        $("#@Html.IdFor(c=>c.srKeywordCustomer)").keydown(function (event) {
+            if (event.keyCode == 13) {                
+                $('#btnSearchCustomer').click();
+            }
+        });
+        $('#btnSearchCustomer').click(function () {
+            var UserName = $('#srKeywordCustomer').val();
+            if (UserName != '') {
+                $.ajax({                    
+                    type: "POST",
+                    url: "/Unit/_SearchCustomer",
+                    data: { srKeywordCustomer: UserName , UnitId: @(Model.UnitId)},
+                    success: function (data) {
+                        $("#SearchCustomerList").html(data);
+                    }
+                });
+            }
+            else {
+                alert("@T("AppWork.Unit.Search.Alert.Notification")");
+            }
+        });
+    });
+</script>
+

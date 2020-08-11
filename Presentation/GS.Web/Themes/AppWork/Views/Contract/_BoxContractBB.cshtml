@@ -1,0 +1,102 @@
+﻿@model ContractModel
+@using GS.Services.Contracts
+@inject IContractService _contractService
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <h6 class="card-header with-elements">
+                @if (Model.classification == GS.Core.Domain.Contracts.ContractClassification.AB)
+                {
+                    <div class="card-header-elements ml-auto">
+                        <button type="button" class="btn btn-xs btn-outline-primary" id="btnAddContractBB">
+                            <span class="ion ion-md-add">@T("AppWork.Contracts.Contract.Fields.partiesAdd")</span>
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <span>Hợp đồng gốc</span>
+                }
+
+            </h6>
+            @if (Model.classification == GS.Core.Domain.Contracts.ContractClassification.AB)
+            {
+                <ul class="list-group list-group-flush">
+                    @foreach (var ContractRelate in Model.contractRelateModels)
+                    {
+                        <li class="list-group-item d-flex" style="font-size:12px;">
+                            <a href="/Contract/Detail?guid=@ContractRelate.ContractGuid" class="text-dark"> <strong>@ContractRelate.Name</strong></a>
+                        </li>
+                    }
+
+                </ul>
+            }
+            else
+            {
+
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item d-flex" style="font-size:12px;">
+                        <a href="/Contract/Detail?guid=@Model.ContractAB.ContractGuid" class="text-dark"> <strong>@Model.ContractAB.Name</strong></a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    @if (Model.classification == GS.Core.Domain.Contracts.ContractClassification.BB)
+    {
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <h6 class="card-header with-elements">
+                    @if (Model.classification == GS.Core.Domain.Contracts.ContractClassification.AB)
+                    {
+                        <div class="card-header-elements ml-auto">
+                            <button type="button" class="btn btn-xs btn-outline-primary" id="btnAddContractBB">
+                                <span class="ion ion-md-add">@T("AppWork.Contracts.Contract.Fields.partiesAdd")</span>
+                            </button>
+                        </div>
+                    }
+                    else
+                    {
+                            <span card-header-title>Phụ lục hợp đồng</span>
+                            <div class="card-header-elements ml-auto" style="float:right;">
+                                <a href="/Contract/Create?ClassificationId=@((int)GS.Core.Domain.Contracts.ContractClassification.Appendix)&ContractRelateId=@Model.Id" class="btn icon-btn btn-sm btn-outline-success" id="btnAddContractAppendix">
+                                    <span class="ion ion-md-add"></span>
+                                </a>
+                            </div>
+                    }
+
+                </h6>
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item d-flex" style="font-size:12px;">
+                        @foreach (var ContractAppendix in Model.contractAppendixModels)
+                        {
+                            <div class="list-task-plan">
+                                <i class="ion ion-ios-filing" style="padding:5px;"></i>&nbsp;<strong><a class="text-dark" href="/Contract/EditAppendix?ContractId=@Model.Id&AppendixId=@ContractAppendix.Id" target="_blank">@ContractAppendix.Name</a></strong>&nbsp;&nbsp;
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<script>
+    $(document).ready(function () {
+        $("#btnAddContractBB").click(function () {
+              $.ajax({
+        cache: false,
+                  type: "GET",
+                  url: "/Contract/Create?ClassificationId=@((int)GS.Core.Domain.Contracts.ContractClassification.BB)&ContractRelateId=@Model.Id",
+                  success: function (data) {
+                window.location.href = "/Contract/Create?ClassificationId=@((int)GS.Core.Domain.Contracts.ContractClassification.BB)&ContractRelateId=@Model.Id";
+            },
+                  error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            },
+                  traditional: true
+              });
+    });
+
+});
+</script>

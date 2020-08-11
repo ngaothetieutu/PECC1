@@ -1,0 +1,35 @@
+﻿@model ContractAcceptanceModel
+<div class="container-fluid flex-grow-1 container-p-y">
+    <div class="card pb-4 mb-2">
+        <div class="card-body pb-2">
+            <div class="form-group">
+                <div class="task-list custom-controls-stacked">
+                    @foreach (ContractModel contract in Model.listContractModel)
+                    {                    
+                        <div class="task-list-item row " style="padding-top:10px;">
+                            <div class="col-sm-10">                               
+                                <label class="ui-todo-item custom-control custom-checkbox ">
+                                    <span class="row text-dark" style="font-weight:200;padding-left:13px;">
+                                        @contract.ConstructionName
+                                    </span>
+                                    <span class="text-dark"><i class="lnr lnr-bookmark" style="color:red;"></i><a href="#">@contract.Name</a> </span>
+                                </label>
+                            </div>
+                            <div class="col-sm-2" style="padding-left:40px;padding-top:8px; ">
+                                <a id="btnAcceptanceContract_@contract.Id" href="javascript:loadAcceptanceContract(@contract.Id)" class="btn btn-success btn-sm btnchoseContract text-center">Chọn</a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $(".AcceptanceContractInput").each(function () {
+            var contractid = $(this).val();
+            $("#btnAcceptanceContract_" + contractid).hide();
+        });
+    });    
+</script>

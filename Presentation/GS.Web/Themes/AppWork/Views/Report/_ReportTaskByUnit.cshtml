@@ -1,0 +1,110 @@
+﻿@using GS.Core.Domain.Contracts
+@model List<ReportTaskByUnit>
+
+<div>
+    <div class="row" style="text-align:center; margin-top:20px;">
+        @{
+            // Tong gia tri hop dong
+            var _totalAmountContract = Model.Sum(c => c.ContractTotalAmount);
+            // Tong gia tri hang muc cong viec
+            var _totalAmountTask = Model.Sum(c => c.TaskTotalAmount);
+            // Tong do dang chua nghiem thu thanh toan
+            var _totalAmountContractUnfinish1 = Model.Sum(c => c.ContractUnfinish1);
+            // Tong do dang chua thuc hien
+            var _totalAmountContractNoWork = Model.Sum(c => c.ContractNoWork);
+        <div class="col-md-12" style="margin-bottom:15px;" id="thongKe">
+            <table class="table-bordered">
+                <thead role="rowgroup" class="k-grid-header" style="color:black;">
+                    <tr role="row">
+                        <th style="min-width:300px;">Số lượng hợp đồng</th>
+                        <th style="min-width:150px;" colspan="2">@Model.Count()</th>
+                    </tr>
+                    <tr>
+                        <th>Tổng giá trị hợp đồng</th>
+                        <th colspan="2">@_totalAmountContract.ToVNStringNumber()</th>
+                    </tr>
+                    <tr>
+                        <th>Tổng giá trị hạng mục công việc</th>
+                        <th colspan="2">@_totalAmountTask.ToVNStringNumber()</th>
+                    </tr>
+                    <tr>
+                        <th rowspan="2" style="border-bottom: 1px solid;">Giá trị dở dang</th>
+                        <th>Chưa nghiệm thu TT</th>
+                        <th>Chưa thực hiện</th>
+                    </tr>
+                    <tr>
+                        <td style="border-bottom:1px solid;">@_totalAmountContractUnfinish1.ToVNStringNumber()</td>
+                        <td style="border-bottom:1px solid;">@_totalAmountContractNoWork.ToVNStringNumber()</td>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        }
+        <div class="col-md-12">
+            <h6 class="header" style="font-size:22px; color:black;">BÁO CÁO CÔNG VIỆC</h6>
+            <table class="table-bordered" id="reportContractBB">
+                <thead role="rowgroup" class="k-grid-header" style="color:black;">
+                    <tr>
+                        <th rowspan="2">STT</th>
+                        <th rowspan="2">Mã CT</th>
+                        <th rowspan="2">Tên công trình</th>
+                        <th rowspan="2">Loại dự án</th>
+                        <th rowspan="2">Tên hợp đồng</th>
+                        <th rowspan="2">Mã hợp đồng</th>
+                        <th rowspan="2">Hình thức hợp đồng</th>
+                        <th rowspan="2">Giá trị hợp đồng</th>
+                        <th rowspan="2">Đơn vị</th>
+                        <th rowspan="2">Hạng mục công việc</th>
+                        <th rowspan="2">Giá trị hạng mục công việc</th>
+                        <th rowspan="2">Giá trị đã tạm ứng</th>
+                        <th rowspan="2">Giá trị đã nghiệm thu KL</th>
+                        <th rowspan="2">Trạng thái công việc</th>
+                        <th colspan="2">Giá trị dở dang</th>
+                    </tr>
+                    <tr>
+                        <th>Chưa NTTT</th>
+                        <th>Chưa thực hiện</th>
+                    </tr>
+                </thead>
+                <tbody style="background: white; color:black;">
+                    @{
+                        int stt = 1;
+                    }
+                    @foreach (ReportTaskByUnit t in Model)
+                    {
+                        <tr>
+                            <td>@stt</td>
+                            <td>@t.ConstructionCode</td>
+                            <td>@t.ConstructionName</td>
+                            <td>@t.ConstructionType</td>
+                            <td>@t.ContractName</td>
+                            <td>@t.ContractCode</td>
+                            <td>@t.ContractForm</td>
+                            <td>@t.ContractTotalAmount.ToVNStringNumber()</td>
+                            <td>@t.UnitName</td>
+                            <td>@t.TaskName</td>
+                            <td>@t.TaskTotalAmount.ToVNStringNumber()</td>
+                            <td>@t.PaymentAdvance.ToVNStringNumber()</td>
+                            <td>@t.PaymentAcceptance.ToVNStringNumber()</td>
+                            <td>@t.tasktStatus.ToStatusTaskVN()</td>
+                            <td>@t.ContractUnfinish1.ToVNStringNumber()</td>
+                            <td>@t.ContractNoWork.ToVNStringNumber()</td>
+                        </tr>
+                        stt++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<style>
+    .table-bordered td {
+        border: 1px solid black;
+        border-collapse: collapse;
+    }
+
+    .table-bordered th {
+        border-color: black;
+        border-bottom: 0px;
+    }
+</style>

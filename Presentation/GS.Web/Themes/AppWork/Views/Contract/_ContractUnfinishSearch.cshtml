@@ -1,0 +1,68 @@
+﻿@model ContractUnfinishModel
+@if (Model != null)
+{
+    <div class="col-sm-12">
+        <div class="media-body px-2 row">
+            <div class="col-sm-4" style="padding-top:10px;">
+                <span style="color:red">@Model.ContractTypeName</span> &nbsp;
+            </div>
+            <div class="col-sm-6">
+                <nop-editor asp-for="OptionValue" />
+            </div>
+        </div>
+    </div>
+    <div class="text-right mt-3">
+        <button type="button" id="btnUnfinishSave" class="btn btn-primary mb-2">@T("admin.common.save")</button>&nbsp;
+    </div>
+    <script>
+    $(document).ready(function () {
+        $("#btnUnfinishSave").click(function () {
+             bootbox.confirm({
+        message: 'Bạn có chắc chắn thay đổi thông tin',
+        className: 'bootbox-sm',
+        buttons: {
+            confirm: {
+                label: '@T("admin.common.yes")',
+                },
+                cancel: {
+                label: '@T("admin.common.no")',
+                },
+                },
+                callback: function (result) {
+                if (result) {
+                kendo.ui.progress($(".progress-bar"), true);
+                var _data = {
+                    Id:@Model.Id,
+                    OptionValue : $("#@Html.IdFor(c=>c.OptionValue)").val(),
+                }
+                $.ajax({
+                    type: "POST",
+                    url: "/Contract/ContractUnfinishEdit",
+                    data: _data,
+                    success: function (data) {
+                        if (data.Code == "00") {
+                            $("#modalUnfinishType .close").click();
+                            ShowSuccessMessage(data.Message);
+                        }
+                        else {
+                            $("#modalUnfinishType .close").click();
+                            ShowErrorMessage(data.Message);
+                        }
+                    }
+                })
+                }
+                },
+                });
+        })
+    });
+    </script>
+
+}
+else
+{
+    <span style="color:red">Không tìm thấy dữ liệu</span>
+}
+
+
+
+

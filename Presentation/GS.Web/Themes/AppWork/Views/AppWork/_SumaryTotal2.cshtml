@@ -1,0 +1,50 @@
+﻿@model SumaryTotalModel2
+
+<div class="card d-flex w-100 mb-4">
+    <div class="row no-gutters row-bordered row-border-light h-100">
+        <div class="col-sm-6 col-md-4 col-lg-6 align-items-center" style="padding-bottom:15px;padding-top:15px;padding-left:5px;padding-right:5px;">
+            <div class="text-big" style="text-align:center; width:100%;">
+                <span class="font-weight-bolder">@Model.TotalPaymentPaid</span>
+            </div>
+            <a href="/Contract/List" class="card-body media align-items-center text-dark" style="padding:0px;">
+                <i class="lnr lnr-cart display-4 d-block text-primary" style="font-size:20px;"></i>
+                <span class="media-body d-block ml-3">
+                    <small class="text-muted">Tổng đã thanh toán</small>
+                </span>
+            </a>
+        </div>
+        <div class="col-sm-6 col-md-4 col-lg-6 align-items-center" style="padding-bottom:15px;padding-top:15px;padding-left:5px;padding-right:5px;">
+            <div class="text-big" style="text-align:center; width:100%;">
+                <span class="font-weight-bolder">@Model.TotalReceivable</span>
+            </div>
+            <a href="/Contract/List" class="card-body media align-items-center text-dark" style="padding:0px;">
+                <i class="fab fa-wpforms d-block text-primary" style="font-size:20px;"></i>
+                <span class="media-body d-block ml-3">
+                    <small class="text-muted">Công nợ phải thu</small>
+                </span>
+            </a>
+        </div>
+        <div class="col-sm-6 col-md-4 col-lg-6 align-items-center" style="padding-bottom:15px;padding-top:15px;padding-left:5px;padding-right:5px;">
+            <div class="text-big" style="text-align:center; width:100%;">
+                <span class="font-weight-bolder">@Model.TotalPaymentAdvance</span>
+            </div>
+            <a href="/Contract/List" class="card-body media align-items-center text-dark" style="padding:0px;">
+                <i class="lnr lnr-checkmark-circle display-4 d-block text-primary" style="font-size:20px;"></i>
+                <span class="media-body d-block ml-3">
+                    <small class="text-muted">Giá trị đã tạm ứng</small>
+                </span>
+            </a>
+        </div>
+        <div class="col-sm-6 col-md-4 col-lg-6 align-items-center" style="padding-bottom:15px;padding-top:15px;padding-left:5px;padding-right:5px;">
+            <div class="text-big" style="text-align:center; width:100%;">
+                <span class="font-weight-bolder">@Model.TotalRequest</span>
+            </div>
+            <a href="/Contract/List" class="card-body media align-items-center text-dark" style="padding:0px;">
+                <i class="far fa-newspaper d-block text-primary" style="font-size:20px;"></i>
+                <span class="media-body d-block ml-3">
+                    <small class="text-muted">Cần thu hồi</small>
+                </span>
+            </a>
+        </div>
+    </div>
+</div>

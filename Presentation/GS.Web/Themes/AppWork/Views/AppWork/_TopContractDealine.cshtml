@@ -1,0 +1,32 @@
+﻿@model TopContractDealine
+
+<div class="card mb-4" id="contractDealine">
+    <h6 class="card-header">Các hợp đồng sắp đến hạn <span style="color:red">(@Model.topContractDealine.Count())</span></h6>
+    <div style="margin-top:10px;">
+        @{if (Model.topContractDealine.Count == 0)
+            {
+                <h5>Không có hợp đồng !</h5>
+            }
+            else if (Model.topContractDealine.Count < 5)
+            {
+                @foreach (ContractModel ct in Model.topContractDealine)
+                {
+                    @await Html.PartialAsync("_ContractViewInfo", ct)
+                }
+            }
+            else
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    @await Html.PartialAsync("_ContractViewInfo", Model.topContractDealine[i])
+                }
+            }
+        }
+    </div>
+    <a href="/Contract/List?ContractMonitorStatus=4" class="card-footer d-block text-center text-dark small font-weight-semibold">@T("admin.common.showall")</a>
+</div>
+<script>
+    if (@Model.topContractDealine.Count == 0) {
+        $('#contractDealine').hide();
+    };
+</script>

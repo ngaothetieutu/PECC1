@@ -1,0 +1,18 @@
+@model Decimal?
+<input asp-for="@Model" asp-format="{0:F2}" />
+@{
+    var postfix = "";
+    if (ViewData.ContainsKey("postfix") && ViewData["postfix"] != null)
+    {
+        postfix = ViewData["postfix"].ToString();
+    }
+}
+<script>
+    $(document).ready(function() {
+        $("#@Html.IdForModel()").kendoNumericTextBox({
+            format: "###,###,###,##0.##0",
+            decimals: 3 //always display 4 digits
+            , culture: "vi-VN"
+        });
+    });
+</script>

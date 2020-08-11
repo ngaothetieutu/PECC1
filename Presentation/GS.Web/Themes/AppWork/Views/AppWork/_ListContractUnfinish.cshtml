@@ -1,0 +1,30 @@
+﻿@model ContractUnfinishListModel
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-md-8">
+                <label style="font-weight:500;">Tên hợp đồng</label>
+            </div>
+            <div class="col-md-4">
+                <label style="font-weight:500;">Giá trị dở dang</label>
+            </div>
+        </div>
+    </div>
+    @if (Model.Data.Count() > 0)
+    {
+        foreach (var item in Model.Data)
+        {
+            <div class="col-md-12" style="border-bottom: 1.2px solid #f1ecec;">
+                <div class="row list-task-plan" style="font-style:italic;padding-top: 8px;">
+                    <div class="col-md-8" style="padding-left:10px;">
+                        <a class="text-dark" href="/Contract/Detail?guid=@item.contract.ContractGuid" target="_blank"><span style="font-weight:400;">@item.contract.Name</span></a>-(<span style="color:#ff6a00;">@item.contract.Code1</span>)
+                    </div>
+                    <div class="col-md-4">
+                        <label style="color:#73cc19;">@item.OptionValue.ToVNStringNumber()</label>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>

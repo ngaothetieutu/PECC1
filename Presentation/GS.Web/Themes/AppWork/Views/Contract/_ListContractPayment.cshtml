@@ -1,0 +1,23 @@
+﻿@model ContractPaymentListModel
+@if (Model.Data.Count() > 0){
+    @foreach (var item in Model.Data)
+    {
+<div class="row list-task-plan" style="font-style:italic">
+    <div class="col-md-2">
+        #@item.Code
+    </div>
+    <div class="col-md-4">
+        @item.Description
+    </div>
+    <div class="col-md-3">
+        @item.PaymentDate.toDateVNString()
+    </div>
+    <div class="col-md-2" style="color:red;">
+        @item.TotalAmountText
+    </div>
+    <div class="col-md-1">
+        <a data-toggle='modal' href='#tabInsertContractPayment' data-dismiss="modal" data-title="Sửa khoản thu" data-id="@item.Id"><i class='pe-7s-tools'></i></a>
+    </div>
+</div>
+    }
+}

@@ -1,0 +1,65 @@
+﻿@model IList<NotificationModel>
+@{
+    //page title
+    ViewBag.Title = T("AppWork.Notification").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Task_Notification");
+}
+<nop-antiforgery-token />
+<div class="content-header clearfix">
+    <h4 class="pull-left text-light-blue">
+        @T("AppWork.YourNotification")
+    </h4>
+    @*<hr class="border-light m-0">*@
+    @*<div class="pull-right" style="margin-bottom:5px;">
+            <a asp-action="Create" class="btn btn-success">
+                <i class="fa fa-plus-square"></i>
+                @T("Admin.Common.AddNew")
+            </a>
+        </div>*@
+</div>
+<div class="content card">
+    <div class="form-horizontal">
+        <div class="panel-group">
+            <div class="panel panel-default" id="notificationShowed">
+                <ul class="list-group messages-list" id="listNotification">
+                    @foreach (var notification in Model)
+                    {
+                        <li class="list-group-item">
+                            <b style="color:cadetblue !important"> @notification.CreatorName</b>
+                            @notification.Subject :
+                            <i style="color:black !important;font-size:14px;">@notification.Body</i>
+                            <i class="ion @notification.TypeIcon d-block text-dark text-big">&nbsp;&nbsp; @notification.DistanceTime</i>
+                        </li>
+                    }
+                </ul>
+            </div>    
+            <div id="_Notification"></div>
+            <div class="panel panel-white post-load-more panel-shadow text-center">
+                <button class="btn btn-primary" id="loadMore" style="margin-top:5px;margin-bottom:5px;">
+                    <i class="fa fa-refresh"></i>Load More...
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        var size_li = $("#listNotification li").length;
+        var x = 7;
+        $('#listNotification li:lt(' + x + ')').show();
+        $('#loadMore').click(function () {
+            loadNotification(x);
+            x = x + 10;
+        });
+    })
+    function loadNotification(x) {
+        $.ajax({
+            type: "GET",
+            url: "/AppWork/_Notification?skip=" + x,
+            success: function (data) {                
+                $("#listNotification").append(data);                
+            },
+        });
+    }
+</script>

@@ -1,0 +1,77 @@
+﻿@model SiteMapNode
+@using GS.Core
+@using GS.Core.Domain.Localization
+@using GS.Web.Framework.Menu
+@inject IWorkContext workContext
+@inject LocalizationSettings localizationSettings
+@{
+    var supportRtl = workContext.WorkingLanguage.Rtl && !localizationSettings.IgnoreRtlPropertyForAdminArea;
+    string url = null;
+    if (!string.IsNullOrEmpty(Model.ControllerName) && !string.IsNullOrEmpty(Model.ActionName))
+    {
+        url = Url.Action(Model.ActionName, Model.ControllerName, Model.RouteValues, null, null);
+    }
+    else if (!string.IsNullOrEmpty(Model.Url))
+    {
+        url = Model.Url.StartsWith("~/", StringComparison.Ordinal) ? Url.Content(Model.Url) : Model.Url;
+    }
+    var isActive = Model.ContainsSystemName(Html.GetActiveMenuItemSystemName());
+}
+@if (!string.IsNullOrEmpty(url))
+{
+    <li class="sidenav-item @(isActive ? Html.Raw("active") : null)">
+        <a href="@url" class="sidenav-link" @(Model.OpenUrlInNewTab ? Html.Raw(" target=\"_blank\"") : null)>
+            @if (!string.IsNullOrEmpty(Model.IconClass))
+            {
+                <text>
+                    <i class="sidenav-icon ion @Url.Content(Model.IconClass)"></i>
+                </text>
+            }
+            <div>@Model.Title</div>
+            @if (!string.IsNullOrEmpty(Model.BadgeId))
+            {
+                <text>
+                    <div class="pl-1 ml-auto">
+                        <div class="badge @Model.BadgeCss @Model.BadgeId"></div>
+                    </div>
+                </text>
+            }
+        </a>
+    </li>
+}
+else
+{
+    <li class="sidenav-item @(isActive ? Html.Raw("open active") : null)">
+        <a href="#" class="sidenav-link sidenav-toggle">
+            @if (!string.IsNullOrEmpty(Model.IconClass))
+            {
+                <text>
+                    <i class="sidenav-icon ion @Url.Content(Model.IconClass)"></i>
+                </text>
+            }
+            <div>@Model.Title</div>
+            @if (!string.IsNullOrEmpty(Model.BadgeId))
+            {
+                <text>
+                    <div class="pl-1 ml-auto">
+                        <div class="badge @Model.BadgeCss @Model.BadgeId"></div>
+                    </div>
+                </text>
+            }
+
+
+        </a>
+        @{
+            var childNodes = Model.ChildNodes.Where(x => x.Visible).ToList();
+        }
+        @if (childNodes.Any())
+        {
+            <ul class="sidenav-menu">
+                @foreach (var childItem in childNodes)
+                {
+                    @await Html.PartialAsync("_MenuItem", childItem)
+                }
+            </ul>
+        }
+    </li>
+}

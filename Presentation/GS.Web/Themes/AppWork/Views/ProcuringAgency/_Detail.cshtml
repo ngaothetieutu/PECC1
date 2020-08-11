@@ -1,0 +1,54 @@
+﻿@model ProcuringAgencyModel
+<style>
+    .table td{
+        padding: 0px 0px 0px 10px;
+        vertical-align: middle;    
+    }
+   
+</style>
+<table class="table">
+    <tbody>
+        <tr>
+            <td><app-label asp-for="TypeId" /></td>
+            <td style="padding-top: 7px;">@Model.TypeText</td>
+        </tr>
+        <tr>
+            <td><app-label asp-for="Name" /></td>
+            <td style="padding-top: 7px;">@Model.Name</td>
+        </tr>
+        <tr>
+            <td><app-label asp-for="Representer" /></td>
+            <td style="padding-top: 7px;">@Model.Representer</td>
+        </tr>
+        <tr>
+            <td><app-label asp-for="Postion" /></td>
+            <td style="padding-top: 7px;">@Model.Postion</td>
+        </tr>
+        <tr>
+            <td><app-label asp-for="CompanyAddress" /></td>
+            <td style="padding-top: 7px;">@Model.CompanyAddress</td>
+        </tr>
+        <tr>
+            <td><app-label asp-for="TaxCode" /></td>
+            <td style="padding-top: 7px;">@Model.TaxCode</td>
+        </tr>        
+        <tr>
+            <td><app-label asp-for="CompanyFax" /></td>
+            <td style="padding-top: 7px;">@Model.CompanyFax</td>
+        </tr>
+        <tr>
+            <td><app-label asp-for="CompanyPhone" /></td>
+            <td style="padding-top: 7px;">@Model.CompanyPhone</td>
+        </tr>       
+        <tr>
+            <td><app-label asp-for="Description" /></td>
+            <td style="padding-top: 7px;">@Model.Description</td>
+        </tr>
+        <tr>
+            <td><app-label asp-for="IsInEVN" /></td>
+            <td style="padding-top: 7px;">@(Model.IsInEVN ? T("AppWork.Contracts.ProcuringAgency.Fields.IsInEVN.Yes") : T("AppWork.Contracts.ProcuringAgency.Fields.IsInEVN.No"))</td>
+        </tr>
+
+
+    </tbody>
+</table>

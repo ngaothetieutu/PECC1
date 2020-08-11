@@ -1,0 +1,54 @@
+﻿@model GS.Web.Models.Unit.CustomerUnitSearchModel
+
+@if (Model.ListCustomer != null && Model.ListCustomer.Count > 0)
+{
+<h4>@T("AppWork.Unit.CheckList.ToUnit.Field")</h4>
+    <table class="table">
+        <tr>
+            <td></td>
+            <td>@T("AppWork.Unit.SearchList.UserName.Field")</td>
+            <td>@T("AppWork.Unit.SearchList.Email.Field")</td>
+        </tr>
+        <tbody id="UserChecked">
+            @foreach (var item in Model.ListCustomer)
+            {
+                <tr>
+                    <td><a href="#" class="deleteCustomerUnit" data-id="@item.CustomerId"><i class="ion ion-ios-close"></i></a></td>
+                    <td>@item.Username<br>@item.FullName</td>
+                    <td>@item.Email</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <h5>@T("AppWork.Unit.NoCustomerAdded.Field")</h5>
+}
+<script>
+    $(document).ready(function () {
+        $('.deleteCustomerUnit').off('click').on('click', function (e) {
+            e.preventDefault();
+            var a = $(this);
+            var _data = {
+                UnitId: $('#UnitId').val(),
+                CustomerId: $(this).data('id'),
+            }
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DeleteCustomerUnit", "Unit")',
+                data: _data,
+                dataType: "json",
+                success: function (data) {
+                    if (data.Code == '00') {
+                        LoadCheckCutomerList();
+                    }
+                    else {
+
+                    }
+                }
+            });
+        });
+    });
+
+</script>

@@ -1,0 +1,21 @@
+﻿@model ContractModel
+<div class="card-body">
+    <div class="content">
+        <div id="contactlistpayment" style="margin-top:5px;"></div>
+    </div>
+    <script>
+        //$(document).ready(function () {
+        //    loadPaymentList();
+        //})
+        function loadPaymentList() {
+            ShowViewLoading("#contactlistpayment");
+            $.ajax({                
+                type: "GET",
+                   url: "/Contract/_ContractPaymentList?contractId=" +@Model.Id,
+                success: function (data) {
+                    $("#contactlistpayment").html(data);
+                }
+            })
+        }
+    </script>
+</div>

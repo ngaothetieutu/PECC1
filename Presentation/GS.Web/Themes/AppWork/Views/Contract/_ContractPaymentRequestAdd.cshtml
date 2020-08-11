@@ -1,0 +1,217 @@
+﻿@model ContractPaymentRequestModel
+
+<div class="container-fluid flex-grow-1 container-p-y">
+    <div class="card">
+        <div class="card-body pb-2">
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <app-label asp-for="Code" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="Code" />
+                        <span asp-validation-for="Code"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <app-label asp-for="Name" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="Name" />
+                        <span asp-validation-for="Name"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <app-label asp-for="Description" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="Description" />
+                        <span asp-validation-for="Description"></span>
+                    </div>
+                </div>
+            </div>
+            @if (Model.TypeId != (int)GS.Core.Domain.Contracts.ContractPaymentType.Advance)
+            {
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <app-label asp-for="PaymentAcceptenceId" />
+                        </div>
+                        <div class="col-md-9">
+                            <nop-select asp-for="SelectedContractPaymentAcceptence" asp-items="Model.AvailableContractPaymentAcceptence" asp-multiple="true" />
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <app-label asp-for="TotalAmount" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="TotalAmount" />
+                        <span asp-validation-for="TotalAmount"></span>
+                        <span style="color:red" id="ckTotalAmount"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <app-label asp-for="RequestDate" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="RequestDate" />
+                        <span asp-validation-for="RequestDate"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <app-label asp-for="EndDate" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="EndDate" />
+                        <span asp-validation-for="EndDate"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <app-label asp-for="TaxRatio" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="TaxRatio" />
+                        <span asp-validation-for="TaxRatio"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" id="TotalAmountPaymentAcceptance" />
+    </div>
+</div>
+<div class="text-right mt-3">
+    <button type="button" id="btnContractPaymentRequestAdd" class="btn btn-primary">@T("admin.common.save")</button>&nbsp;
+    <button type="button" class="btn btn-danger" data-dismiss="modal">@T("admin.common.cancel")</button>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        $('#btnContractPaymentRequestAdd').click(function () {
+            var _data = {
+                Id: @Model.Id,
+                TypeId:@Model.TypeId,
+                Code: $("#@Html.IdFor(c => c.Code)").val(),
+                Name: $("#@Html.IdFor(c => c.Name)").val(),
+                ContractId: @Model.ContractId,
+                PaymentPlanId:@Model.PaymentPlanId,
+                Description: $("#@Html.IdFor(c => c.Description)").val(),
+                TotalAmount: $("#@Html.IdFor(c => c.TotalAmount)").val(),
+                RequestDate: $("#@Html.IdFor(c => c.RequestDate)").val(),
+                EndDate: $("#@Html.IdFor(c => c.EndDate)").val(),
+                TaxRatio: $("#@Html.IdFor(c => c.TaxRatio)").val(),
+                SelectedContractPaymentAcceptence: $("#@Html.IdFor(c => c.SelectedContractPaymentAcceptence)").val()
+            }
+            kendo.ui.progress($("#modalContractPaymentPlan"), true);
+            $.ajax({
+                cache: false,
+                type: "POST",
+                data: _data,
+                url:"/Contract/_ContractPaymentRequestAdd",
+                success: function (data) {
+                    kendo.ui.progress($("#modalContractPaymentPlan"), false);
+                    if (CheckValidMessageReturn(data)) {
+                        $("#modalContractPaymentPlan .close").click();
+                        ShowSuccessMessage(data.Message);
+                        //kiem tra xem box chi tiet hang muc cong viec da mo chua
+                        if ($('#ContractPaymentRequest_@Model.PaymentPlanId').hasClass("show"))
+                            loadContractPaymentRequest(@Model.PaymentPlanId);
+                        else
+                            $('#ContractPaymentRequest_@Model.PaymentPlanId').collapse('toggle');
+                        //load lai so luong, neu them moi
+                        if (@Model.Id == 0) {
+                            var _countChild = parseInt($("#spanContractPaymentRequestCount_@Model.PaymentPlanId").html());
+                            _countChild = _countChild + 1;
+                            $("#spanContractPaymentRequestCount_@Model.PaymentPlanId").html(_countChild);
+                        }
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                    kendo.ui.progress($("#modalContractPaymentPlan"), false);
+
+                }
+            });
+        });
+        var AcceptanceIdsInput = $('#@Html.IdFor(model => model.SelectedContractPaymentAcceptence)').data("kendoMultiSelect");
+        AcceptanceIdsInput.setOptions({
+            autoClose: true,
+            filter: "contains"
+            });
+            AcceptanceIdsInput.bind("change", AcceptanceIdsInputChange);
+            @if (Model.AvailableContractPaymentAcceptence.Count == 0)
+                {
+            <text>
+                 AcceptanceIdsInput.setOptions({
+                        enable: false,
+                    placeholder:
+                            'Không có thông tin...'
+                });
+                AcceptanceIdsInput._placeholder();
+                AcceptanceIdsInput._enable();
+            </text>
+                }
+        function AcceptanceIdsInputChange(e) {
+            var data = {
+                SelectedContractPaymentAcceptence: this.value(),
+            }
+            $.ajax({
+                url: "/Contract/_GetTotalAmountPaymentAcceptane",
+                type: "POST",
+                data: data,
+                success: function (data) {
+                    $("#TotalAmount").val(data.ObjectInfo.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));
+                    $("#TotalAmountPaymentAcceptance").val(data.ObjectInfo);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    console.log("error");
+                }
+            })
+        }
+        $("#TotalAmount").change(function () {
+            var _totalAmount = ConvertToNumber($("#TotalAmount"));
+            var _totalAmountPaymentAcceptance = ConvertToNumber($("#TotalAmountPaymentAcceptance"));
+            if (_totalAmount > _totalAmountPaymentAcceptance) {
+                $("#ckTotalAmount").html("* Giá trị đang vượt quá nghiệm thu thanh toán.")
+                $("#ckTotalAmount").show();
+                $("#btnContractPaymentRequestAdd").prop("disabled", true);
+            } else {
+                $("#ckTotalAmount").html("")
+                $("#ckTotalAmount").hide();
+                $("#btnContractPaymentRequestAdd").prop("disabled", false);
+            }
+        });
+    });
+</script>
+@if (Model.Id > 0)
+{
+<script>
+    $(document).ready(function () {
+    $("#TotalAmountPaymentAcceptance").val(@Model.TotalAmount);
+    });
+</script>
+}
+

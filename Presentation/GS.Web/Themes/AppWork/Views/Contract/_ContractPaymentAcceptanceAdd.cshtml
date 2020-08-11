@@ -1,0 +1,312 @@
+﻿@model ContractPaymentAcceptanceModel
+<div class="container-fluid flex-grow-1 container-p-y">
+    <div class="card">
+        <div class="card-body pb-2">
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="Name" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="Name" />
+                        <span asp-validation-for="Name"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="Code" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="Code" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group ">
+                <div class="row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="ApprovalDate" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="ApprovalDate" />
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="Description" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="Description" />
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="SelectedContractAcceptanceIds" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-select asp-for="SelectedContractAcceptanceIds" asp-items="Model.AvailableContractAcceptances" asp-multiple="true" />
+                        <script>
+                            $(document).ready(function() {
+                                var ContractAcceptanceIdsInput =$('#@Html.IdFor(model => model.SelectedContractAcceptanceIds)').data("kendoMultiSelect");
+                                    ContractAcceptanceIdsInput.setOptions({
+                                        autoClose: true,
+                                        filter: "contains",
+                                });
+                                //ContractAcceptanceIdsInput.bind("change", SelectedContractAcceptanceIdsChange);
+                                ContractAcceptanceIdsInput.bind("select", SelectedContractAcceptanceIdsSelect);
+                                ContractAcceptanceIdsInput.bind("deselect", SelectedContractAcceptanceIdsDeselect);
+                                @if (Model.AvailableContractAcceptances.Count == 0)
+                                {
+                                    <text>
+                                        ContractAcceptanceIdsInput.setOptions({
+                                            enable: false,
+                                            placeholder:
+                                                '@T("Admin.Contract.ContractPaymentPlan.AvailableContractAcceptances.NoAvailableContractAcceptances")'
+                                        });
+                                        ContractAcceptanceIdsInput._placeholder();
+                                        ContractAcceptanceIdsInput._enable();
+                                    </text>
+                                }
+                                function SelectedContractAcceptanceIdsDeselect(e) {
+                                    var AcceptanceId = e.dataItem.value;
+                                    $(".PaymentAcceptanceSub_" + AcceptanceId).remove();
+                                    loadtotalMoney();
+                                }
+                            });
+                            function SelectedContractAcceptanceIdsSelect(e) {
+                                //lay Id cua nghiem thu khoi luong
+                                var AcepptanceId = e.dataItem.value;
+                                $.ajax({
+                                    url: "/Contract/_ContractPaymentAcceptanceListSubAdd?AcepptanceId=" + AcepptanceId,
+                                    type: "GET",
+                                    success: function (data) {
+                                        //console.log("data="+data);
+                                        $("#ListPaymentAcceptanceSub").append(data);
+                                        loadtotalMoney()
+                                    },
+                                    error: function (xhr, ajaxOptions, thrownError) {
+                                        console.log("error");
+                                    }
+                                })
+                            }
+                        </script>
+                    </div>
+                </div>
+            </div>
+            @*<div class="form-group ">
+            <div class="row">
+                <div class="col-md-3">
+                    <nop-label asp-for="ApprovalId" />
+                </div>
+                <div class="col-md-9">
+                    <input class="form-control" style="width:80%;" id="ApprovalId" />
+                </div>
+            </div>
+        </div>
+        <script>
+                function SearchCustomerData() {
+                    var _data = {
+                        srKeywordCustomer: $("#ApprovalId").data("kendoComboBox").text(),
+                    };
+                    return _data;
+                                }
+                    function onProcuringAgencyEditChange() {
+                        var value = this.value();
+                        //alert(value);
+                    }
+                    $(document).ready(function () {
+                        $("#ApprovalId").kendoComboBox({
+                            placeholder: '@T("appwork.contracts.contractpaymentacceptance.fields.approverid.typing")...',
+                            dataTextField: "FullName",
+                            dataValueField: "Id",
+                            filter: "contains",
+                            autoBind: false,
+                            minLength: 3,
+                            template: kendo.template($("#gsCustomerSearchTemplate").html()),
+                            dataSource: {
+                                type: "json",
+                                serverFiltering: true,
+                                transport: {
+                                    read: {
+                                        /**/
+                                        url: "/Customer/SearchCustomerList",
+                                        /**/
+                                        data: SearchCustomerData
+                                    },
+                                },
+                            },
+                            change: onProcuringAgencyEditChange
+                        });
+                    });
+        </script>*@
+            <div class="card mb-4">
+                <h6 class="card-header">
+                    Nghiệm thu theo hạng mục công việc
+                </h6>
+                <div class="text-muted small ml-3">
+
+                </div>
+                <div id="ListPaymentAcceptanceSub" class="card-body">
+                    <div class="row" style="padding-bottom:10px;">
+                        <div class="col-md-2">
+                            <b>Hạng mục</b>
+                        </div>
+                        <div class="col-md-2">
+                            <b>Số tiền</b>
+                        </div>
+                        <div class="col-sm-2 number-input-long" style="padding-left:20px !important;">
+                            <b>Trừ tạm ứng</b>
+                        </div>
+                        <div class="col-sm-2 number-input-long">
+                            <b>Khoản giữ lại</b>
+                        </div>
+                        <div class="col-sm-2 number-input-long">
+                            <b>Khấu hao</b>
+                        </div>
+                        <div class="col-sm-2 number-input-long">
+                            <b>Giám trừ khác</b>
+                        </div>
+                    </div>
+                    @foreach (ContractPaymentAcceptanceSubModel submodel in Model.listPaymentAcceptanceSub)
+                    {
+                        @await Html.PartialAsync("_ContractPaymentAcceptanceSubAdd", submodel);
+                    }
+                </div>
+                <div class="card-footer justify-content-between align-items-center px-0 pt-0 pb-3">
+                    <div class="row" style="padding-top:23px;">
+                        <div class="col-md-2 text-center">
+                            <b>Tổng</b>
+                        </div>
+                        <div class="col-md-2 text-left">
+                            <label style="padding-left:21px;" id="TotalAmountsub">@Model.TotalAmount.ToVNStringNumber()</label>
+                        </div>
+                        <div class="col-md-2 text-left">
+                            <label style="padding-left:21px;" id="ReduceAdvancesub">@Model.ReduceAdvance.ToVNStringNumber()</label>
+                        </div>
+                        <div class="col-md-2 text-left">
+                            <label style="padding-left:21px;" id="ReduceKeepsub">@Model.ReduceKeep.ToVNStringNumber()</label>
+                        </div>
+                        <div class="col-md-2 text-left">
+                            <label style="padding-left:21px;" id="Depreciationsub">@Model.Depreciation.ToVNStringNumber()</label>
+                        </div>
+                        <div class="col-md-2 text-left">
+                            <label style="padding-left:21px;" id="ReduceOthersub">@Model.ReduceOther.ToVNStringNumber()</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script>
+                function loadtotalMoney() {
+                    var TotalMoneySub = 0;
+                    $(".TotalMoneySub").each(function () {
+                        var MoneySub = ConvertToNumber(this);
+                        TotalMoneySub = parseFloat(TotalMoneySub) + parseFloat(MoneySub);
+                    });
+                    $("#TotalAmountsub").html(TotalMoneySub.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));
+                }
+            </script>
+            <nop-editor asp-for="WorkFileIds" />
+        </div>
+    </div>
+</div>
+<div class="text-right mt-3">
+    <button type="button" id="btnaddPaymentAcceptancesave" class="btn btn-primary">@T("admin.common.save")</button>&nbsp;
+    <button type="button" id="btnaddPaymentAcceptanceCancel" class="btn btn-danger">@T("admin.common.cancel")</button>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#btnaddPaymentAcceptancesave").click(function () {
+            var listPaymentAcceptanceSub = [];
+            $(".PaymentAcceptanceSub").each(function () {
+                var IDF = $(this).data("idf");
+                var TaskId = $("#taskId_" + IDF).val();
+                var TotalMoney = ConvertToNumber("#totalMoney_" + IDF);
+                var ReduceAdvance = ConvertToNumber("#reduceAdvance_" + IDF);
+                var ReduceKeep = ConvertToNumber("#reduceKeep_" + IDF);
+                var ReduceOther = ConvertToNumber("#reduceOther_" + IDF);
+                var Depreciation = ConvertToNumber("#depreciation_" + IDF);
+                var AcceptanceId = $("#acceptanceId_" + IDF).val();
+                var PaymentAcceptanceSub = {
+                    TaskId: TaskId,
+                    AcceptanceId: AcceptanceId,
+                    TotalMoney: TotalMoney,
+                    ReduceAdvance: ReduceAdvance,
+                    ReduceKeep: ReduceKeep,
+                    ReduceOther: ReduceOther,
+                    Depreciation: Depreciation,
+                    TotalAmount: TotalMoney - ReduceAdvance - ReduceKeep - ReduceOther - Depreciation,
+                };
+                listPaymentAcceptanceSub.push(PaymentAcceptanceSub);
+            });
+            //var ApprovalId = $("#ApprovalId").data('kendoComboBox').value();
+             var WorkFileIds = $("#@Html.IdFor(c=>c.WorkFileIds)").val();
+            if (WorkFileIds.length > 0) {
+                var SelectedListFileId = WorkFileIds.split(',');
+            }
+            var _data = {
+                Id:@Model.Id,
+                Code:$("#@Html.IdFor(c=>c.Code)").val(),
+                Name: $("#@Html.IdFor(c=>c.Name)").val(),
+                Description:$("#@Html.IdFor(c=>c.Description)").val(),
+               // ApprovalId: ApprovalId,
+                ContractId: @Model.ContractId,
+                //ResponsibleId: ResponsibleId,
+                ApprovalDate: $("#@Html.IdFor(c=>c.ApprovalDate)").val(),
+                TotalAmount: $("#@Html.IdFor(c=>c.TotalAmount)").val(),
+                CurrencyId:@Model.CurrencyId,
+                SelectedContractAcceptanceIds: $("#@Html.IdFor(c=>c.SelectedContractAcceptanceIds)").val(),
+                SelectedListFileId: SelectedListFileId,
+                ReduceAdvance: $("#@Html.IdFor(c=>c.ReduceAdvance)").val(),
+                ReduceKeep: $("#@Html.IdFor(c=>c.ReduceKeep)").val(),
+                ReduceOther: $("#@Html.IdFor(c=>c.ReduceOther)").val(),
+                listPaymentAcceptanceSub: listPaymentAcceptanceSub,
+                };
+                console.log(_data);
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "/Contract/_ContractPaymentAcceptanceAdd",
+                    data: _data,
+                    success: function (data) {
+                        if (CheckValidMessageReturn(data)) {
+                             $("#tabContractPaymentAcceptance .close").click();
+                             LoadContractPaymentAcceptance();
+                             ShowSuccessMessage(data.Message);
+                        }
+                    },
+                    error: function(xhr, ajaxOptions, thrownError){
+                        //alert("Chưa chọn hạng mục công việc");
+                        $("#tabContractPaymentAcceptance .close").click();
+                    }
+                    })
+        })
+        $("#btnaddPaymentAcceptanceCancel").click(function () {
+            $("#tabContractPaymentAcceptance .close").click();
+        })
+    })
+    function checkTotalMoneyChange(money, paymented, sum) {
+        if ((money + paymented) > sum) {
+            $("#btnaddPaymentAcceptancesave").prop("disabled", true);
+            $("#checkValNTTTvsNTKL").show();
+        } else {
+            $("#btnaddPaymentAcceptancesave").prop("disabled", false);
+            $("#checkValNTTTvsNTKL").hide();
+        }
+    }
+</script>
+
+<style>
+    .listoption label span {
+        padding-right: 20px;
+    }
+
+    .listoption {
+        padding-bottom: 20px;
+    }
+</style>

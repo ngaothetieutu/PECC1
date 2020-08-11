@@ -1,0 +1,38 @@
+@model GS.Web.Models.Works.TaskGroupModel
+
+@{
+    //page title
+    ViewBag.Title = T("AppWork.Works.TaskGroup.EditTaskGroupDetails").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Category_task_group");
+}
+
+<form asp-controller="TaskGroup" asp-action="Edit" method="post">
+    <div class="card mb-4">
+        <h6 class="card-header">
+            @T("AppWork.Works.TaskGroup.EditTaskGroupDetails") - <small style="font-style:italic;">@Model.Name</small>
+            <small style="padding-left:5px;">
+                <i class="fa fa-arrow-circle-left"></i>
+                <a asp-action="List">@T("AppWork.Works.TaskGroup.BackToList")</a>
+            </small>
+            <span id="store-delete" class="btn btn-danger" style="float:right;margin-right: 5px;">
+                <i class="fas fa-trash"></i>
+                @T("Admin.Common.Delete")
+            </span>
+            <button type="submit" name="save-continue" class="btn btn-primary" style="float:right;margin-right: 5px;">
+                <i class="far fa-save"></i>
+                @T("Admin.Common.SaveContinue")
+            </button>
+            <button type="submit" name="save" class="btn btn-success" style="float:right; margin-right: 5px;">
+                <i class="fas fa-save"></i>
+                @T("Admin.Common.Save")
+            </button>
+        </h6>
+        <div class="card-body">
+
+            @await Html.PartialAsync("_CreateOrUpdate", Model)
+
+        </div>
+    </div>
+</form>
+<nop-delete-confirmation asp-model-id="@Model.Id" asp-button-id="store-delete" />

@@ -1,0 +1,28 @@
+﻿@model ContractModel
+@using GS.Services.Contracts
+@inject IContractService _contractService
+
+
+<ul class="list-group list-group-flush">
+    @foreach (var ContractAppendix in Model.contractAppendixModels)
+    {
+        <div class="row">
+            <div class="col-md-9">
+                <div class="list-task-plan">
+                    <i class="ion ion-ios-filing" style="padding:5px;"></i>&nbsp;<strong><a class="text-dark" href="/Contract/EditAppendix?ContractId=@Model.Id&AppendixId=@ContractAppendix.Id" target="_blank">@ContractAppendix.Name</a></strong>&nbsp;&nbsp;
+                </div>
+            </div>
+            <div class="col-md-3" style="text-align:right">
+                <div class="btn-group project-actions">
+                    <button type="button" class="btn btn-sm btn-default icon-btn borderless btn-round md-btn-flat dropdown-toggle hide-arrow" data-toggle="dropdown">
+                        <i class="ion ion-ios-more"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a class="dropdown-item" href="Detail?guid=@ContractAppendix.ContractGuid"> @T("admin.common.detail")</a>
+                        <a class="dropdown-item" href="Edit?guid=@ContractAppendix.ContractGuid">@T("admin.common.Edit")</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</ul>

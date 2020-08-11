@@ -1,0 +1,153 @@
+﻿@model ProcuringAgencyModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+
+
+<div class="content">
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="TypeId" />
+            </div>
+            <div class="col-md-4">
+                <nop-select asp-for="TypeId" asp-items="@Model.lsType" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="Name" />
+            </div>
+            <div class="col-md-10">
+                <nop-editor asp-for="Name" asp-required="true" />
+                <span asp-validation-for="Name"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="Representer" />
+            </div>
+            <div class="col-md-10">
+                <nop-editor asp-for="Representer" asp-required="true" />
+                <span asp-validation-for="Representer"></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="Postion" />
+            </div>
+            <div class="col-md-10">
+                <nop-editor asp-for="Postion" asp-required="true" />
+                <span asp-validation-for="Postion"></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="CompanyAddress" />
+            </div>
+            <div class="col-md-10">
+                <nop-editor asp-for="CompanyAddress" asp-required="true" />
+                <span asp-validation-for="CompanyAddress"></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="TaxCode" />
+            </div>
+            <div class="col-md-10">
+                <nop-editor asp-for="TaxCode" />
+                <span asp-validation-for="TaxCode"></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="TaxInfo" />
+            </div>
+            <div class="col-md-10">
+                <nop-editor asp-for="TaxInfo" />
+                <span asp-validation-for="TaxInfo"></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="CompanyFax" />
+            </div>
+            <div class="col-md-10">
+                <nop-editor asp-for="CompanyFax" />
+                <span asp-validation-for="CompanyFax"></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="CompanyPhone" />
+            </div>
+            <div class="col-md-10">
+                <nop-editor asp-for="CompanyPhone" />
+                <span asp-validation-for="CompanyPhone"></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="CompanyEmail" />
+            </div>
+            <div class="col-md-10">
+                <nop-editor asp-for="CompanyEmail" />
+                <span asp-validation-for="CompanyEmail"></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="BankInfo" />
+            </div>
+            <div class="col-md-10">
+                <nop-editor asp-for="BankInfo" />
+                <span asp-validation-for="BankInfo"></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="Description" />
+            </div>
+            <div class="col-md-10">
+                <nop-editor asp-for="Description" />
+                <span asp-validation-for="Description"></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-md-2">
+            <app-label asp-for="IsInEVN" />
+        </div>
+        <div class="col-md-10">
+            <label class="custom-control custom-checkbox" style="margin-top: 8px;">
+                <input asp-for="IsInEVN" type="checkbox" class="custom-control-input" />
+                <span class="custom-control-label"></span>
+            </label>
+            @*<nop-editor asp-for="IsInEVN">*@
+        </div>
+
+    </div>
+</div>

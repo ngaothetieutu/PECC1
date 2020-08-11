@@ -1,0 +1,31 @@
+@model GS.Web.Models.Works.TaskGroupModel
+
+@{
+    //page title
+    ViewBag.Title = T("AppWork.Works.TaskGroup.AddNew").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Category_task_group");
+}
+
+<form asp-controller="TaskGroup" asp-action="Create" method="post">
+    <div class="card mb-4">
+        <h6 class="card-header">
+            @T("AppWork.Works.TaskGroup.AddNew")
+            <small style="padding-left:5px;">
+                <i class="fa fa-arrow-circle-left"></i>
+                <a asp-action="List">@T("AppWork.Works.TaskGroup.BackToList")</a>
+            </small>
+            <button type="submit" name="save-continue" class="btn btn-secondary" style="float:right;margin-right:5px;">
+                <i class="far fa-save" style="margin-right:5px;"></i>
+                @T("Admin.Common.SaveContinue")
+            </button>
+            <button type="submit" name="save" class="btn btn-success" style="float:right;margin-right:5px; ">
+                <i class="fas fa-save" style="margin-right:5px;"></i>
+                @T("Admin.Common.Save")
+            </button>
+        </h6>
+        <div class="card-body">
+            @await Html.PartialAsync("_CreateOrUpdate", Model)
+        </div>
+    </div>
+</form>

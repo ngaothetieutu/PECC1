@@ -1,0 +1,182 @@
+﻿@model ContractSettlementModel
+
+<div class="container-fluid flex-grow-1 container-p-y">
+    <div style="display:none">
+        @Html.TextBoxFor(c => c.Id, new { @id = "ContractSettlementId" })
+    </div>
+    <div class="card" style="margin-top:5px;">
+        <div class="card-body pb-2">
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="Name" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="Name" />
+                        <span asp-validation-for="Name"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="Code" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="Code" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="Description" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="Description" />
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="ApprovalDate" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="ApprovalDate" />
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="AvailableTaskList" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-select asp-for="SelectedListTaskId" asp-items="Model.AvailableTaskList" asp-multiple="true" />
+                        <script>
+                            $(document).ready(function () {
+                                var tasksIdsInput =$('#@Html.IdFor(model => model.SelectedListTaskId)').data("kendoMultiSelect");
+                                    tasksIdsInput.setOptions({
+                                    autoClose: false,
+                                    filter: "contains"
+                                });
+                                tasksIdsInput.bind("select", SelectedContractSettlementTask);
+                                tasksIdsInput.bind("deselect", UnSelectedContractSettlementTask);
+                                @if (Model.AvailableTaskList.Count == 0)
+                                {
+                                    <text>
+                                        tasksIdsInput.setOptions({
+                                                    enable: false,
+                                                    placeholder:
+                                                        '@T("Admin.Contracts.ContractSettlement.SelectedListTaskId.NoTaskAvailable")'
+                                                });
+                                        tasksIdsInput._placeholder();
+                                        tasksIdsInput._enable();
+                                    </text>
+                                }
+                            });
+                            function SelectedContractSettlementTask(e) {
+                                var TaskId = e.dataItem.value;
+                                $.ajax({
+                                    type: "GET",
+                                    url: "/Contract/_ContractSettlementSubAdd?taskId=" + TaskId,
+                                    success: function (data) {
+                                        $("#LableListContractSettlementTask").append(data);
+                                    },
+                                    error: function (xhr, ajaxOptions, thrownError) {
+                                        console.log("error");
+                                    }
+                                });
+                            }
+                            function UnSelectedContractSettlementTask(e) {
+                                var TaskId = e.dataItem.value;
+                                $("#ContractSettlementSub_" + TaskId).remove();
+                            }
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <div class="card" style="margin-bottom:5px;">
+                <h6 class="card-header" style="padding-bottom:10px;padding-bottom:10px;">Quyết toán theo hạng mục công việc</h6>
+                <div class="card-body" id="LableListContractSettlementTask" style="padding-top:10px;padding-bottom:10px;">
+                    <div class="row" style="margin-bottom:10px;">
+                        <div class="col-md-8" style="font-weight:500">Hạng mục công việc</div>
+                        <div class="col-md-4" style="font-weight:500">Giá trị quyết toán</div>
+                    </div>
+                    @foreach (ContractSettlementSubModel sub in Model.lstSubModel)
+                    {
+                        @await Html.PartialAsync("_ContractSettlementSubAdd", sub);
+                    }
+                </div>
+            </div>
+            <nop-editor asp-for="WorkFileIds" />
+        </div>
+    </div>
+</div>
+<div class="text-right mt-3">
+    <button type="button" id="btnaddSettlementsave" class="btn btn-primary mb-2">@T("admin.common.save")</button>&nbsp;
+    <button type="button" id="btnaddSettlementCancel" class="btn btn-danger mr-2 mb-2">@T("admin.common.cancel")</button>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#btnaddSettlementsave").click(function () {
+            var lstSubModel = [];
+            $(".ContractSettlementSub").each(function () {
+                var TaskId = $(this).data("taskid");
+                var TotalAmount = ConvertToNumber("#TotalAmount_" + TaskId);
+                var SettlementSub = {
+                    TaskId: TaskId,
+                    TotalAmount: TotalAmount,
+                };
+                lstSubModel.push(SettlementSub);
+            });
+            var WorkFileIds = $("#@Html.IdFor(c=>c.WorkFileIds)").val();
+            if (WorkFileIds.length > 0) {
+                var SelectedListFileId = WorkFileIds.split(',');
+            }
+            var _data = {
+                Id: @Model.Id,
+                Name: $("#@Html.IdFor(c=>c.Name)").val(),
+                Code: $("#@Html.IdFor(c=>c.Code)").val(),
+                Description: $("#@Html.IdFor(c=>c.Description)").val(),
+                ContractId: @Model.ContractId,
+                ApprovalDate: $("#@Html.IdFor(c=>c.ApprovalDate)").val(),
+                SelectedListTaskId: $("#@Html.IdFor(c=>c.SelectedListTaskId)").val(),
+                SelectedListFileId: SelectedListFileId,
+                lstSubModel: lstSubModel,
+            };
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "/Contract/_ContractSettlementAdd",
+                data: _data,
+                success: function (data) {
+                    $("#tabContractSettlement .close").click();
+                    LoadTabContractSettlement();
+                    ShowSuccessMessage(data.Message);
+                    window.location.reload();
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    LoadTabContractSettlement();
+                    ShowErrorMessage(data.Message);
+                    alert('@T("Admin.common.request.error")');
+                    $("#tabContractSettlement .close").click();
+                }
+            });
+        });
+        $("#btnaddSettlementCancel").click(function () {
+            $("#tabContractSettlement .close").click();
+        });
+    })
+</script>
+<style>
+    .listoption label span {
+        padding-right: 20px;
+    }
+
+    .listoption {
+        padding-bottom: 20px;
+    }
+</style>

@@ -1,0 +1,143 @@
+﻿@using GS.Web.Models.Report;
+@model ReportContractPaymentAcceptanceSearchModel
+
+@{
+    //page title
+    ViewBag.Title = T("AppWork.Menu.Report.Volumn").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Report_manager");
+}
+<div>
+    <div class="modal-body">
+        <div class="content">
+            <div class="container-fluid flex-grow-1 container-p-y">
+                <div class="card">
+                    <div class="card-body pb-2">
+                        <div class="row">
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label class="form-label">Tên công trình</label>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <nop-select asp-for="ConstructionIds" asp-items="Model.SelectConstructionIds" asp-multiple="true" />
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <label class="form-label">Ngày <span style="color:red">*</span></label>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <nop-select asp-for="quarterId" asp-items="Model.AvailableQuarter" />
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <nop-select asp-for="yearId" asp-items="Model.AvailableYear" />
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label class="form-label">Tên (mã) hợp đồng</label>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <nop-editor asp-for="contractCodeName" />
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="form-group">
+                                    <label class="form-label">Mã đơn vị <span style="color:red">*</span></label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <nop-select asp-for="unitCode" asp-items="Model.AvailableunitCode" />
+                                </div>
+                                <h6 id="UnitCode" style="color:red">* Nhập mã đơn vị</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+
+            </div>
+            <div class="col-md-2 text-right mt-3">
+                <form asp-controller="Report" asp-action="exportReportContractPaymentAcceptance" method="post" id="export-excel">
+                    <input type="hidden" id="StringConstructionIds" name="StringConstructionIds" value="" />
+                    <input type="hidden" id="contractCodeName" name="contractCodeName" value="" />
+                    <input type="hidden" id="dateTimeFrom" name="dateTimeFrom" value="" />
+                    <input type="hidden" id="datetimeTo" name="datetimeTo" value="" />
+                    <input type="hidden" id="unitCode" name="unitCode" value="" />
+                    <input type="hidden" id="quarterId" name="quarterId" value="" />
+                    <input type="hidden" id="yearId" name="yearId" value="" />
+                    <button id="btnExportExcel" class="btn btn-success">Xuất ra Excel</button>
+                </form>
+            </div>
+            <div class="col-md-1 text-right mt-3">
+                <button type="button" id="btnReportContractSearch" class="btn btn-primary">
+                    Tìm kiếm
+                </button>&nbsp;
+            </div>
+        </div>
+        <div id="view-reportContractPaymentAcceptance"></div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#UnitCode").hide();
+        $("#btnReportContractSearch").click(function () {
+            if ($('#unitCode').val() != 0) {
+                ShowViewLoading("#view-reportContractPaymentAcceptance");
+                searchReportContract();
+                $("#UnitCode").hide();
+                $("#view-reportContractPaymentAcceptance").show();
+            } else {
+                $("#UnitCode").show();
+                $("#view-reportContractPaymentAcceptance").hide();
+            }
+        });
+        $("#btnExportExcel").click(function () {
+            var ConstructionIds = $("#@Html.IdFor(c=>c.ConstructionIds)").val();
+            var StringConstructionIds = ConstructionIds.join(',');
+            var contractCodeName = $("#@Html.IdFor(c=>c.contractCodeName)").val();
+            var dateTimeFrom = $("#@Html.IdFor(c=>c.dateTimeFrom)").val();
+            var datetimeTo = $("#@Html.IdFor(c=>c.datetimeTo)").val();
+            var unitCode = $("#@Html.IdFor(c=>c.unitCode)").val();
+            var quarterId = $("#@Html.IdFor(c=>c.quarterId)").val();
+            var yearId = $("#@Html.IdFor(c=>c.yearId)").val();
+            $('#export-excel #StringConstructionIds').val(StringConstructionIds);
+            $('#export-excel #contractCodeName').val(contractCodeName);
+            $('#export-excel #dateTimeFrom').val(dateTimeFrom);
+            $('#export-excel #datetimeTo').val(datetimeTo);
+            $('#export-excel #unitCode').val(unitCode);
+            $('#export-excel #quarterId').val(quarterId);
+            $('#export-excel #yearId').val(yearId);
+            $('#export-excel').submit();
+        })
+    });
+    function searchReportContract() {
+        var data = {
+            ConstructionIds: $("#@Html.IdFor(c=>c.ConstructionIds)").val(),
+            contractCodeName: $("#@Html.IdFor(c=>c.contractCodeName)").val(),
+            dateTimeFrom: $("#@Html.IdFor(c=>c.dateTimeFrom)").val(),
+            datetimeTo: $("#@Html.IdFor(c=>c.datetimeTo)").val(),
+            unitCode: $("#@Html.IdFor(c=>c.unitCode)").val(),
+            quarterId: $("#@Html.IdFor(c=>c.quarterId)").val(),
+            yearId: $("#@Html.IdFor(c=>c.yearId)").val(),
+        }
+        $.ajax({
+            type: "POST",
+            data: data,
+            url: "/Report/_ReportContractPaymentAcceptance",
+            success: function (data) {
+                $("#view-reportContractPaymentAcceptance").html(data);
+            },
+        })
+    }
+</script>

@@ -1,0 +1,27 @@
+﻿@using GS.Web.Areas.Admin.Models.Contract
+@model ContractAttributeValueModel
+
+@{
+    Layout = "_AdminPopupLayout";
+
+    //page title
+    ViewBag.Title = T("Admin.Contracts.ContractAttributes.Values.EditValueDetails").Text;
+}
+
+<form asp-controller="ContractAttribute" asp-action="ValueEditPopup"
+      asp-route-btnId="@Context.Request.Query["btnId"]"
+      asp-route-formId="@Context.Request.Query["formId"]">
+    <div class="content-header clearfix">
+        <h1 class="pull-left">
+            @T("Admin.Contract.ContractAttributes.Values.EditValueDetails")
+        </h1>
+        <div class="pull-right">
+            <button type="submit" name="save" class="btn bg-blue">
+                <i class="fa fa-floppy-o"></i>
+                @T("Admin.Common.Save")
+            </button>
+            @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.ContractAttributeValueDetailsButtons, additionalData = Model })
+        </div>
+    </div>
+    @await Html.PartialAsync("_CreateOrUpdateValue", Model)
+</form>

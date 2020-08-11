@@ -1,0 +1,85 @@
+﻿@using GS.Services.Contracts
+@model ContractPaymentAcceptanceSubModel
+@inject IContractService contractService
+
+@{
+    var idf = @Guid.NewGuid().ToString().Replace("-", "");
+}
+
+<div class="row PaymentAcceptanceSub_@Model.AcceptanceId  PaymentAcceptanceSub" id="AcceptanceSub_@idf" data-idf="@idf">
+    <div style="display:none">
+        @Html.EditorFor(c => c.TaskId, null, "taskId_" + idf)
+        @Html.EditorFor(c => c.AcceptanceId, null, "acceptanceId_" + idf)
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <label>@Model.TaskName</label>
+            </div>
+            <div class="col-md-2 number-input-long">
+                <nop-editor asp-for="TotalMoney" asp-class="TotalMoneySub" id="totalMoney_@idf" />
+                @*@Html.TextBoxFor(c => c.TotalMoney, new { @id = "totalMoney_" + idf, @class = "form-control TotalMoneySub", })*@
+            </div>
+            <div class="col-sm-2 number-input-long">
+                <nop-editor asp-for="ReduceAdvance" asp-class="ReduceAdvanceSub" id="reduceAdvance_@idf" />
+                @*@Html.TextBoxFor(c => c.ReduceAdvance, new { @id = "reduceAdvance_" + idf, @class = "form-control ReduceAdvanceSub", })*@
+            </div>
+            <div class="col-sm-2 number-input-long">
+                <nop-editor asp-for="ReduceKeep" asp-class="ReduceKeepSub" id="reduceKeep_@idf" />
+                @*@Html.TextBoxFor(c => c.ReduceKeep, new { @id = "reduceKeep_" + idf, @class = "form-control ReduceKeepSub", })*@
+            </div>
+            <div class="col-sm-2 number-input-long">
+                <nop-editor asp-for="Depreciation" asp-class="DepreciationSub" id="depreciation_@idf" />
+                @*@Html.TextBoxFor(c => c.Depreciation, new { @id = "depreciation_" + idf, @class = "form-control DepreciationSub", })*@
+            </div>
+            <div class="col-sm-2 number-input-long">
+                <nop-editor asp-for="ReduceOther" asp-class="ReduceOtherSub" id="reduceOther_@idf" />
+                @*@Html.TextBoxFor(c => c.ReduceOther, new { @id = "reduceOther_" + idf, @class = "form-control ReduceOtherSub", })*@
+            </div>
+            <div class="col-md-2" style="color:#147B15;">Giá trị đã nghiệm thu:</div>
+            <div class="col-md-4"><span style="color:#1e70cd;" id="_paymented_@idf">@Model.TotalPaymented.ToVNStringNumber()</span> / <span style="color:#ff6a00" id="_sum_@idf">@Model.SumTotalMoney.ToVNStringNumber()</span></div>
+            <div class="col-md-4" id="checkValNTTTvsNTKL" style="color:red; display:none;">* Giá trị NTTT vượt quá NTKL</div>
+        </div>
+    </div>
+</div>
+<script>
+    $("#totalMoney_@idf").change(function () {
+        loadtotalMoney();
+        var payment = ($("#_paymented_@idf").text()).replace(/\./g, '');
+        var sumTT = ($("#_sum_@idf").text()).replace(/\./g, '');
+        checkTotalMoneyChange(ConvertToNumber("#totalMoney_@idf"), parseInt(payment), parseInt(sumTT));
+    });
+    $("#reduceAdvance_@idf").change(function () {
+        var TotalMoneySub = 0;
+        $(".ReduceAdvanceSub").each(function () {
+            var MoneySub = ConvertToNumber(this);
+            TotalMoneySub = parseFloat(TotalMoneySub) + parseFloat(MoneySub);
+        });
+        $("#ReduceAdvancesub").html(TotalMoneySub.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));
+    });
+    $("#reduceKeep_@idf").change(function () {
+        var TotalMoneySub = 0;
+        $(".ReduceKeepSub").each(function () {
+            var MoneySub = ConvertToNumber(this);
+            TotalMoneySub = parseFloat(TotalMoneySub) + parseFloat(MoneySub);
+        });
+        $("#ReduceKeepsub").html(TotalMoneySub.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));
+
+    });
+    $("#depreciation_@idf").change(function () {
+        var TotalMoneySub = 0;
+        $(".DepreciationSub").each(function () {
+            var MoneySub = ConvertToNumber(this);
+            TotalMoneySub = parseFloat(TotalMoneySub) + parseFloat(MoneySub);
+        });
+        $("#Depreciationsub").html(TotalMoneySub.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));
+    });
+    $("#reduceOther_@idf").change(function () {
+        var TotalMoneySub = 0;
+        $(".ReduceOtherSub").each(function () {
+            var MoneySub = ConvertToNumber(this);
+            TotalMoneySub = parseFloat(TotalMoneySub) + parseFloat(MoneySub);
+        });
+        $("#ReduceOthersub").html(TotalMoneySub.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));
+    })
+</script>

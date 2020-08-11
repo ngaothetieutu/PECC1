@@ -1,0 +1,7 @@
+﻿@{
+    Layout = "_Root";
+}
+
+@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.MainColumnBefore })
+@RenderBody()
+@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.MainColumnAfter })

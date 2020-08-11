@@ -1,0 +1,331 @@
+﻿@using GS.Web.Models.Report;
+@model ReportSearchModel
+
+@{
+    //page title
+    ViewBag.Title = T("AppWork.Menu.Report.Static").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Report_unit");
+}
+<div>
+    <div class="modal-body" style="padding-left:0px;padding-right:0px;">
+        <div class="content">
+            <div class="container-fluid flex-grow-1 container-p-y" style="padding-left:0px;padding-right:0px;">
+                <div class="card">
+                    <div class="card-body pb-2">
+                        <div class="row">
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label class="form-label">Tên công trình</label>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <nop-select asp-for="SelectConstructionIds" asp-items="Model.ConstructionName" asp-multiple="true" />
+                                    <script>
+                                            $(document).ready(function() {
+                                                var rolesIdsInput =
+                                                    $('#@Html.IdFor(model => model.SelectConstructionIds)')
+                                                        .data("kendoMultiSelect");
+                                                rolesIdsInput.setOptions({
+                                                    autoClose: false,
+                                                    filter: "contains"
+                                                });
+
+                                                @if (Model.ConstructionName.Count == 0)
+                                                {
+                                                    <text>
+                                                        rolesIdsInput.setOptions({
+                                                            enable: false,
+                                                            placeholder:
+                                                                'Chọn công trình ...'
+                                                        });
+                                                        rolesIdsInput._placeholder();
+                                                        rolesIdsInput._enable();
+                                                    </text>
+                                                }
+                                            });
+                                    </script>
+                                </div>
+                            </div>
+                            @*<div class="col-md-1">
+            <label class="form-label">Mã công trình</label>
+        </div>
+        <div class="col-md-4">
+            <nop-editor asp-for="ConstructionCode" />
+        </div>*@
+                            <div class="col-md-1">
+                                <label class="form-label">Ngày ký</label>
+                            </div>
+                            <div class="col-md-2">
+                                <input placeholder="Từ ngày" <nop-editor asp-for="StartDateFrom" />
+                            </div>
+                            <div class="col-md-2">
+                                <input placeholder="Đến ngày" <nop-editor asp-for="StartDateTo" />
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label class="form-label">Tên (mã) hợp đồng</label>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <nop-editor asp-for="ContractNameCode" />
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <label class="form-label">Loại dự án</label>
+                            </div>
+                            <div class="col-md-4">
+                                <nop-select asp-for="SelectedConstructionType" asp-items="Model.ConstructionTypeSLI" asp-multiple="true" />
+                                <script>
+                                            $(document).ready(function() {
+                                                var rolesIdsInput =
+                                                    $('#@Html.IdFor(model => model.SelectedConstructionType)')
+                                                        .data("kendoMultiSelect");
+                                                rolesIdsInput.setOptions({
+                                                    autoClose: false,
+                                                    filter: "contains"
+                                                });
+
+                                                @if (Model.ConstructionTypeSLI.Count == 0)
+                                                {
+                                                    <text>
+                                                        rolesIdsInput.setOptions({
+                                                            enable: false,
+                                                            placeholder:
+                                                                'Chọn loại hợp đồng ...'
+                                                        });
+                                                        rolesIdsInput._placeholder();
+                                                        rolesIdsInput._enable();
+                                                    </text>
+                                                }
+                                            });
+                                </script>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Hình thức hợp đồng</label>
+                            </div>
+                            <div class="col-md-5">
+                                <nop-select asp-for="ContractFormId" asp-items="Model.AvailableContractForm" />
+                            </div>
+                            <div class="col-md-1">
+                                <label class="form-label">Trạng thái</label>
+                            </div>
+                            <div class="col-md-4">
+                                <nop-select asp-for="contractStatus" asp-items="Model.AvailableContractStatus" />
+                            </div>
+                            <div class="col-md-12" style="margin-top:10px;">
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <label class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="ConstructionCode1">
+                                            <span class="custom-control-label">Mã công trình</span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="ConstructionName">
+                                            <span class="custom-control-label">Tên công trình</span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="ProcuringAgencyName">
+                                            <span class="custom-control-label">Chủ đầu tư</span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="Name">
+                                            <span class="custom-control-label">Tên hợp đồng</span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="ConstructionType1">
+                                            <span class="custom-control-label">Loại dự án</span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="ProcuringAgencyIsEVN">
+                                            <span class="custom-control-label">Trong (ngoài) EVN</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12" style="margin-top:10px;">
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <label class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="FinishDate">
+                                            <span class="custom-control-label">Ngày kết thúc</span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="ContractForms">
+                                            <span class="custom-control-label">Hình thức hợp đồng</span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="Code">
+                                            <span class="custom-control-label">Số hợp đồng</span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="SignedDate">
+                                            <span class="custom-control-label">Ngày ký</span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="EndDate">
+                                            <span class="custom-control-label">Ngày dự kiến kết thúc</span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="AdvanceAmount">
+                                            <span class="custom-control-label">Giá trị tạm ứng (VNĐ)</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12" style="margin-top:10px;">
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <label class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="status">
+                                            <span class="custom-control-label">Trạng thái</span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="TotalAmount">
+                                            <span class="custom-control-label">Giá trị hợp đồng sau thuế (VNĐ)</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8"></div>
+            <div class="col-md-2 text-right mt-3">
+                <form asp-controller="Report" asp-action="ExportExcelIndexs" method="post" id="export-excel-selected-form">
+                    <input type="hidden" id="ConstructionCode" name="ConstructionCode" value="" />
+                    <input type="hidden" id="StringConstructionIds" name="StringConstructionIds" value="" />
+                    <input type="hidden" id="ContractNameCode" name="ContractNameCode" value="" />
+                    <input type="hidden" id="StartDateFrom" name="StartDateFrom" value="" />
+                    <input type="hidden" id="StartDateTo" name="StartDateTo" value="" />
+                    <input type="hidden" id="ConstructionType" name="ConstructionType" value="" />
+                    <input type="hidden" id="ContractFormId" name="ContractFormId" value="" />
+                </form>
+                <button type="button" id="btnExportExcel" class="btn btn-success">Xuất ra Excel</button>
+            </div>
+            <div class="col-md-1 text-right mt-3">
+                <button type="button" id="btnReportContractSearch" class="btn btn-primary">Tìm kiếm</button>&nbsp;
+            </div>
+        </div>
+        <div id="view-report"></div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $(':checkbox').prop('checked', true);
+        $("#btnExportExcel").click(function () {          
+            var ConstructionCode = $("#@Html.IdFor(c=>c.ConstructionCode)").val();
+            var SelectConstructionIds = $("#@Html.IdFor(c=>c.SelectConstructionIds)").val();
+            var StringConstructionIds = SelectConstructionIds.join(',');
+            var ContractNameCode = $("#@Html.IdFor(c=>c.ContractNameCode)").val();
+            var StartDateFrom = $("#@Html.IdFor(c=>c.StartDateFrom)").val();
+            var StartDateTo = $("#@Html.IdFor(c=>c.StartDateTo)").val();
+            var ConstructionType = $("#@Html.IdFor(c=>c.ConstructionType)").val();
+            var ContractFormId = $("#@Html.IdFor(c=>c.ContractFormId)").val();           
+            $('#export-excel-selected-form #ConstructionCode').val(ConstructionCode);
+            $('#export-excel-selected-form #StringConstructionIds').val(StringConstructionIds);
+            $('#export-excel-selected-form #ContractNameCode').val(ContractNameCode);
+            $('#export-excel-selected-form #StartDateFrom').val(StartDateFrom);
+            $('#export-excel-selected-form #StartDateTo').val(StartDateTo);
+            $('#export-excel-selected-form #ConstructionType').val(ConstructionType);
+            $('#export-excel-selected-form #ContractFormId').val(ContractFormId);
+            $('#export-excel-selected-form').submit();
+        });
+    });
+    $("#btnReportContractSearch").click(function () {
+        ShowViewLoading("#view-report");
+        searchReportContract();
+    });
+    $('#ConstructionCode1').change(function () {
+        $(".ConstructionCode1").toggle();
+    });
+    $('#ConstructionName').change(function () {
+        $(".ConstructionName").toggle();
+    });
+    $('#ProcuringAgencyName').change(function () {
+        $(".ProcuringAgencyName").toggle();
+    });
+    $('#Name').change(function () {
+        $(".Name").toggle();
+    });
+    $('#ConstructionType1').change(function () {
+        $(".ConstructionType1").toggle();
+    });
+    $('#ProcuringAgencyIsEVN').change(function () {
+        $(".ProcuringAgencyIsEVN").toggle();
+    });
+    $('#TotalAmount').change(function () {
+        $(".TotalAmount").toggle();
+    });
+    $('#ContractForms').change(function () {
+        $(".ContractForms").toggle();
+    });
+    $('#Code').change(function () {
+        $(".Code").toggle();
+    });
+    $('#SignedDate').change(function () {
+        $(".SignedDate").toggle();
+    });
+    $('#EndDate').change(function () {
+        $(".EndDate").toggle();
+    });
+    $('#AdvanceAmount').change(function () {
+        $(".AdvanceAmount").toggle();
+    });
+    $('#status').change(function () {
+        $(".status").toggle();
+    });
+    $('#FinishDate').change(function () {
+        $(".FinishDate").toggle();
+    });
+    function searchReportContract() {
+        var data = {
+            ConstructionCode: $("#@Html.IdFor(c=>c.ConstructionCode)").val(),
+            ConstructionName: $("#@Html.IdFor(c=>c.ConstructionName)").val(),
+            ContractNameCode: $("#@Html.IdFor(c=>c.ContractNameCode)").val(),
+            StartDateFrom: $("#@Html.IdFor(c=>c.StartDateFrom)").val(),
+            StartDateTo: $("#@Html.IdFor(c=>c.StartDateTo)").val(),
+            ConstructionType: $("#@Html.IdFor(c=>c.ConstructionType)").val(),
+            SelectConstructionIds: $("#@Html.IdFor(c=>c.SelectConstructionIds)").val(),
+            ContractFormId: $("#@Html.IdFor(c=>c.ContractFormId)").val(),
+            contractStatus: $("#@Html.IdFor(c=>c.contractStatus)").val(),
+            ConstructionTypeSLI: $("#@Html.IdFor(c=>c.ConstructionTypeSLI)").val(),
+            SelectedConstructionType: $("#@Html.IdFor(c=>c.SelectedConstructionType)").val(),
+        }
+        $.ajax({
+            type: "POST",
+            data: data,
+            url: "/Report/_Report",
+            success: function (data) {
+                $("#view-report").html(data);
+            },
+        })
+    }
+</script>

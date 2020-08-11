@@ -1,0 +1,219 @@
+﻿@using GS.Core
+@using GS.Services.Customers
+@using GS.Services.Common;
+@using GS.Services.Media;
+@using GS.Core.Domain.Media;
+@using GS.Core.Domain.Customers;
+@inject IWorkContext workContext
+@inject ICustomerService customerService
+@inject IPictureService pictureService
+@inject MediaSettings mediaSettings
+@inject IGenericAttributeService genericAttributeService
+@{
+    Layout = "_Root.Head";
+    var currentCustomer = workContext.CurrentCustomer;
+    var CustomerAvatar = pictureService.GetPictureUrl(
+                genericAttributeService.GetAttribute<int>(currentCustomer, GSCustomerDefaults.AvatarPictureIdAttribute),
+                mediaSettings.AvatarPictureSize,
+                false);
+
+}
+@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.BodyStartHtmlTagAfter })
+
+
+<div class="page-loader">
+    <div class="bg-primary"></div>
+</div>
+<div class="layout-wrapper layout-2">
+    <div class="layout-inner">
+        <!-- Layout sidenav -->
+        <div id="layout-sidenav" class="layout-sidenav sidenav sidenav-vertical bg-info-darker sidenav-dark">
+            <!-- Brand demo (see assets/css/demo/demo.css) -->
+            <div class="app-brand demo">
+                <span class="app-brand-logo demo bg-primary">
+                    @*<img src="~/css/admin/images/logo3.gif" alt="img" />*@
+                    <svg viewBox="0 0 148 80" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><defs><linearGradient id="a" x1="46.49" x2="62.46" y1="53.39" y2="48.2" gradientUnits="userSpaceOnUse"><stop stop-opacity=".25" offset="0"></stop><stop stop-opacity=".1" offset=".3"></stop><stop stop-opacity="0" offset=".9"></stop></linearGradient><linearGradient id="e" x1="76.9" x2="92.64" y1="26.38" y2="31.49" xlink:href="#a"></linearGradient><linearGradient id="d" x1="107.12" x2="122.74" y1="53.41" y2="48.33" xlink:href="#a"></linearGradient></defs><path style="fill: #fff;" transform="translate(-.1)" d="M121.36,0,104.42,45.08,88.71,3.28A5.09,5.09,0,0,0,83.93,0H64.27A5.09,5.09,0,0,0,59.5,3.28L43.79,45.08,26.85,0H.1L29.43,76.74A5.09,5.09,0,0,0,34.19,80H53.39a5.09,5.09,0,0,0,4.77-3.26L74.1,35l16,41.74A5.09,5.09,0,0,0,94.82,80h18.95a5.09,5.09,0,0,0,4.76-3.24L148.1,0Z"></path><path transform="translate(-.1)" d="M52.19,22.73l-8.4,22.35L56.51,78.94a5,5,0,0,0,1.64-2.19l7.34-19.2Z" fill="url(#a)"></path><path transform="translate(-.1)" d="M95.73,22l-7-18.69a5,5,0,0,0-1.64-2.21L74.1,35l8.33,21.79Z" fill="url(#e)"></path><path transform="translate(-.1)" d="M112.73,23l-8.31,22.12,12.66,33.7a5,5,0,0,0,1.45-2l7.3-18.93Z" fill="url(#d)"></path></svg>
+                </span>
+                <a href="/AppWork/Index" class="app-brand-text demo sidenav-text font-weight-normal ml-2"><span style="color:#2fc6f7">EVN</span> PECC1</a>
+                <a href="/AppWork/Index " class="layout-sidenav-toggle sidenav-link text-large ml-auto">
+                    <i class="ion ion-md-menu align-middle"></i>
+                </a>
+            </div>
+            <div class="sidenav-divider mt-0"></div>
+            <!-- Links -->
+            @*<ul class="sidenav-inner py-1">*@
+            @await Html.PartialAsync("Menu")
+            @*</ul>*@
+        </div>
+        <!-- / Layout sidenav -->
+        <!-- Layout container -->
+        <div class="layout-container">
+            <!-- Layout navbar -->
+            <nav class="layout-navbar navbar navbar-expand-lg align-items-lg-center bg-white container-p-x" id="layout-navbar">
+                <!-- Brand demo (see assets/css/demo/demo.css) -->
+                <a href="index-2.html" class="navbar-brand app-brand demo d-lg-none py-0 mr-4">
+                    <span class="app-brand-logo demo bg-primary">
+                        @*<img src="~/css/admin/images/logo3.gif" alt="img" />*@
+                        <svg viewBox="0 0 148 80" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><defs><linearGradient id="a" x1="46.49" x2="62.46" y1="53.39" y2="48.2" gradientUnits="userSpaceOnUse"><stop stop-opacity=".25" offset="0"></stop><stop stop-opacity=".1" offset=".3"></stop><stop stop-opacity="0" offset=".9"></stop></linearGradient><linearGradient id="e" x1="76.9" x2="92.64" y1="26.38" y2="31.49" xlink:href="#a"></linearGradient><linearGradient id="d" x1="107.12" x2="122.74" y1="53.41" y2="48.33" xlink:href="#a"></linearGradient></defs><path style="fill: #fff;" transform="translate(-.1)" d="M121.36,0,104.42,45.08,88.71,3.28A5.09,5.09,0,0,0,83.93,0H64.27A5.09,5.09,0,0,0,59.5,3.28L43.79,45.08,26.85,0H.1L29.43,76.74A5.09,5.09,0,0,0,34.19,80H53.39a5.09,5.09,0,0,0,4.77-3.26L74.1,35l16,41.74A5.09,5.09,0,0,0,94.82,80h18.95a5.09,5.09,0,0,0,4.76-3.24L148.1,0Z"></path><path transform="translate(-.1)" d="M52.19,22.73l-8.4,22.35L56.51,78.94a5,5,0,0,0,1.64-2.19l7.34-19.2Z" fill="url(#a)"></path><path transform="translate(-.1)" d="M95.73,22l-7-18.69a5,5,0,0,0-1.64-2.21L74.1,35l8.33,21.79Z" fill="url(#e)"></path><path transform="translate(-.1)" d="M112.73,23l-8.31,22.12,12.66,33.7a5,5,0,0,0,1.45-2l7.3-18.93Z" fill="url(#d)"></path></svg>
+                    </span>
+                    @*<span class="app-brand-text demo font-weight-normal ml-2">Appwork</span>*@
+                    <span class="app-brand-text demo sidenav-text font-weight-normal ml-2"><span style="color:blue;font-size:20px;">EVN</span><i style="color:#FF3A24;font-size:20px;font-weight:800">PECC1</i> </span>
+                </a>
+                <!-- Sidenav toggle (see assets/css/demo/demo.css) -->
+                <div class="layout-sidenav-toggle navbar-nav d-lg-none align-items-lg-center mr-auto">
+                    <a class="nav-item nav-link px-0 mr-lg-4" href="javascript:void(0)">
+                        <i class="ion ion-md-menu text-large align-middle"></i>
+                    </a>
+                </div>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#layout-navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse" id="layout-navbar-collapse">
+                    <!-- Divider -->
+                    <hr class="d-lg-none w-100 my-2">
+                    <div class="navbar-nav align-items-lg-center">
+                        <!-- Search -->
+                        <label class="nav-item navbar-text navbar-search-box p-0 active">
+                            <i class="ion ion-ios-search navbar-icon align-middle"></i>
+                            <span class="navbar-search-input pl-2">
+                                <input id="ipcontractSearch" type="text" class="form-control navbar-text mx-2" placeholder='@T("admin.common.search.ContractName")....' style="width:400px">
+                            </span>
+                            @*<a href="" class="btn btn-search btn-primary text-white">@T("admin.common.search")</a>*@
+                        </label>
+                    </div>
+                    <div class="navbar-nav align-items-lg-center ml-auto">
+                    </div>
+                    <div class="navbar-nav align-items-lg-center ml-auto">
+                       
+                        <span class="bx-time" id="timeman-timer"><span class="time-hours">@string.Format("{0:h }", DateTime.Now)</span><span class="time-semicolon">:</span><span class="time-minutes">@DateTime.Now.ToString("mm")</span><span class="time-am-pm">@DateTime.Now.ToString("tt")</span></span>
+                        <script type="text/javascript">
+                            function formatTime() {
+                                var hours = new Date().getHours();
+                                var minutes = new Date().getMinutes();
+                                var ampm = "";
+                                ampm = hours >= 12 ? "CH" : "SA";
+                                ampm = '<span class="time-am-pm">' + ampm + '</span>';
+                                hours = hours % 12;
+                                hours = hours ? hours : 12;
+                                $("#timeman-timer").html('<span class="time-hours">' + hours + '</span>' + '<span class="time-semicolon">:</span>' +
+                                    '<span class="time-minutes">' + (minutes < 10 ? "0" + minutes : minutes) + '</span>' + ampm);
+                                
+                            }
+                            $(document).ready(function () {
+                                //thiet dat timer 1 s chạy 1 lần 
+                                setInterval(function () { formatTime(); }, 1000);
+                            });
+                        </script>
+                        <div class="demo-navbar-notifications nav-item dropdown mr-lg-3">
+                            <a class="nav-link dropdown-toggle scrollable-menu hide-arrow" href="#" data-toggle="dropdown">
+                                <i class="ion ion-md-notifications-outline navbar-icon align-middle"></i>
+                                <span class="badge badge-danger indicator notifyTotalNew" style="font-size:0.7em"></span>
+                                <span class="d-lg-none align-middle">&nbsp; @T("common.notification")</span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <div class="bg-secondary text-center text-blue font-weight-bold p-1">
+                                    <span class="notifyTotalNew"></span> @T("common.notification.new")
+                                </div>
+                                <div class="list-group list-group-flush" id="notifyContent">
+                                </div>
+                                <a href="/AppWork/Notification" class="d-block text-center text-secondary small p-2 my-1">@T("common.notification.showall")</a>
+                            </div>
+                        </div>
+                        <!-- Divider -->
+                        <div class="nav-item d-none d-lg-block text-big font-weight-light line-height-1 opacity-25 mr-3 ml-1">|</div>
+                        <div class="demo-navbar-user nav-item dropdown">
+                            <a class="nav-link dropdown-toggle " href="#" data-toggle="dropdown">
+                                <span class="d-inline-flex flex-lg-row-reverse align-items-center align-middle">
+                                    <img src="@CustomerAvatar" alt="img" class="d-block ui-w-30 rounded-circle">
+                                    <span class="px-1 mr-lg-2 ml-2 ml-lg-0">@customerService.GetCustomerFullName(currentCustomer)</span>
+                                </span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a href="/customer/info" class="dropdown-item">
+                                    <i class="ion ion-ios-person text-primary" style="font-size:16px;"></i> &nbsp; @T("Myprofile")
+                                </a>
+                                <a href="/customer/changepassword" class="dropdown-item">
+                                    <i class="ion ion-md-key text-primary" style="font-size:16px;"></i> &nbsp; @T("account.changepassword")
+                                </a>
+                                <a href="javascript:void(0)" class="dropdown-item">
+                                    <i class="ion ion-ios-mail text-primary" style="font-size:16px;"></i> &nbsp; @T("Messages")
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a href="/logout" class="dropdown-item">
+                                    <i class="ion ion-ios-log-out text-danger" style="font-size:16px;"></i> &nbsp; @T("account.logout")
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            <!-- / Layout navbar -->
+            <!-- Layout content -->
+            <div class="layout-content">
+                @await Html.PartialAsync("_Notifications")
+                @await Html.PartialAsync("_JavaScriptDisabledWarning")
+                @await Html.PartialAsync("_OldInternetExplorerWarning")
+                <!-- Content -->
+                @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ContentBefore })
+                <div class="container-fluid flex-grow-1 container-p-y">
+                    @RenderBody()
+                </div>
+                @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ContentAfter })
+
+                <!-- / Content -->
+                <!-- Layout footer -->
+                <nav class="layout-footer footer bg-secondary">
+                    <div class="container-fluid d-flex flex-wrap justify-content-between text-center container-p-x pb-3">
+                        <div class="pt-3">
+                            <span class="footer-text font-weight-bolder">PECC1</span> ©
+                        </div>
+                        <div>
+                            <a href="javascript:void(0)" class="footer-link pt-3"></a>
+                            <a href="javascript:void(0)" class="footer-link pt-3 ml-4"></a>
+                            <a href="javascript:void(0)" class="footer-link pt-3 ml-4"></a>
+                            <a href="javascript:void(0)" class="footer-link pt-3 ml-4"></a>
+                        </div>
+                    </div>
+                </nav>
+                <!-- / Layout footer -->
+            </div>
+            <!-- Layout content -->
+        </div>
+        <!-- / Layout container -->
+    </div>
+    <!-- Overlay -->
+    <div class="layout-overlay layout-sidenav-toggle"></div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#ipcontractSearch").keyup(function (e) {
+            if (e.keyCode == 13) {
+                var keysearch = $(this).val();
+                window.location.href = '/Contract/List?keySearch=' + keysearch;
+            }
+        });
+    })
+</script>
+<div id="partialViewLoading" style="display:none">
+    <div class="sk-double-bounce sk-primary">
+        <div class="sk-child sk-double-bounce1"></div>
+        <div class="sk-child sk-double-bounce2"></div>
+    </div>
+</div>
+
+@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.BodyEndHtmlTagBefore })
+<style>
+    body {
+        /*background: #3ea4d0 url("https://b24-m8n3md.bitrix24.com/bitrix/templates/bitrix24/themes/light/pattern-blue/pattern-blue.svg") 0 0 repeat;*/
+    }
+
+    .bg-info-dark {
+        background: #3ea4d0 url("https://b24-m8n3md.bitrix24.com/bitrix/templates/bitrix24/themes/light/pattern-blue/pattern-blue.svg") 0 0 repeat;
+    }
+
+    .scrollable-menu {
+        height: auto;
+        max-height: 200px;
+        overflow-x: hidden;
+    }
+</style>

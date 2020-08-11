@@ -1,0 +1,163 @@
+﻿@model GS.Web.Models.Unit.UnitSearchModel
+@{
+    //page title
+    ViewBag.Title = T("AppWork.Customer.Unit").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Unit");
+}
+
+<nop-antiforgery-token />
+<div class="content-header clearfix">
+    <h1 class="pull-left">
+        @T("AppWork.Customer.Unit")
+    </h1>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="panel-group">
+            <div class="panel panel-default panel-search">
+                <div id="search-unit" class="row">
+                    <div class="col-md-8" style="padding-right:0px;">
+                        <input class="k-textbox" id="Keyword" placeholder="Tìm tên đơn vị" style="width:100%"/>
+                    </div>                    
+                    <div class="pull-right col-md-4">
+                        <div class="btn-group" style="width:100%;">
+                            <button type="button" class="btn btn-primary"><i class="fa fa-plus-square"></i></button>
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li>
+                                    <a id="btnAddChil" href="javascript:void(addUnit);">
+                                        <i class="fa fa-subway"></i>
+                                        Thêm con
+                                    </a>
+                                </li>
+                                <li>
+                                    <a id="btnAddPar" href="javascript:void(addUnit);">
+                                        <i class="fa fa-tree"></i>
+                                        Thêm mới
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>                
+                <div id="GRID_UNIT"></div>
+
+                <div class="panel-body">
+                    <div class="demo-section k-content">
+                        <input type="hidden" id="hidUnitIdSelected" />
+                        <div id="treeview_unit"></div>
+                        
+                        <script>
+                            function LoadUnit(guid_id, guid_parent) {
+                                $("#hidUnitIdSelected").val(guid_id);
+                                $.ajax({
+                                    type: "GET",
+                                    url: '/Unit/Edit?id=' + guid_id + "&paren_id=" + guid_parent,
+                                    success: function (data) {
+                                        $("#grid-unit").html(data);
+                                    }
+                                });
+                            }
+                            function LoadCustomer() {
+                                $.ajax({
+                                    type: "GET",
+                                    url: '/Unit/_Customer?UnitId=' + $("#hidUnitIdSelected").val(),
+                                    success: function (data) {
+                                        $("#tabCustomerUnit").html(data);
+                                    }
+                                });
+                            }                        
+                            
+                            function treeDataFillter()
+                            {
+                                var dataFilter = {
+                                    Name: $("#Keyword").val()
+                                    //ParentId: parentId
+                                }
+                                return dataFilter;
+                            }
+                            function OnloadTrewView() {
+                                $("#treeview_unit").kendoTreeView({
+                                    //loadOnDemand: false, --load het tree
+                                    dataSource: {
+                                        type: "json",
+                                        transport: {
+                                            read: {
+                                                url: "@Html.Raw(Url.Action("TreeList", "Unit"))",
+                                                type: "POST",
+                                                dataType: "json",
+                                                data: treeDataFillter
+                                            }
+                                        },
+                                        schema: {
+                                            model: {
+                                                id: "Id",
+                                                children: "subUnitModels"
+                                            }
+                                        }
+                                    },
+                                    dataTextField: "Name",
+                                    select: onUnitSelect,
+                                });
+                            }
+                            $(document).ready(function () {
+                                OnloadTrewView();
+                            });
+                            function onUnitSelect(e) {
+                                //this refers to the TreeView object
+                                var dataItem = this.dataItem(e.node);
+                                LoadUnit(dataItem.Id,"");
+                                LoadCustomer();
+                                addUnit(dataItem);
+                            }
+
+                            function addUnit(dataItem) {
+                                $("#btnAddChil").off("click").on("click", function (e) {
+                                    LoadUnit("", dataItem.Id);
+                                });
+                                $("#btnAddPar").off("click").on("click", function (e) {
+                                    LoadUnit("", "");
+                                });
+                            }
+                            
+                        </script>
+                        <script type="text/javascript">
+                            $(document).ready(function () {
+                                $("#Keyword").keydown(function (event) {
+                                    if (event.keyCode == 13) {
+                                        var tree = $("#treeview_unit").data("kendoTreeView");
+                                        tree.dataSource.read();
+                                    }
+                                });
+                            });
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="panel-group">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div id="grid-unit">
+                        @await Html.PartialAsync("Edit", Model.getUnitModel)
+                    </div>
+                </div>
+            </div>
+            <div id="tabCustomerUnit">
+
+            </div>
+        </div>        
+    </div>
+</div>
+<style>
+    .gs-grid-has-child {
+        color: #b41515;
+        font-weight: bold;
+    }
+</style>

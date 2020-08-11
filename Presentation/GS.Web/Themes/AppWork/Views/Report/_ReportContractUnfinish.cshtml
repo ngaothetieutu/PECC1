@@ -1,0 +1,119 @@
+﻿@using GS.Services.Customers
+@using GS.Core.Domain.Contracts
+@model List<ReportContractUnfinish>
+@inject ICustomerService customerService
+
+<div>
+    <div class="row" style="text-align:center; margin-top:20px;">
+        @{
+            // Tong gia tri hop dong
+            var _totalAmountContract = Model.Sum(c => c.TotalAmount);
+            // Tong gia tri san luong do dang khao sat 
+            var _totalAmountContractFormTested = Model.Sum(c => c.ContractFormTested);
+            // Tong gia tri san luong do dang thiet ke
+            var _totalAmountContractFormDesign = Model.Sum(c => c.ContractFormDesign);
+            // Tong gia tri phan hop dong chua thuc hien
+            var _totalAmountContractUnfinish2 = Model.Sum(c => c.ContractUnfinish2);
+        <div class="col-md-12" style="margin-bottom:15px;" id="thongKe">
+            <h6 class="header" style="font-size:22px; color:black;">BÁO CÁO SẢN LƯỢNG DỞ DANG</h6>
+            <table class="table-bordered">
+                <thead role="rowgroup" class="k-grid-header" style="color:black;">
+                    <tr role="row">
+                        <th style="min-width:300px;">Số lượng hợp đồng</th>
+                        <th style="min-width:150px;" colspan="2">@Model.Count()</th>
+                    </tr>
+                    <tr>
+                        <th>Tổng giá trị hợp đồng</th>
+                        <th colspan="2">@_totalAmountContract.ToVNStringNumber()</th>
+                    </tr>
+                    <tr>
+                        <th rowspan="2">Sản lượng dở dang</th>
+                        <th>Khảo sát</th>
+                        <th>Thiết kế</th>
+                    </tr>
+                    <tr>
+                        <td style="border-bottom: 1px solid;">@_totalAmountContractFormTested.ToVNStringNumber()</td>
+                        <td style="border-bottom: 1px solid;">@_totalAmountContractFormDesign.ToVNStringNumber()</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid;">
+                        <th>Phần hợp đồng chưa thực hiện</th>
+                        <th colspan="2">@_totalAmountContractUnfinish2.ToVNStringNumber()</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        }
+        <div class="col-md-12">
+            <table class="table-bordered" id="tbContractPaymentAcceptance">
+                <thead role="rowgroup" class="k-grid-header" style="color:black;">
+                    <tr>
+                        <th rowspan="2">STT</th>
+                        <th rowspan="2">Mã công trình</th>
+                        <th rowspan="2">Tên công trình</th>
+                        <th rowspan="2">Tên hợp đồng</th>
+                        <th rowspan="1" colspan="3">Hợp đồng</th>
+                        <th rowspan="1" colspan="2">Sản lượng dở dang</th>
+                        <th rowspan="2">Phần hợp đồng chưa thực hiện</th>
+                        <th rowspan="2">Sản lượng rủi ro</th>
+                        <th rowspan="2">CT đã quyết toán</th>
+                        <th rowspan="1" colspan="2">Điều độ theo dõi</th>
+                    </tr>
+                    <tr>
+                        <th>Số</th>
+                        <th>Ngày ký</th>
+                        <th>Giá trị</th>
+                        <th>Khảo sát</th>
+                        <th>Thiết kế</th>
+                        <th>Khảo sát</th>
+                        <th>Thiết kế</th>
+                    </tr>
+                </thead>
+                <tbody style="background: white; color:black;">
+                    @{
+                        int stt = 1;
+                    }
+                    @foreach (ReportContractUnfinish ct in Model)
+                    {
+                        var creator = customerService.GetCustomerById(ct.UserMonitorId);
+                        var creatorName = customerService.GetCustomerFullName(creator);
+                        <tr>
+                            <td>@stt</td>
+                            <td>@ct.ConstructionCode</td>
+                            <td>@ct.ConstructionName</td>
+                            <td>@ct.ContractName</td>
+                            <td>@ct.ContractCode</td>
+                            <td>@ct.SignedDate.toDateVNString()</td>
+                            <td>@ct.TotalAmount.ToVNStringNumber()</td>
+                            <td>@ct.ContractFormTested.ToVNStringNumber()</td>
+                            <td>@ct.ContractFormDesign.ToVNStringNumber()</td>
+                            <td>@ct.ContractUnfinish2.ToVNStringNumber()</td>
+                            <td></td>
+                            @if (ct.isSettlemented == true)
+                            {
+                                <td><input type="checkbox" checked="checked" disabled="disabled" /></td>
+                            }
+                            else
+                            {
+                                <td><input type="checkbox" disabled="disabled" /></td>
+                            }
+                            <td>@creatorName</td>
+                            <td>@creatorName</td>
+                        </tr>
+                        stt++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<style>
+    .table-bordered td {
+        border: 1px solid black;
+        border-collapse: collapse;
+    }
+
+    .table-bordered th {
+        border-color: black;
+        border-bottom: 0px;
+    }
+</style>

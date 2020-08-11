@@ -1,0 +1,42 @@
+﻿@model ContractListModel
+@if (Model.Data.Count() > 0)
+{
+    foreach (ContractModel ct in Model.Data)
+    {
+        <div class="row list-task-plan">
+            <div class="col-md-12">
+                <div class="project-task-item">
+                    <span>
+                        <i class="fas fa-calendar-check"></i>
+                        <a href="/Contract/Detail?guid=@ct.ContractGuid">@ct.Name</a>
+                        <span class="badge badge-success font-weight-normal ml-2">Hoàn thành</span>
+                    </span>
+                    <div class="d-flex align-items-center">
+                        <div class="project-task-actions btn-group">
+                            <button type="button" class="btn btn-default btn-xs btn-round icon-btn borderless md-btn-flat hide-arrow dropdown-toggle" data-toggle="dropdown">
+                                <i class="ion ion-ios-more"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a class='dropdown-item' href="/Contract/Edit?guid=@ct.ContractGuid"><i class='fas fa-edit'></i>@T("Admin.Common.Edit")</a>
+                                @*<a class="dropdown-item" href="javascript:DeleteContractAcceptance(@ct.Id)"><i class='fas fa-trash-alt'></i>@T("Admin.Common.Delete")</a>*@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <i class="fas fa-calendar-alt"></i>&nbsp;@ct.StartDate.toDateVNString() - @ct.EndDate.toDateVNString()
+                    </div>
+                    <div class="col-sm-4">
+                        <i class="lnr lnr-diamond"></i>&nbsp;@ct.TotalAmountText
+                    </div>
+                    <div class="col-sm-4">
+                        @*tỷ lệ khoán : @ct.Ratio*@
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}

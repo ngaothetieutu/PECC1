@@ -1,0 +1,102 @@
+﻿@using GS.Web.Models.Report
+@using GS.Core.Domain.Contracts
+@model List<ReportProcuringAgency>
+
+<div>
+    <div class="row" style="text-align:center; margin-top:20px;">
+        @{
+        var TotalMoney = Model.Sum(c => c.AmountRequest) - Model.Sum(c => c.AmountPayment);
+        var TotalAmounts = Model.Sum(c => c.TotalAmount);
+        <div class="col-md-12" style="margin-bottom:15px;" id="thongKe">
+            <table class="table-bordered">
+                <thead role="rowgroup" class="k-grid-header" style="color:black;">
+                    <tr role="row">
+                        <th style="min-width:300px;">Số lượng hợp đồng</th>
+                        <th style="min-width:150px;">@Model.Count()</th>
+                    </tr>
+                    <tr>
+                        <th>Tổng giá trị hợp đồng</th>
+                        <th>@TotalAmounts.ToVNStringNumber()</th>
+                    </tr>
+                    <tr>
+                        <th>Tổng công nợ phải thu</th>
+                        <th>@TotalMoney.ToVNStringNumber()</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        }
+        <div class="col-md-12">
+            <h6 class="header" style="font-size:22px; color:black;">BÁO CÁO LỊCH SỬ HĐ VÀ CĐT</h6>
+            <table class="table-bordered" id="reportProcuringAgency">
+                <thead role="rowgroup" class="k-grid-header" style="color:black;">
+                    <tr role="row">
+                        <th>STT</th>
+                        <th>Thông tin chử đầu tư</th>
+                        <th>Tên công trình</th>
+                        <th>Mã công trình</th>
+                        <th>Tên hợp đồng</th>
+                        <th>Số hợp đồng</th>
+                        <th>Trong EVN</th>
+                        <th>Mã hợp đồng P4</th>
+                        <th>Ngày ký</th>
+                        <th>Trạng thái</th>
+                        <th>Giá trị HĐ sau thuế</th>
+                        <th>Công nợ phải thu</th>
+                    </tr>
+                </thead>
+                <tbody style="background: white; color:black;">
+                    @{
+                        int stt = 1;
+                    }
+                    @foreach (ReportProcuringAgency ct in Model)
+                    {
+                        <tr>
+                            <td>@stt</td>
+                            <td>@ct.ProcuringAgencyName</td>
+                            <td>@ct.ConstructionName</td>
+                            <td>@ct.ConstructionCode</td>
+                            <td>@ct.ContractName</td>
+                            <td>@ct.ContractCode</td>
+                            @if (ct.IsEVN == true)
+                            {
+                                <td><input type="checkbox" checked="checked" disabled="disabled" /></td>
+                            }
+                            else
+                            {
+                                <td><input type="checkbox" disabled="disabled" /></td>
+                            }
+                            <td>@ct.CodeP4</td>
+                            <td>@ct.SignedDate.toDateVNString()</td>
+                            <td>@ct.ContractStatus.ToStatusContractVN()</td>
+                            <td>@ct.TotalAmount.ToVNStringNumber()</td>
+                            @{
+                                var money = @ct.AmountRequest - @ct.AmountPayment;
+                                <td>@money.ToVNStringNumber()</td>
+                            }
+                        </tr>
+                        stt++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+
+</script>
+<style>
+    .table-bordered td {
+        border: 1px solid black;
+        border-collapse: collapse;
+    }
+
+    #reportProcuringAgency th {
+        border-color: black;
+        border-bottom: 0px;
+    }
+
+    #thongKe th{
+        border-color: black;
+    }
+</style>

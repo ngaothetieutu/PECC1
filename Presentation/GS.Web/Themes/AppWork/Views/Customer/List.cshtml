@@ -1,0 +1,422 @@
+﻿@model CustomerSearchModel
+
+@using System.Globalization;
+@using GS.Core.Domain.Media
+
+@inject MediaSettings _mediaSettings
+
+@{
+    //page title
+    ViewBag.Title = T("Admin.Customers.Customers").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Customers list");
+}
+
+<form asp-controller="Customer" asp-action="List" method="post">
+    <div class="content-header clearfix">
+        <h1 class="pull-left">
+            @T("Admin.Customers.Customers")
+        </h1>        
+    </div>
+
+    <div class="content">
+        <div class="form-horizontal">
+            <div class="panel-group">
+                <div class="panel panel-default panel-search">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="form-group row">
+                                    <div class="col-md-4">
+                                        <nop-label asp-for="SearchEmail" />
+                                    </div>
+                                    <div class="col-md-8">
+                                        <nop-editor asp-for="SearchEmail" />
+                                    </div>
+                                </div>
+                                @if (Model.UsernamesEnabled)
+                                {
+                                    <div class="form-group row">
+                                        <div class="col-md-4">
+                                            <nop-label asp-for="SearchUsername" />
+                                        </div>
+                                        <div class="col-md-8">
+                                            <nop-editor asp-for="SearchUsername" />
+                                        </div>
+                                    </div>
+                                }
+                                    <div class="form-group row">
+                                        <div class="col-md-4">
+                                            <nop-label asp-for="SearchFullName" />
+                                        </div>
+                                        <div class="col-md-8">
+                                            <nop-editor asp-for="SearchFullName" />
+                                        </div>
+                                    </div>                              
+                                @if (Model.DateOfBirthEnabled)
+                                {
+                                    <div class="form-group row">
+                                        <div class="col-md-4">
+                                            <nop-label asp-for="SearchDayOfBirth" />
+                                        </div>
+                                        <div class="col-md-8">
+                                            @{
+                                                var monthOfBirthValues = new List<SelectListItem>();
+                                                monthOfBirthValues.Add(new SelectListItem { Text = T("Admin.Customers.Customers.List.SearchDateOfBirth.Month").Text, Value = "0" });
+                                                for (var i = 1; i <= 12; i++)
+                                                {
+                                                    monthOfBirthValues.Add(new SelectListItem { Text = i.ToString(CultureInfo.InvariantCulture), Value = i.ToString(CultureInfo.InvariantCulture) });
+                                                }
+                                                var dayOfBirthValues = new List<SelectListItem>();
+                                                dayOfBirthValues.Add(new SelectListItem { Text = T("Admin.Customers.Customers.List.SearchDateOfBirth.Day").Text, Value = "0" });
+                                                for (var i = 1; i <= 31; i++)
+                                                {
+                                                    dayOfBirthValues.Add(new SelectListItem { Text = i.ToString(CultureInfo.InvariantCulture), Value = i.ToString(CultureInfo.InvariantCulture) });
+                                                }
+                                            }
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <nop-select asp-for="SearchMonthOfBirth" asp-items="@monthOfBirthValues" />
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <nop-select asp-for="SearchDayOfBirth" asp-items="@dayOfBirthValues" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                                }
+                            </div>
+                            <div class="col-md-7">
+                                @if (Model.CompanyEnabled)
+                                {
+                                    <div class="form-group row">
+                                        <div class="col-md-4">
+                                            <nop-label asp-for="SearchCompany" />
+                                        </div>
+                                        <div class="col-md-8">
+                                            <nop-editor asp-for="SearchCompany" />
+                                        </div>
+                                    </div>
+                                }
+                                @if (Model.PhoneEnabled)
+                                {
+                                    <div class="form-group row">
+                                        <div class="col-md-4">
+                                            <nop-label asp-for="SearchPhone" />
+                                        </div>
+                                        <div class="col-md-8">
+                                            <nop-editor asp-for="SearchPhone" />
+                                        </div>
+                                    </div>
+                                }
+                                @if (Model.ZipPostalCodeEnabled)
+                                {
+                                    <div class="form-group row">
+                                        <div class="col-md-4">
+                                            <nop-label asp-for="SearchZipPostalCode" />
+                                        </div>
+                                        <div class="col-md-8">
+                                            <nop-editor asp-for="SearchZipPostalCode" />
+                                        </div>
+                                    </div>
+                                }
+                                <div class="form-group row">
+                                    <div class="col-md-4">
+                                        <nop-label asp-for="SearchIpAddress" />
+                                    </div>
+                                    <div class="col-md-8">
+                                        <nop-editor asp-for="SearchIpAddress" />
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-md-4">
+                                        <nop-label asp-for="SelectedCustomerRoleIds" />
+                                    </div>
+                                    <div class="col-md-8">
+                                        <nop-select asp-for="SelectedCustomerRoleIds" asp-items="Model.AvailableCustomerRoles" asp-multiple="true" />
+                                        <script>
+                                            $(document).ready(function() {
+                                                var rolesIdsInput =
+                                                    $('#@Html.IdFor(model => model.SelectedCustomerRoleIds)')
+                                                        .data("kendoMultiSelect");
+                                                rolesIdsInput.setOptions({
+                                                    autoClose: false,
+                                                    filter: "contains"
+                                                });
+
+                                                @if (Model.AvailableCustomerRoles.Count == 0)
+                                                {
+                                                    <text>
+                                                        rolesIdsInput.setOptions({
+                                                            enable: false,
+                                                            placeholder:
+                                                                '@T("Admin.Catalog.Products.CustomerRoles.NoCustomerRolesAvailable")'
+                                                        });
+                                                        rolesIdsInput._placeholder();
+                                                        rolesIdsInput._enable();
+                                                    </text>
+                                                }
+                                            });
+                                        </script>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-7 col-md-offset-5">
+                                <button type="button" id="search-customers" class="btn btn-primary btn-search">
+                                    <i class="fa fa-search"></i>
+                                    @T("Admin.Common.Search")
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div id="customers-grid">
+
+                        </div>
+
+                        <script>
+    $(document).ready(function() {
+        $("#customers-grid").kendoGrid({
+            dataSource: {
+                type: "json",
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("CustomerList", "Customer"))",
+                        type: "POST",
+                        dataType: "json",
+                        data: function() {
+                            var data = {
+                                SelectedCustomerRoleIds: $('#@Html.IdFor(model => model.SelectedCustomerRoleIds)').val(),
+                                SearchEmail: $('#@Html.IdFor(model => model.SearchEmail)').val(),
+                                SearchUsername: $('#@Html.IdFor(model => model.SearchUsername)').val(),
+                                SearchFullName: $('#@Html.IdFor(model => model.SearchFullName)').val(),
+                                SearchDayOfBirth: $('#@Html.IdFor(model => model.SearchDayOfBirth)').val(),
+                                SearchMonthOfBirth: $('#@Html.IdFor(model => model.SearchMonthOfBirth)').val(),
+                                SearchCompany: $('#@Html.IdFor(model => model.SearchCompany)').val(),
+                                SearchPhone: $('#@Html.IdFor(model => model.SearchPhone)').val(),
+                                SearchZipPostalCode: $('#@Html.IdFor(model => model.SearchZipPostalCode)').val(),
+                                SearchIpAddress: $('#@Html.IdFor(model => model.SearchIpAddress)').val()
+                            };
+                            addAntiForgeryToken(data);
+                            return data;
+                        }
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                pageSize: @(Model.PageSize),
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                pageSizes: [@(Model.AvailablePageSizes)],
+                @await Html.PartialAsync("_GridPagerMessages")
+            },
+            scrollable: false,
+            dataBound: onDataBound,
+            columns: [
+                {
+                    field: "Id",
+                    headerTemplate: "<input id='mastercheckbox' type='checkbox'/>",
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                    template: "<input type='checkbox' value='#=Id#' class='checkboxGroups'/>",
+                    width: 50                
+                }, {
+                    field: "Email",
+                    title: "@T("Admin.Customers.Customers.Fields.Email")",
+                    width: 350
+                },
+                @if (Model.AvatarEnabled)
+                {
+                   <text>{
+                    field: "AvatarUrl",
+                    title: "@T("Admin.Customers.Customers.Fields.Avatar")",                    
+                    attributes: { style: "text-align:center" },
+                    template: "# if(AvatarUrl) {# <img src='#=AvatarUrl#' class='avatar-img' alt='@T("Admin.Customers.Customers.Fields.Avatar")'/> #} # <a class='btn btn-default mt-1'  href='Avatar?customerGuid=#=CustomerGuid#'><i class='ion ion-md-camera mr-2'></i>@T("Admin.Customer.UploadAvatar")</a>",
+                    width: @(_mediaSettings.AvatarPictureSize)
+                },</text>
+                }
+                @if (Model.UsernamesEnabled)
+                {
+                    <text>{
+                    field: "Username",
+                    title: "@T("Admin.Customers.Customers.Fields.Username")",
+                    width: 200
+                },</text>
+                }
+                {
+                    field: "FullName",
+                    title: "@T("Admin.Customers.Customers.Fields.FullName")",
+                    width: 350
+                }, {
+                    field: "CustomerRoleNames",
+                    title: "@T("Admin.Customers.Customers.Fields.CustomerRoles")",
+                    width: 150                                
+                }
+            ]
+        });
+    });
+                        </script>
+
+                        <script>
+    var selectedIds = [];
+
+    $(document).ready(function() {
+        //search button
+        $('#search-customers').click(function() {
+            var grid = $('#customers-grid').data('kendoGrid');
+            grid.dataSource.page(1); //new search. Set page size to 1
+            //grid.dataSource.read(); we already loaded the grid above using "page" function
+            //clear selected checkboxes
+            $('.checkboxGroups').attr('checked', false).change();
+            selectedIds = [];
+            return false;
+        });
+
+        $("".concat("#@Html.IdFor(model => model.SearchEmail),",
+            "#@Html.IdFor(model => model.SearchUsername),",
+            "#@Html.IdFor(model => model.SearchFullName),",
+            "#@Html.IdFor(model => model.SearchCompany),",
+            "#@Html.IdFor(model => model.SearchPhone),",
+            "#@Html.IdFor(model => model.SearchZipPostalCode),",
+            "#@Html.IdFor(model => model.SearchIpAddress)")).keydown(function(event) {
+            if (event.keyCode === 13) {
+                $("#search-customers").click();
+                return false;
+            }
+        });
+
+        $('#mastercheckbox').click(function() {
+            $('.checkboxGroups').attr('checked', $(this).is(':checked')).change();
+        });
+
+        //wire up checkboxes.
+        $('#customers-grid').on('change', 'input[type=checkbox][id!=mastercheckbox][class=checkboxGroups]', function(e) {
+            var $check = $(this);
+            var checked = jQuery.inArray($check.val(), selectedIds);
+            if ($check.is(":checked") == true) {
+                if (checked == -1) {
+                    //add id to selectedIds.
+                    selectedIds.push($check.val());
+                }
+            } else if (checked > -1) {
+                //remove id from selectedIds.
+                selectedIds = $.grep(selectedIds, function (item, index) {
+                    return item != $check.val();
+                });
+            }
+            updateMasterCheckbox();
+        });
+    });
+
+    function onDataBound(e) {
+        $('#customers-grid input[type=checkbox][id!=mastercheckbox][class=checkboxGroups]').each(function() {
+            var currentId = $(this).val();
+            var checked = jQuery.inArray(currentId, selectedIds);
+            //set checked based on if current checkbox's value is in selectedIds.
+            $(this).attr('checked', checked > -1);
+        });
+
+        updateMasterCheckbox();
+    }
+
+    function updateMasterCheckbox() {
+        var numChkBoxes = $('#customers-grid input[type=checkbox][id!=mastercheckbox][class=checkboxGroups]').length;
+        var numChkBoxesChecked = $('#customers-grid input[type=checkbox][id!=mastercheckbox][class=checkboxGroups]:checked').length;
+        $('#mastercheckbox').attr('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
+    }
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<style>
+    .panel-group .panel {
+        margin-bottom: 0;
+        border-radius: 4px;
+    }
+    .panel-default {
+        border-color: #ddd;
+    }
+    .panel {
+        margin-bottom: 20px;
+        background-color: #fff;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.05);
+        box-shadow: 0 1px 1px rgba(0,0,0,.05);
+    }
+    .panel-group .panel + .panel {
+        margin-top: 5px;
+    }
+    .panel-body {
+        padding: 15px;
+    }
+    .form-horizontal .label-wrapper {
+        display: table;
+        float: right;
+        min-height: 28px;
+    }
+    .form-horizontal .label-wrapper .control-label {
+        display: table-cell;
+    }
+    .form-horizontal .label-wrapper .ico-help {
+        display: table-cell;
+        color: #3c8dbc;
+        font-size: 1.17em;
+        padding-left: 6px;
+    }
+    .fa {
+        padding-right: 5px !important;
+    }
+    .col-md-offset-5 {
+        margin-left: 41.66666667%;
+    }
+    
+    .content-header > h1 {
+        font-family: 'Source Sans Pro',sans-serif;
+        margin-bottom: 10px;
+        margin: 0;
+        font-size: 24px;
+    }
+   
+    .pull-left {
+        float: left !important;
+    }
+    .k-grid.k-widget .k-pager-wrap {
+        border: none;
+        border-top: 1px solid #ededed;
+        background: #f4f4f4;
+        padding: 8px 8px 6px 8px;
+        color: #2e2e2e;
+    }
+    .panel-search .k-multiselect.k-header {
+        max-width: 423px;
+        border-color: #ddd;
+        border-radius: 4px;
+    }
+    .k-multiselect-wrap {
+        min-height: 34px;
+    }
+        .k-multiselect-wrap li{
+            height: 35px;
+            line-height: 27px;
+        }
+</style>

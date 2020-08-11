@@ -1,0 +1,154 @@
+﻿@model ContractPaymentModel
+<div class="card">
+    <div class="card-body pb-2">
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-3">
+                    <app-label asp-for="TaskName" />
+                </div>
+                <div class="col-md-4">
+                    <label>@Model.TaskName</label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-3">
+                    <app-label asp-for="TypeId" />
+                </div>
+                <div class="col-md-4">
+                   <nop-select asp-for="TypeId" asp-items="Model.lstType"/>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-3">
+                    <app-label asp-for="Code" />
+                </div>
+                <div class="col-md-9">
+                    <nop-editor asp-for="Code" asp-required="Code" />
+                    <span asp-validation-for="Code"></span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-3">
+                    <app-label asp-for="Description" />
+                </div>
+                <div class="col-md-9">
+                    <nop-textarea asp-for="Description" asp-required="Description" />
+                    <span asp-validation-for="Description"></span>
+
+                </div>
+            </div>
+        </div>
+        @if ((!Model.IsReceipts) && (Model.TypeId == (int)GS.Core.Domain.Contracts.ContractPaymentType.Payment))
+        {
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-3">
+                    <app-label asp-for="ContractAcceptanced" />
+                </div>
+                <div class="col-md-4">
+                    <label>@Model.ContractAcceptanced</label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-3">
+                    <app-label asp-for="ContractPaymented" />
+                </div>
+                <div class="col-md-4">
+                    <label>@Model.ContractPaymented</label>
+                </div>
+            </div>
+        </div>
+
+        }
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-3">
+                    <app-label asp-for="Amount" />
+                </div>
+                <div class="col-md-9">
+                    <nop-editor asp-for="Amount" asp-required="Amount" />
+                    <span asp-validation-for="Amount"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-3">
+                    <app-label asp-for="PaymentDate" />
+                </div>
+                <div class="col-md-4">
+                    <nop-editor asp-for="PaymentDate" asp-required="PaymentDate" />
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <div class="text-right mt-3">
+                <button type="button" id="InsertContractPayment_bntAddNew" class="btn btn-primary">@T("admin.common.save")</button>&nbsp;
+                @if (Model.Id > 0)
+                {
+                <button type="button" id="tabInsertContractPayment_bntDelete" class="btn btn-danger">@T("admin.common.delete")</button>
+                }
+                <button type="button" class="btn btn-default" data-dismiss="modal">@T("admin.common.cancel")</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $("#InsertContractPayment_bntAddNew").click(function () {
+        var ContractId = $("#Id").val();
+        var _data = {
+            Id: @Model.Id,
+            Code: $("#@Html.IdFor(c=>c.Code)").val(),
+            Description: $("#@Html.IdFor(c=>c.Description)").val(),
+            Amount: ConvertToNumber($("#@Html.IdFor(c=>c.Amount)")),
+            CurrencyRatio: '@Model.CurrencyRatio',
+            ContractId:ContractId,
+            IsReceipts: @Model.IsReceipts.ToString().ToLower(),
+            TypeId: $("#@Html.IdFor(c=>c.TypeId)").val(),
+            CurrencyId: @Model.CurrencyId,
+            PaymentDate: $("#@Html.IdFor(c=>c.PaymentDate)").val(),
+            TaskId : @Model.TaskId,
+        };
+
+       // kendo.ui.progress($("#tabInsertContractPayment"), true);
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "/Contract/_InsertPaymentBB",
+            data: _data,
+            success: function (data) {
+                if (CheckValidMessageReturn(data)) {
+                    $('#ContractTaskChild_0').removeClass("isloaded");
+                    loadContractTaskChild(ContractId, 0);
+                   // kendo.ui.progress($("#tabInsertContractPayment"), false);
+                    $("#tabInsertContractPaymentBB .close").click();
+                    ShowSuccessMessage(data.Message);
+                    //truong hop tao phieu thu
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                $("#tabInsertContractPayment .close").click();
+                //kendo.ui.progress($("#tabInsertContractPayment"), false);
+                alert(thrownError);
+
+            }
+        });
+    });
+
+    $(document).ready(function () {
+        $("#tabInsertContractPayment_bntDelete").click(function () {
+            DeleteContractPayment();
+        });
+    });
+
+</script>

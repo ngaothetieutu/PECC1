@@ -1,0 +1,64 @@
+﻿@model ContractAcceptanceSubModel
+@{
+    var idf = @Guid.NewGuid().ToString().Replace("-", "");
+    var UnitNamestyle = "";
+    var showratio = "";
+    var showTotalamount = "";
+    switch (Model.Type)
+    {
+        case (int)GS.Core.Domain.Contracts.ContractAcceptanceSubType.THI_CONG:
+            UnitNamestyle = "#1e70cd";
+            showratio = "block";
+            showTotalamount = "block";
+            break;
+        case (int)GS.Core.Domain.Contracts.ContractAcceptanceSubType.BB_CONG_TY:
+            UnitNamestyle = "red";
+            showratio = "none";
+            showTotalamount = "none";
+            break;
+        case (int)GS.Core.Domain.Contracts.ContractAcceptanceSubType.BB_DON_VI:
+            UnitNamestyle = "#02bc77";
+            showratio = "none";
+            showTotalamount = "block";
+            break;
+        default:
+            UnitNamestyle = "red";
+            break;
+    }
+}
+<div style="display:none">
+    @Html.TextBoxFor(c => c.UnitId, new { @id = "unitId_" + idf })
+    @Html.TextBoxFor(c => c.CurrencyId, new { @id = "currencyId_" + idf })
+    @Html.TextBoxFor(c => c.TaskId, new { @id = "taskId_" + idf })
+    hasBB <nop-editor asp-for="hasBB" id="hasBB_@idf" />
+</div>
+<div class="row AcceptanceSub" id="AcceptanceSub_@idf" data-idf="@idf" style="margin-bottom:5px;">
+    <div class="col-md-5">
+        <label style="padding-left:10px;">@Model.TaskName</label>
+        <span style="color:@UnitNamestyle"> - @Model.UnitName</span>
+    </div>
+    <div class="col-md-7 row">
+        <div class="col-sm-5">
+            <nop-editor asp-for="TotalMoney" id="totalMoney_@idf" />
+        </div>
+        <div class="col-sm-3 number-input-short" style="padding-top:3px; padding-left:0px !important;">
+            <div style="display:@showratio">
+                @Html.EditorFor(c => c.Ratio, null, "ratio_" + idf)
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div style="display:@showTotalamount">
+                <nop-editor asp-for="TotalAmount" id="totalAmount_@idf" />
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#ratio_@idf").data("kendoNumericTextBox").bind("change", function () {
+                            var ratio = this.value();
+                            var money = ConvertToNumber("#totalMoney_@idf");
+            $("#totalAmount_@idf").val((parseInt(ratio * money/100000)*1000).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));
+                });
+    });
+</script>

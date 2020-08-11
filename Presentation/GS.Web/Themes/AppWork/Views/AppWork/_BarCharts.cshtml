@@ -1,0 +1,135 @@
+﻿
+<div id="ContractStaticChart"></div>
+@*<script>
+
+        function createContractStaticChart() {
+            $("#ContractStaticChart").kendoChart({
+                theme: $(document).data("kendoSkin") || "default",
+                dataSource: {
+                    type: "json",
+                    transport: {
+                        read: {
+                            url: '/AppWork/_ContractStaticData',
+                            dataType: "json",
+                        }
+                    },
+                    sort: {
+                        field: "AxisLabel",
+                        dir: "asc"
+                    },
+                },
+                legend: {
+                    position: "top",
+                    labels: {
+                        template: "#= text #"
+                    }
+                },
+
+
+                seriesDefaults: {
+                    type: "column",
+
+                },
+                series:
+                    [{
+                        field: "Val1",
+                        name: "Tổng giá trị hợp đồng",
+                        labels: {
+                            format: "{0:N0}",
+                            visible: true,
+                            background: "transparent"
+                        },
+                    },
+                    {
+                        field: "Val2",
+                        name: "Tổng giá trị NTKL",
+                        labels: {
+                            format: "N0",
+                            visible: true,
+                            background: "transparent"
+                        }
+
+                    }],
+                valueAxes: [{
+                    title: { text: "Giá trị (đ)" },
+                    labels: {
+                        format: "{0:N0}"
+                    }
+                }],
+                categoryAxis: {
+                    field: "AxisLabel",
+                    majorGridLines: {
+                        visible: false
+                    },
+                    axisCrossingValues: [0, 100]
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            createContractStaticChart();
+        });
+    </script>*@
+
+<div class="card">
+    <div class="demo-section k-content wide">
+        <div id="chart"></div>
+    </div>
+    <script>
+        function createChart() {
+            $("#chart").kendoChart({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "/AppWork/_ContractStaticData",
+                            dataType: "json"
+                        }
+                    },
+                    sort: {
+                        field: "AxisLabel",
+                        dir: "asc"
+                    }
+                },
+                legend: {
+                    position: "top"
+                },
+                seriesDefaults: {
+                    type: "column"
+                },
+                series:
+                    [{
+                        field: "Val1",
+                        categoryField: "AxisLabel",
+                        name: "Tổng giá trị hợp đồng"
+                    }, {
+                        field: "Val2",
+                        categoryField: "AxisLabel",
+                        name: "Tổng giá trị NTKL"
+                    }],
+                categoryAxis: {
+                    labels: {
+                        rotation: -90
+                    },
+                    majorGridLines: {
+                        visible: false
+                    }
+                },
+                valueAxis: {
+                    labels: {
+                        format: "N0"
+                    },
+                    line: {
+                        visible: false
+                    }
+                },
+                tooltip: {
+                    visible: true,
+                    format: "N0"
+                }
+            });
+        }
+
+        $(document).ready(createChart);
+        $(document).bind("kendo:skinChange", createChart);
+    </script>
+</div>

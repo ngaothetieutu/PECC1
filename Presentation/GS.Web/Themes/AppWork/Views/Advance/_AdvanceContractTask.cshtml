@@ -1,0 +1,39 @@
+﻿@model ContractModel
+
+<div id="AdvanceContractTask_@Model.Id" class="card mb-4">
+    <input id="ContractAdvance_@Model.Id" class="ContractAdvanceInput" style="display:none"/>
+    <h6 class="card-header">
+        @Model.Name  &nbsp;&nbsp;&nbsp; <span><i class="lnr lnr-diamond"></i> : <small class="app-work-money">@Model.TotalAmountText</small></span>
+        <a href="javascript:closeAdvanceContractTask(@Model.Id)" class=" close" data-dismiss="modal" aria-label="Close"><small style="color:red"><i class="fas fa-minus-circle d-block"></i></small></a>
+    </h6>
+    <div id="ListContractAcceptance_@Model.Id" class="card-body">
+        <div class="form-group" style="padding-top:10px;">
+            <div class="row">
+                <div class="col-md-3" style="padding-left:10px;">
+                    <b>Hạng mục</b>
+                </div>
+                <div class="col-md-3" style="padding-left:10px;">
+                    <b>Tổng sản lượng đã tạm ứng</b>
+                </div>
+                <div class="col-sm-2" style="padding-left:10px;">
+                    <b>Số tiền tạm ứng</b>
+                </div>
+                <div class="col-md-2" style="padding-left:10px;">
+                    <b>Tỷ lệ khoán(%)</b>
+                </div>
+                <div class="col-md-2" style="padding-left:10px;">
+                    <b>Số thực nhận</b>
+                </div>
+            </div>
+        </div>
+        @foreach (ContractAcceptanceModel accep in Model.lstContractAcceptance)
+        {
+            @await Html.PartialAsync("_ContractAcceptanceAdd", accep);
+        }
+    </div>
+    <script>
+        $(document).ready(function () {
+            $("#ContractAdvance_@Model.Id").val(@Model.Id);
+        })
+    </script>
+</div>

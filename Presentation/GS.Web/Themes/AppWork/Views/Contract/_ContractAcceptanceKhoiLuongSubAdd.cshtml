@@ -1,0 +1,44 @@
+﻿@model ContractAcceptanceSubModel
+@*@{
+        var idf = @Guid.NewGuid().ToString().Replace("-", "");
+    }*@
+<div class="row AcceptanceSub" id="AcceptanceSub_@Model.TaskId" data-taskid="@Model.TaskId" style="margin-bottom:5px;">
+    @*<div style="display:none">
+            @Html.TextBoxFor(c => c.UnitId, new { @id = "unitId_" + idf })
+            @Html.TextBoxFor(c => c.CurrencyId, new { @id = "currencyId_" + idf })
+            @Html.TextBoxFor(c => c.TaskId, new { @id = "taskId_" + idf })
+            hasBB <nop-editor asp-for="hasBB" id="hasBB_@idf" />
+        </div>*@
+    <div class="col-md-5" style="padding-top:5px;">
+        <strong style="padding-top:9px;color:#1e70cd">@Model.TaskName</strong>
+        @if (!string.IsNullOrEmpty(Model.UnitName))
+        {
+            <span style="color:#02bc77"> - @Model.UnitName</span>
+        }
+    </div>
+    <div class="col-md-7 row">
+        <div class="col-sm-6" style="padding-top:9px;">
+            <span style="color:#1e70cd;">@Model.TaskAcceptancedText</span>/<span style="color:#ff6a00">@Model.TaskValueText</span>
+        </div>
+        <div class="col-sm-6">
+            <div>
+                <nop-editor asp-for="TotalAmount" id="totalAmount_@Model.TaskId" />
+                <span id="TotalAmountValidate_@Model.TaskId"></span>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#totalAmount_@Model.TaskId").change(function () {
+              $("#TotalAmountValidate_@Model.TaskId").html("");
+            var totalAmount = ConvertToNumber(this);
+            if (totalAmount > @Model.TaskValue - @Model.TaskAcceptanced) {
+                $("#TotalAmountValidate_@Model.TaskId").html("<small style='color:red'>Số tiền nghiệm thu vượt giá trị</small>");
+                $("#btnaddAcceptancesave").prop("disabled", true);
+            } else {
+                $("#btnaddAcceptancesave").prop("disabled", false);
+            }
+        });
+    });
+</script>

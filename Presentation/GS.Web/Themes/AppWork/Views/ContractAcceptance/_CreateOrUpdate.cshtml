@@ -1,0 +1,208 @@
+﻿@model ContractAcceptanceModel
+<input asp-for="Id" type="hidden" />
+<input asp-for="ListContractId" type="hidden" />
+<div class="content">
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-3">
+                <app-label asp-for="Name" />
+            </div>
+            <div class="col-md-9">
+                <nop-editor asp-for="Name" />
+                <span asp-validation-for="Name"></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-3">
+                <app-label asp-for="Code" />
+            </div>
+            <div class="col-md-9">
+                <nop-editor asp-for="Code" />
+                <span asp-validation-for="Code"></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-3">
+                <app-label asp-for="Description" />
+            </div>
+            <div class="col-md-9">
+                <nop-editor asp-for="Description" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-3">
+                <app-label asp-for="ApprovalDate" />
+            </div>
+            <div class="col-md-9">
+                <nop-editor asp-for="ApprovalDate" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class='row'>
+            <div class="col-md-3">
+                <app-label asp-for="TotalAmount" />
+            </div>
+            <div class="col-md-3">
+                <nop-editor asp-for="TotalAmount"/>
+            </div>
+            <div style="padding-top:7px;">
+                <button type="button" id="btnEditAmount" class="btn btn-xs btn-outline-success">
+                    <span class="ion ion-edit">Thay đổi</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-3">
+                <app-label asp-for="UnitId" />
+            </div>
+            <div class="col-md-6">
+                <nop-select asp-for="UnitId" asp-items="@Model.AvailableUnit" />
+            </div>
+            <div class="col-md-3" id="frmbuttoncontract" style="padding-top:7px;">
+                <button type="button" class="btn btn-xs btn-outline-success" data-title="Chọn hợp đồng nghiệm thu nội bộ" data-toggle="modal" data-target="#tabContractAcceptanceNoibo">
+                    <span class="ion ion-md-add">Chọn hợp đồng</span>
+                </button>
+            </div>
+            <script>
+                $(document).ready(function () {
+                    $("#TotalAmount").attr("disabled", "disabled");
+                    if (@Model.Id > 0) {
+                        $("#frmbuttoncontract").show();
+                         var ListContractId = $("#@Html.IdFor(c=>c.ListContractId)").val().split(',');
+                            //console.log(ListContractId);
+                            $.each(ListContractId, function (index, value) {
+                                loadAcceptanceContract(value);
+                            });
+                    } else {
+                        $("#frmbuttoncontract").hide();
+                    }
+                    $("#@Html.IdFor(c => c.UnitId)").change(function () {
+                        if ($(this).val() > 0) {
+                            $("#frmbuttoncontract").show();
+                        } else {
+                            $("#frmbuttoncontract").hide();
+                        }
+                    });
+                    $("#btnEditAmount").click(function () {
+                        $("#TotalAmount").removeAttr("disabled");
+                    })
+                });
+            </script>
+        </div>
+    </div>
+</div>
+<div id="ListContract">
+</div>
+<nop-editor asp-for="WorkFileIds" />
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="tabContractAcceptanceNoibo" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-big">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body" style="padding:0.5625rem !important;">
+                <div class="content">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        SetEmptyModal('#tabContractAcceptanceNoibo');
+        $('#tabContractAcceptanceNoibo').on('show.bs.modal', function (event) {
+            var modal = $(this);
+            kendo.ui.progress(modal.find('.content'), true);
+            //lay thong tin tu button de hien thi popup
+            var button = $(event.relatedTarget);
+            if (!button)
+                return;
+            modal.find('.modal-title').text(button.data('title'));
+            var UnitId = $("#@Html.IdFor(c=>c.UnitId)").val();
+            var _approvaldate = $("#@Html.IdFor(c => c.ApprovalDate)").val().toString();
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "/ContractAcceptance/_AcceptanceContracts?UnitId=" + UnitId + "&ApprovalDateString=" + _approvaldate,
+                complete: function (data) {
+                    kendo.ui.progress(modal.find('.content'), false);
+                    modal.find('.content').html(data.responseText);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                },
+                traditional: true
+            });
+        });
+    });
+    //tinh tong gia tri
+    var TotalMoneySub = 0;
+    $(".totalAmountAcceptanceSub").each(function () {
+        var totalAmountSub = ConvertToNumber(this);
+        TotalMoneySub = parseInt(TotalMoneySub) + parseInt(totalAmountSub);
+    });
+    $("#TotalAmount").val(TotalMoneySub.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));
+    // function Load hop dong (Cua don vi da chon)loadAcceptanceContract
+     function loadAcceptanceContract(contractId) {
+        $("#btnContractAdvance_" + contractId).hide();
+         var _UnitId = $("#@Html.IdFor(c=>c.UnitId)").val();
+         var _acceptanceId = @Model.Id;
+         var _approvalDate = $("#@Html.IdFor(c=>c.ApprovalDate)").val().toString();
+         //console.log(_approvalDate);
+        $.ajax({
+            url: "/ContractAcceptance/_AcceptanceContractTask?approvalDateString=" + _approvalDate + "&ContractId=" + contractId + "&unitId=" + _UnitId + "&acceptanceId=" + _acceptanceId,
+            type: "POST",
+            success: function (data) {
+                $("#ListContract").append(data);
+                $('#btnAcceptanceContract_' + contractId).hide();
+            },
+            error: function () {
+            }
+        })
+    }
+    function closeAcceptanceContractTask(ContractId) {
+        $("#AcceptanceContractTask_" + ContractId).remove();
+        var TotalMoneySub = 0;
+        $(".totalAmountAcceptanceSub").each(function () {
+            var totalAmountSub = ConvertToNumber(this);
+            TotalMoneySub = parseInt(TotalMoneySub) + parseInt(totalAmountSub);
+        });
+        $("#TotalAmount").val(TotalMoneySub.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));
+    }
+    function closeAcceptanceSubTask(TaskId) {
+        $("#AcceptanceSubContractTask_" + TaskId).remove();
+        var TotalMoneySub = 0;
+        $(".totalAmountAcceptanceSub").each(function () {
+            var totalAmountSub = ConvertToNumber(this);
+            TotalMoneySub = parseInt(TotalMoneySub) + parseInt(totalAmountSub);
+        });
+    }
+</script>
+<style>
+    .modal-dialog {
+        overflow-y: initial !important
+    }
+
+    .modal-body {
+        max-height: 420px;
+        overflow-y: auto;
+    }
+    .modal-big {
+        max-width: 63rem;
+    }
+    .pt-7{
+        padding-top:7px;
+    }
+
+</style>

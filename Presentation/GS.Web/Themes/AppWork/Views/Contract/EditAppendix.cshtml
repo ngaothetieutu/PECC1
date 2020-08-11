@@ -1,0 +1,275 @@
+﻿@model ContractModel
+<link rel="stylesheet" href="/Themes/AppWork/Content/assets/vendor/css/pages/projects.css">
+<input asp-for="AppendixId" type="hidden" />
+<div class="container-fluid flex-grow-1 container-p-y">
+    <small style="padding-left:5px;">
+        <a href="/Contract/Detail?guid=@Model.ContractGuid"><i class="fa fa-arrow-circle-left"></i>Quay lại hợp đồng chính</a>
+    </small>
+    <div class="row">
+        <div class="col">
+            <div class="nav-tabs-top mb-4">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#Task-Appendix">@T("AppWork.Contracts.Contract.Detail.TaskTile").Text</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#ProcuringAgency-Appendix">Thay đổi chủ đầu tư</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#EditKhac-Appendix">Tiến độ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#EditInformationContract">Thông tin hợp đồng</a>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <!-- Tasks tab -->
+                    <div class="tab-pane fade show active" id="Task-Appendix">
+                        <div class="col-md-12">
+                            @await Html.PartialAsync("_ContractTasks", Model)
+                        </div>
+                    </div>
+                    <!-- / Tasks tab -->
+                    <!-- ProcuringAgency-tasks -->
+                    <div class="tab-pane fade" id="ProcuringAgency-Appendix">
+                        <div class="col-md-12">
+                            @await Html.PartialAsync("_ContractJointInfo", Model)
+                        </div>
+                        <script>
+                            function LoadTabContractJointInfo()
+                            {
+                                kendo.ui.progress($("#ProcuringAgency-Appendix"), true);
+                                $.ajax({
+                                    cache: false,
+                                    type: "GET",
+                                    url: "/Contract/_ContractJointInfo?contractId=@Model.Id",
+                                    complete: function (data) {
+                                        kendo.ui.progress($("#ProcuringAgency-Appendix"), false);
+                                        $("#ProcuringAgency-Appendix").html(data.responseText);
+                                    },
+                                    error: function (xhr, ajaxOptions, thrownError) {
+                                        alert(thrownError);
+                                    },
+                                    traditional: true
+                                });
+                            }
+
+                        </script>
+                    </div>
+                    <!--/ ProcuringAgency-tasks -->
+                    <!-- EditKhac-tasks -->
+                    <div class="tab-pane fade" id="EditKhac-Appendix">
+                        <div class="col-md-12">
+                            <div id="tabContractPaymentPlan">
+                                @await Html.PartialAsync("_ContractPaymentPlan", Model)
+                            </div>
+                            <script>
+                                function loadContractPaymentPlan() {
+                                    ShowViewLoading("#tabContractPaymentPlan");
+                                    $.ajax({
+                                    type: "GET",
+                                    url: "/Contract/_ContractPaymentPlan?ContractId=@Model.Id",
+                                    success: function (data) {
+                                            $("#tabContractPaymentPlan").html(data);
+                                            }
+                                    });
+                                }
+
+                                $(document).ready(function () {
+                                SetEmptyModal('#modalContractPaymentPlan');
+                                $('#modalContractPaymentPlan').on('show.bs.modal', function (event) {
+                                var modal = $(this);
+                                ShowViewLoading(modal.find('.content'));
+                                kendo.ui.progress($("#modalContractPaymentPlan"), true);
+                                //lay thong tin tu button de hien thi popup
+                                var button = $(event.relatedTarget);
+                                if (!button)
+                                return;
+                                var _id = button.data('id');
+                                var _typeid = button.data('typeid');
+                                var _planid = button.data('planid');
+                                var _acceptanceId = button.data('acceptanceid');
+                                modal.find('.modal-title').text(button.data('title'));
+                                var _action = button.data('action');
+                                var _url = "";
+                                if (_action == "request")
+                                _url = "/Contract/_ContractPaymentRequestAdd?PaymentPlanId=" + _planid + "&PaymentRequestId=" + _id + "&TypeId=" + _typeid;
+                                if (_action == "payment")
+                                _url = "/Contract/_ListContractPayment?paymentRequestId=" + _id + "&acceptanceId=" + _acceptanceId;
+                                if (_url.length==0)
+                                    _url = "/Contract/_ContractPaymentPlanAdd?ContractId=@Model.Id&PaymentPlanId=" + _id + "&TypeId=" + _typeid + "&appendixId=" + @Model.AppendixId;
+                                $.ajax({
+                                cache: false,
+                                type: "GET",
+                                url: _url,
+                                complete: function (data) {
+                                modal.find('.content').html(data.responseText);
+                                kendo.ui.progress($("#modalContractPaymentPlan"), false);
+                                },
+                                error: function (xhr, ajaxOptions, thrownError) {
+                                alert(thrownError);
+                                },
+                                traditional: true
+                                });
+                                });
+
+                                });
+                            </script>
+                            <div class="modal fade" data-backdrop="static" data-keyboard="false" id="modalContractPaymentPlan" style="display: none;" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"></h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+                                        </div>
+                                        <div class="modal-body" style="padding:0.5625rem !important;">
+                                            <div class="content">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--/ EditKhac-tasks-->
+                    <!-- information contract -->
+                    <div class="tab-pane fade" id="EditInformationContract">
+                        <form asp-controller="Contract" asp-action="Edit" method="post">
+                            <div class="row">
+                                <input asp-for="Id" type="hidden" />
+                                <input asp-for="CreatedDate" type="hidden" />
+                                <input asp-for="UpdatedDate" type="hidden" />
+                                <input asp-for="ClassificationId" type="hidden" />
+                                <input asp-for="ContractRelateId" type="hidden" />
+                                <input asp-for="TaskIdBB" type="hidden" />
+                                <input asp-for="ConstructionId" type="hidden" />
+                                <input asp-for="TotalAmountNumber" type="hidden" />
+                                <input asp-for="CurrencyId" type="hidden" />
+                                <input asp-for="AvailableCurrency" type="hidden" />
+                                <input asp-for="StatusId" type="hidden" />
+                                <input asp-for="StoreId" type="hidden" />
+                                <div class="col-md-12" style="padding-top:15px;padding-right:30px;">
+                                    <button type="submit" name="save" class="btn btn-success" style="float:right; margin-right: 5px;">
+                                        <i class="fas fa-save"></i>
+                                        @T("Admin.Common.Save")
+                                    </button>
+                                </div>
+                                <div class="col-md-12" style="padding-right: 33px;">
+                                    <div class="form-group">
+                                        <div class="row" style="padding-top: 15px;">
+                                            <div class="col-md-2">
+                                                <app-label asp-for="Name" />
+                                            </div>
+                                            <div class="col-md-10">
+                                                <nop-editor asp-for="Name" asp-required="true" />
+                                                <span asp-validation-for="Name"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-md-2">
+                                                <app-label asp-for="Code1" />
+                                            </div>
+                                            <div class="col-md-10">
+                                                <nop-editor asp-for="Code1" asp-required="true" />
+                                                <span asp-validation-for="Code1"></span>
+                                                <span class="field-validation-valid" style="padding-left:10px; display:none; font-size:13px;" id="ckCode1"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-md-2">
+                                                <app-label asp-for="Code" />
+                                            </div>
+                                            <div class="col-md-10">
+                                                <nop-editor asp-for="Code" asp-required="true" />
+                                                <span asp-validation-for="Code"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-md-2">
+                                                <app-label asp-for="SignedDate" />
+                                            </div>
+                                            <div class="col-md-10">
+                                                <nop-editor asp-for="SignedDate" asp-required="true" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-md-2">
+                                                <app-label asp-for="StartDate" />
+                                            </div>
+                                            <div class="col-md-4">
+                                                <nop-editor asp-for="StartDate" asp-required="true" />
+                                            </div>
+                                            <div class="col-md-2">
+                                                <app-label asp-for="EndDate" />
+                                            </div>
+                                            <div class="col-md-4">
+                                                <nop-editor asp-for="EndDate" asp-required="true" />
+                                                <span asp-validation-for="EndDate"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-md-2">
+                                                <app-label asp-for="Description" />
+                                            </div>
+                                            <div class="col-md-10">
+                                                <app-textarea asp-for="Description" />
+                                                <span asp-validation-for="Description"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" style="display:none">
+                                        <div class="row">
+                                            <div class="col-md-2">
+                                                <app-label asp-for="SelectedContractTypeIds" />
+                                            </div>
+                                            <div class="col-md-9">
+                                                <nop-select asp-for="SelectedContractTypeIds" asp-items="Model.AvailableContractType" asp-multiple="true" />
+                                                <span class="field-validation-valid" style="padding-left:10px; display:none; font-size:13px;" id="ckType"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" style="display:none">
+                                        <div class="row">
+                                            <div class="col-md-2">
+                                                <app-label asp-for="SelectedContractFormIds" />
+                                            </div>
+                                            <div class="col-md-9">
+                                                <nop-select asp-for="SelectedContractFormIds" asp-items="Model.AvailableContractForm" asp-multiple="true" />
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <!--/ information contract -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .list-group-item div {
+        font-size: 12px;
+    }
+
+    small {
+        font-style: italic;
+    }
+
+    .list-task-plan {
+        border-bottom: 1px dashed #dcd0d0;
+        padding: 10px 0px 10px 0px;
+    }
+</style>

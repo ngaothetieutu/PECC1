@@ -1,0 +1,53 @@
+﻿@model ContractListModel
+@{ var statusleftButton = "";
+    var statusrightButton = "";
+    if(Model.CurrentPage == 0)
+    {
+        statusleftButton = "disabled";
+    }
+    if (Model.CurrentPage == Model.TotalPage-1) {
+        statusrightButton = "disabled";
+    }   
+}
+<div class="content-header clearfix"> 
+    <h5 id="reasltlabel" class="pull-left" style="margin-bottom:5px;">Danh sách hợp đồng</h5>
+    <div class="panel panel-white post-load-more panel-shadow pull-right">
+        <div class=" w-100 font-weight-bold py-1 mb-1">
+            <span style="padding-top:10px" class="text-muted"><b>@Model.CurrentPageTo</b><span> - </span><b> @Model.CurrentPageFrom </b>@T("appwork.contracts.inall")  <b>@Model.Total</b></span>
+            <div style="padding-left:20px;font-size:14px;" class="btn-group btn-group-lg">
+                <button id="listleft" class="btn btn-default @statusleftButton">
+                    <i class="ion ion-md-arrow-dropleft-circle d-block "></i>
+                </button>
+                <button id="listright" class="btn btn-default" @statusrightButton>
+                    <i class="ion ion-md-arrow-dropright-circle d-block"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    @foreach (ContractModel ct in Model.Data)
+    {
+        @await Html.PartialAsync("_ContractViewInfo", ct)
+    }
+</div>
+<script>
+    $(document).ready(function () {
+         $("#listleft").click(function () {
+             var page = @Model.CurrentPage ;
+             if (page == 0) {
+                 return;
+             }
+             else {
+                 load_contractlist(page-1)
+             }            
+        })
+        $("#listright").click(function () {
+             var page = @Model.CurrentPage +1 ;            
+            if (page>@Model.TotalPage) {
+                return;
+            }
+            load_contractlist(page)
+        })
+    })
+</script>

@@ -1,0 +1,145 @@
+﻿@model ContractResourceModel
+<div>    
+    <div class="form-group row">
+        @if (Model.CustomerId > 0)
+        {
+            <div class="col-md-3">
+                <label class="form-label">Người tham gia</label>
+            </div>
+            <div class="col-md-9">
+                <label class="form-label">@Model.CustomerFullName</label>
+            </div>
+        }
+        else
+        {
+            <div class="col-md-3">
+                <label class="form-label">@T("appwork.contracts.contract.fields.resources.customer")</label>
+            </div>
+            <div class="col-md-9" id="addCustomer">
+                <input class="" style="width:80%;" id="CustomerId" />
+                <script>
+                $(document).ready(function () {
+            })
+                function SearchCustomerData() {
+                var _data = { srKeywordCustomer: $("#CustomerId").data("kendoComboBox").text() };
+                    return _data;
+                                }
+        function onProcuringAgencyEditChange() {
+            var value = this.value();
+            //alert(value);
+        }
+                $(document).ready(function () {
+                    $("#CustomerId").kendoComboBox({
+            placeholder: '@T("appwork.contracts.contract.fields.resources.customer")...',
+                        dataTextField: "FullName",
+                        dataValueField: "Id",
+                        filter: "contains",
+                        autoBind: false,
+                        minLength: 3,
+                        template: kendo.template($("#gsCustomerSearchTemplate").html()),
+                        dataSource: {
+                type: "json",
+                            serverFiltering: true,
+                            transport: {
+                    read: {
+                        url: "/Customer/SearchCustomerList",
+                                    data: SearchCustomerData
+                                },
+                            },
+                        },
+                        change: onProcuringAgencyEditChange
+                    });
+        });
+                </script>
+            </div>
+        }
+
+        <div class="col-md-9" id="EditCustomer">
+            <span>
+                @Model.CustomerName
+            </span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-md-3">
+            <label class="form-label">@T("appwork.contracts.contract.fields.resources.roleid")</label>
+        </div>
+        <div class="col-md-9">
+            <nop-select asp-for="SelectedCustomerRoleIds" asp-items="Model.AvailbleRoles" asp-multiple="true" />
+            <script>
+                $(document).ready(function() {
+                    var rolesIdsInput =
+                        $('#@Html.IdFor(model => model.SelectedCustomerRoleIds)')
+                            .data("kendoMultiSelect");
+                    rolesIdsInput.setOptions({
+                        autoClose: true,
+                        filter: "contains"
+                    });
+
+                    @if (Model.AvailbleRoles.Count == 0)
+                    {
+                        <text>
+                            rolesIdsInput.setOptions({
+                                enable: false,
+                                placeholder:
+                                    '@T("Admin.Catalog.Products.CustomerRoles.NoCustomerRolesAvailable")'
+                            });
+                            rolesIdsInput._placeholder();
+                            rolesIdsInput._enable();
+                        </text>
+                    }
+                });
+            </script>
+        </div>
+    </div>
+</div>
+<div class="text-right mt-3">
+    <button type="button" id="btnaddresourcesave" class="btn btn-primary">@T("admin.common.save")</button>&nbsp;
+    <button type="button" id="btnDeleteResource" class="btn btn-danger">@T("admin.common.delete")</button>
+</div>
+<script>
+    $("#btnaddresourcesave").click(function () {
+        var roles = $('#@Html.IdFor(model => model.SelectedCustomerRoleIds)').val();
+        var _CustomerId = @Model.CustomerId;
+        if (@Model.Id == 0) {
+            _CustomerId = $("#CustomerId").data('kendoComboBox').value();
+        }
+        console.log(_CustomerId);
+        var _data = {
+            SelectedCustomerRoleIds: roles,
+            CustomerId: _CustomerId,
+            ContractId:@Model.ContractId,
+        };
+        //console.log(_data);
+        $.ajax({
+            type:"POST",
+            url: "/Contract/_ContractResourcUpd",
+            data: _data,
+            success: function (data) {
+                $("#tabContractResourceAdd .close").click();
+                loadContractResource()
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+                $("#tabContractResourceAdd .close").click();
+                loadContractResource();
+            }
+        })
+    })
+    $("#btnDeleteResource").click(function () {
+        var _contractId = @Model.ContractId;
+        var _customerId = @Model.CustomerId;
+        $.ajax({
+            type: "GET",
+            url: "/Contract/DeleteContractResoure?ContractId=" + _contractId + "&customerId=" + _customerId,
+            success: function (data) {
+                $("#tabContractResourceAdd .close").click();
+                loadContractResource();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+                $("#tabContractResourceAdd .close").click();
+            }
+        });
+    });
+</script>

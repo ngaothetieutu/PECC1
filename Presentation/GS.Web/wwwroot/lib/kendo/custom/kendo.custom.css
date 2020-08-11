@@ -1,0 +1,193 @@
+﻿.k-grid-header
+{
+    font-weight:bold;
+}
+/* Info template */
+.k-notification-info.k-group {
+    background: rgba(0%,0%,0%,0.7);
+    color: #fff;
+}
+.bx-time {
+    display: inline-block;
+    font-size: 38px;
+    font-family: "OpenSans-Light",sans-serif;
+    height: 100%;
+    line-height: 38px;
+    position: relative;
+    vertical-align: middle;
+    z-index: 5;
+    margin-right: 15px;
+    color: #02bc77;
+    text-shadow: 0 3px 3px rgba(0, 0, 0, .2);
+}
+
+.time-hours, .time-semicolon, .time-minutes {
+    display: inline-block;
+    height: 100%;
+    vertical-align: top;
+}
+
+.time-am-pm {
+    display: inline-block;
+    font-size: 13px;
+    height: 100%;
+    line-height: 25px;
+    margin-left: 0;
+    vertical-align: top;
+    padding-left: 5px;
+}
+.gs-infor-message {
+    width: 300px;
+    height: 80px;
+}
+
+    .gs-infor-message p {
+        font-size: 1em;
+        padding: 32px 10px 5px;
+    }
+
+    .gs-infor-message img {
+        float: left;
+        margin: 30px 15px 30px 30px;
+    }
+
+/* Error template */
+.k-notification-error.k-group {
+    background: rgba(100%,0%,0%,.7);
+    color: #ffffff;
+}
+
+.gs-error-message {
+    width: 300px;
+    height: 80px;
+}
+
+    .gs-error-message p {
+        font-size: 1em;
+        padding: 32px 10px 5px;
+    }
+
+    .gs-error-message img {
+        float: left;
+        margin: 30px 15px 30px 30px;
+    }
+
+/* Success template */
+.k-notification-success.k-group {
+    background: rgba(0%,60%,0%,.7);
+    color: #fff;
+}
+
+.gs-success-message {
+    width: 300px;
+    height: 80px;
+}
+
+    .gs-success-message p {
+        font-size: 1em;
+        padding: 32px 10px 5px;
+    }
+
+    .gs-success-message img {
+        float: left;
+        margin: 30px 15px 30px 30px;
+    }
+
+    .k-treeview .k-in.k-state-selected, .k-list .k-item.k-state-selected {
+    background-color: #26B4FF;
+    border-color: #26B4FF;
+}
+
+.k-list .k-item.k-state-hover.k-state-selected, .k-list .k-item:hover.k-state-selected, .k-list-optionlabel:hover.k-state-selected {
+    background-color: #26B4FF;
+}
+
+
+.input-group-btn span.required {
+    color: #ff2e2e;
+    margin-left: 6px;
+    font-size: 16px;
+    font-weight: bold;
+}
+/*bootstrap touchspin*/
+.bootstrap-touchspin {
+    max-width: 300px;
+    width: 100%;
+}
+
+    .bootstrap-touchspin input {
+        height: auto;
+        display: table-cell !important;
+        min-height: 34px;
+    }
+
+.bootstrap-touchspin-postfix {
+    border-left: none;
+}
+
+.bootstrap-touchspin .input-group-btn-vertical i {
+    left: 6px;
+}
+
+.input-group-addon.bootstrap-touchspin-postfix {
+    background-color: #eee;
+    height: 34px;
+    padding-right: 30px;
+}
+
+.bootstrap-touchspin .input-group-btn-vertical > .btn {
+    background: #fff;
+    border-color: #d2d6de;
+    border-radius: 0;
+    height: 20px;
+    font-size: 0;
+    padding-right: 14px;
+    padding-left: 6px;
+}
+
+    .bootstrap-touchspin .input-group-btn-vertical > .btn:before {
+        font-size: 9px;
+    }
+
+    .bootstrap-touchspin .input-group-btn-vertical > .btn:hover {
+        border-color: #afafaf;
+    }
+
+.bootstrap-touchspin .input-group-btn-vertical .bootstrap-touchspin-down {
+    margin-top: 16px;
+    height: 19px;
+}
+.content-header
+{
+    padding-top:10px;
+}
+.content-header h5 {
+    padding-top: 10px;
+}
+.pull-left{
+    float:left;
+}
+.app-work-money {
+    color: #ff6a00;
+    font-weight: bold;
+    font-size: 16px
+}
+.app-work-icon-hot {
+    color: red;
+    font-size: 16px;
+    margin:0px 5px;
+}
+.field-validation-error, .validation-summary-errors {
+    color: red;
+}
+
+.field-validation-valid.warning,
+.field-validation-custom.warning {
+    color: #fff;
+    background-color: #f39c12;
+    margin: 5px 0;
+    display: block;
+    padding: 5px;
+    border-radius: 3px;
+    border-left: 5px solid #c87f0a;
+}

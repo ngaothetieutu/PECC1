@@ -1,0 +1,135 @@
+@model ConstructionSearchModel
+
+@{
+    //page title
+    ViewBag.Title = T("AppWork.Contracts.Construction").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Category_construction");
+}
+
+<nop-antiforgery-token />
+<div class="content-header clearfix">
+    <h5 class="pull-left" style="margin-bottom:5px;">
+        @T("AppWork.Contracts.Construction")
+    </h5>
+    <div class="pull-right">
+        <a asp-action="Create" class="btn btn-success">
+            <i class="fa fa-plus-square"></i>
+            @T("Admin.Common.AddNew")
+        </a>
+    </div>
+</div>
+<div class="ui-bordered px-4 pt-4 mb-4">
+    <div class="form-row">
+        <div class="col-md mb-7">
+            <label class="form-label">@T("AppWork.Contracts.Construction.Fields.KeySearch")</label>
+            <nop-editor asp-for="Name" />
+        </div>
+        <div class="col-md mb-3">
+            <label class="form-label">@T("AppWork.Contracts.Construction.Fields.TypeId")</label>
+            <nop-select asp-for="TypeId" asp-items="@Model.lsType" />
+        </div>
+        <div class="col-md col-xl-2 mb-4">
+            <label class="form-label d-none d-md-block">&nbsp;</label>
+            <button type="button" class="btn btn-secondary btn-block" id="btnSearch">@T("Admin.Common.Search")</button>
+        </div>
+    </div>
+</div>
+<div class="content">
+    <div class="form-horizontal">
+        <div class="panel-group">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div id="construction-grid"></div>
+                    <script>
+                        $(document).ready(function () {
+                            function SearchData() {
+                                var _data = {
+                                    TypeId: $('#@Html.IdFor(model => model.TypeId)').val(),
+                                    Name:$('#@Html.IdFor(model => model.Name)').val()
+                                };
+                                addAntiForgeryToken(_data);
+                                return _data;
+                            }
+                            $("#btnSearch").click(function () {
+                                var grid = $('#construction-grid').data('kendoGrid');
+                                grid.dataSource.page(1); //new search. Set page size to 1
+                                return false;
+                            });
+                             $("#@Html.IdFor(model => model.TypeId)").change(function(event) {
+                                 $("#btnSearch").click();
+                            });
+                             $("#@Html.IdFor(model => model.Name)").keydown(function(event) {
+                                if (event.keyCode === 13) {
+                                    $("#btnSearch").click();
+                                    return false;
+                                }
+                            });
+                            $("#construction-grid").kendoGrid({
+                                dataSource: {
+                                    type: "json",
+                                    transport: {
+                                        read: {
+                                            url: "@Html.Raw(Url.Action("List","Construction"))",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: SearchData
+                                        }
+                                    },
+                                    schema: {
+                                        data: "Data",
+                                        total: "Total",
+                                        errors: "Errors"
+                                    },
+                                    error: function(e) {
+                                        display_kendoui_grid_error(e);
+                                        // Cancel the changes
+                                        this.cancelChanges();
+                                    },
+                                    pageSize: @(Model.PageSize),
+                                    serverPaging: true,
+                                    serverFiltering: true,
+                                    serverSorting: true
+                                },
+                                pageable: {
+                                    refresh: true,
+                                    pageSizes: [@(Model.AvailablePageSizes)],
+                                    @await Html.PartialAsync("_GridPagerMessages")
+                                },
+                                editable: {
+                                    confirmation: "@T("Admin.Common.DeleteConfirmation")",
+                                    mode: "inline"
+                                },
+                                scrollable: false,
+                                columns: [
+                                {
+                                    field: "Code",
+                                    title: "@T("AppWork.Contracts.Construction.Fields.Code")"
+                                    },{
+                                    field: "Name",
+                                    title: "@T("AppWork.Contracts.Construction.Fields.Name")"
+                                    },{
+                                    field: "TypeName",
+                                    title: "@T("AppWork.Contracts.Construction.Fields.TypeId")"
+                                    },{
+                                    field: "Description",
+                                    title: "@T("AppWork.Contracts.Construction.Fields.Description")"
+                                    },{
+                                        field: "CapitalName",
+                                    title: "@T("AppWork.Contracts.Construction.Fields.CapitalId")"
+                                    },{
+                                    field: "Id",
+                                    title: "@T("Admin.Common.Edit")",
+                                    width: 150,
+                                    headerAttributes: { style: "text-align:center" },
+                                    attributes: { style: "text-align:center" },
+                                        template: '<a class="btn btn-default" href="Edit/#=Id#"><i class="fas fa-edit"></i>@T("Admin.Common.Edit")</a>'}
+                                ]
+                            });
+                        });
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

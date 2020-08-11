@@ -1,0 +1,145 @@
+﻿@using GS.Core.Domain
+@using StackExchange.Profiling
+@using GS.Core.Domain.Common
+@using GS.Core.Domain.Seo
+@using GS.Services.Events
+@using GS.Services.Security
+@using GS.Web.Framework.Events
+@using GS.Core
+@inject CommonSettings commonSettings
+@inject IEventPublisher eventPublisher
+@inject IPermissionService permissionService
+@inject IWorkContext workContext
+@inject StoreInformationSettings storeInformationSettings
+@inject GS.Services.Localization.ILanguageService languageService
+@{
+
+
+    //when jQuery migrate script logging is active you will see the log in the browser console
+    //if (commonSettings.JqueryMigrateScriptLoggingActive)
+    //{
+    //    Html.AppendScriptParts(ResourceLocation.Footer, "~/lib/jquery-migrate/jquery-migrate-3.0.1.js");
+    //}
+    //else
+    //{
+    //    Html.AppendScriptParts(ResourceLocation.Footer, "~/lib/jquery-migrate/jquery-migrate-3.0.1.min.js");
+    //}
+    //Html.AppendScriptParts(ResourceLocation.Footer, "~/lib/jquery-ui/jquery-ui-1.12.1.custom/jquery-ui.min.js");
+    //Html.AppendScriptParts(ResourceLocation.Footer, "~/lib/jquery-validate/jquery.validate.unobtrusive-v3.2.10/jquery.validate.unobtrusive.min.js");
+    //Html.AppendScriptParts(ResourceLocation.Footer, "~/lib/jquery-validate/jquery.validate-v1.17.0/jquery.validate.min.js");
+    //X-UA-Compatible tag
+    if (commonSettings.RenderXuaCompatible)
+    {
+        Html.AppendHeadCustomParts($"<meta http-equiv=\"X-UA-Compatible\" content=\"{commonSettings.XuaCompatibleValue}\"/>");
+    }
+    string adminPageTitle = !string.IsNullOrWhiteSpace(ViewBag.Title) ? ViewBag.Title + " / " : "";
+    adminPageTitle += T("AppWork.PageTitle").Text;
+
+    var _customer = workContext.CurrentCustomer;
+    //event
+    eventPublisher.Publish(new PageRenderingEvent(this.Html));
+}
+<!DOCTYPE html>
+<html lang="@languageService.GetTwoLetterIsoLanguageName(workContext.WorkingLanguage)" @(this.ShouldUseRtlTheme() ? Html.Raw(" dir=\"rtl\"") : null) class="default-style layout-navbar-fixed layout-fixed layout-collapsed">
+<head>
+    <title>@adminPageTitle</title>
+
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+    <meta name="description" content="@(Html.GSMetaDescription())" />
+    <meta name="keywords" content="@(Html.GSMetaKeywords())" />
+    <meta name="generator" content="GSAppWork" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,700,700i,900" rel="stylesheet">
+    <!-- Icon fonts -->
+    <link rel="stylesheet" href="/Themes/AppWork/Content/assets/vendor/fonts/fontawesome.css">
+    <link rel="stylesheet" href="/Themes/AppWork/Content/assets/vendor/fonts/ionicons.css">
+    <link rel="stylesheet" href="/Themes/AppWork/Content/assets/vendor/fonts/linearicons.css">
+    <link rel="stylesheet" href="/Themes/AppWork/Content/assets/vendor/fonts/open-iconic.css">
+    <link rel="stylesheet" href="/Themes/AppWork/Content/assets/vendor/fonts/pe-icon-7-stroke.css">
+    <!-- Core stylesheets -->
+    <link rel="stylesheet" href="/Themes/AppWork/Content/assets/vendor/css/rtl/bootstrap.css" class="theme-settings-bootstrap-css">
+    <link rel="stylesheet" href="/Themes/AppWork/Content/assets/vendor/css/rtl/appwork.css" class="theme-settings-appwork-css">
+    <link rel="stylesheet" href="/Themes/AppWork/Content/assets/vendor/css/rtl/theme-corporate.css" class="theme-settings-theme-css">
+    <link rel="stylesheet" href="/Themes/AppWork/Content/assets/vendor/css/rtl/colors.css" class="theme-settings-colors-css">
+    <link rel="stylesheet" href="/Themes/AppWork/Content/assets/vendor/css/rtl/uikit.css">
+    <link rel="stylesheet" href="/Themes/AppWork/Content/assets/vendor/libs/spinkit/spinkit.css">
+    <link rel="stylesheet" href="/Themes/AppWork/Content/html-demo/assets/css/demo.css">
+
+    <link rel="stylesheet" href="/lib/bootstrap-touchspin/jquery.bootstrap-touchspin.min.css">
+    <link rel="stylesheet" href="/lib/kendo/custom/kendo.default-v2.min.css">
+    <link rel="stylesheet" href="/lib/kendo/custom/kendo.custom.css?v7">
+
+    <script src="/Themes/AppWork/Content/assets/vendor/js/material-ripple.js"></script>
+    <script src="/Themes/AppWork/Content/assets/vendor/js/layout-helpers.js"></script>
+    <!-- Theme settings -->
+    <!-- This file MUST be included after core stylesheets and layout-helpers.js in the <head> section -->
+    <script src="/Themes/AppWork/Content/assets/vendor/js/theme-settings.js"></script>
+    <script>
+        window.themeSettings = new ThemeSettings({
+            cssPath: '/Themes/AppWork/Content/assets/vendor/css/rtl/',
+            themesPath: '/Themes/AppWork/Content/assets/vendor/css/rtl/',
+            defaultSidenavBg: "info-dark sidenav-dark",
+            defaultFooterBg: "bg-secondary",
+        });
+                    //console.log(window.themeSettings);
+    </script>
+    <!-- Core scripts -->
+    @*<script src="/Themes/AppWork/Content/assets/vendor/js/pace.js"></script>*@
+    <script src="/lib/jquery/jquery-3.3.1.min.js"></script>
+    <script src="/js/admin.common.js?v8"></script>
+    @*<script src="/lib/kendo/2014.1.318/kendo.web.min.js"></script>*@
+    <script src="/lib/kendo/custom/kendo.all.min.js"></script>
+    <script src="/lib/kendo/2014.1.318/cultures/kendo.culture.vi-VN.min.js"></script>
+    <script src="/lib/bootstrap-touchspin/jquery.bootstrap-touchspin.min.js"></script>
+    <!--Them cac phan cua notification-->
+
+    <script src="/lib/signalr/dist/browser/signalr.js"></script>
+    <script src="/Themes/AppWork/Content/assets/chathub/app.js?v9"></script>
+    <script src="/Themes/AppWork/Content/assets/vendor/libs/vanilla-text-mask/vanilla-text-mask.js"></script>
+    <script src="/Themes/AppWork/Content/assets/vendor/libs/vanilla-text-mask/text-mask-addons.js"></script>
+
+    <!-- Libs -->
+    <link rel="stylesheet" href="/Themes/AppWork/Content/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css">
+
+    @*This is used so that themes can inject content into the header*@
+    @Html.GSCssFiles(this.Url, ResourceLocation.Head, false)
+    @Html.GSScripts(this.Url, ResourceLocation.Head, false)
+    @Html.GSCanonicalUrls()
+    @*Favicon - upload favicon.ico file to the root directory*@
+    @await Component.InvokeAsync("Favicon")
+
+    <style>
+        /*Khong hien thi setting theme*/
+        #theme-settings {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <input type="hidden" id="hidCustomerId" value="@_customer.Id" />
+    @RenderBody()
+
+
+    <!-- Core scripts -->
+    <script src="/Themes/AppWork/Content/assets/vendor/libs/popper/popper.js"></script>
+    <script src="/Themes/AppWork/Content/assets/vendor/js/bootstrap.js"></script>
+    <script src="/Themes/AppWork/Content/assets/vendor/js/sidenav.js"></script>
+    <!-- Libs -->
+    <script src="/Themes/AppWork/Content/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+    <script src="/Themes/AppWork/Content/assets/vendor/libs/chartjs/chartjs.js"></script>
+    <script src="/Themes/AppWork/Content/assets/vendor/libs/bootbox/bootbox.js"></script>
+    <script src="/Themes/AppWork/Content/html-demo/assets/js/demo.js"></script>
+    
+    <script>
+        $(document).ready(function () {
+            setTimeout(function () {
+                $('[data-toggle="tooltip"]').tooltip({
+                    container: 'body'
+                });
+                
+            }, 5000);
+        });
+    </script>
+
+</body>
+</html>

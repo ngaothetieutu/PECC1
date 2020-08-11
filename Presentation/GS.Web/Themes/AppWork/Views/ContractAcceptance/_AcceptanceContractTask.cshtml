@@ -1,0 +1,27 @@
+﻿@model ContractModel
+<div id="AcceptanceContractTask_@Model.Id" class="card mb-4" >
+    <input id="AcceptanceContract_@Model.Id" class="AcceptanceContractInput" style="display:none" />
+    <h6 class="card-header">        
+        <label class="row" style="color:#1231ea; font-weight:200; padding-left:12px;">@Model.ConstructionName</label>        
+        @Model.Name  &nbsp;&nbsp;&nbsp; <span><i class="lnr lnr-diamond"></i> : <small class="app-work-money" style="font-weight:200;">@Model.TotalAmountText</small></span>
+        <a href="javascript:closeAcceptanceContractTask(@Model.Id)" class=" close" data-dismiss="modal" aria-label="Close"><small style="color:red"><i class="fas fa-minus-circle d-block"></i></small></a>
+    </h6>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3"><strong>Hạng mục</strong></div>
+            <div class="col-md-2" style="padding-left:10px;"><strong>NTTT(Sau thuế)</strong></div>
+            <div class="col-md-2" style="padding-left:10px;"><strong>NTTT(Trước thuế)</strong></div>
+            <div class="col-md-2"><strong>Tỷ lệ khoán(%)</strong></div>
+            <div class="col-md-2" style="margin-left:15px;"><strong>Giá trị nghiệm thu</strong></div>
+        </div>
+        @foreach (var _cacs in Model.lstContractAcceptanceSub)
+        {
+            @await Html.PartialAsync("_ContractAcceptanceSubTask", _cacs);
+        }
+    </div>
+    <script>
+        $(document).ready(function () {
+            $("#AcceptanceContract_@Model.Id").val(@Model.Id);
+        })
+    </script>
+</div>

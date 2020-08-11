@@ -1,0 +1,154 @@
+﻿@model ContractAppendixModel
+@{
+    //page title
+    ViewBag.Title = Model.ContractAppendix.Name + T("AppWork.Contracts.Contract.EditContractDetails").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Contract");
+}
+
+<div class="container-fluid flex-grow-1 container-p-y">
+    <small style="padding-left:5px;">
+        <a href="/Contract/Detail?guid=@Model.ContractGuidAB"><i class="fa fa-arrow-circle-left"></i>Quay lại hợp đồng chính</a>
+    </small>
+ </div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card mb-6" style="min-height: 416px; max-height:416px;">
+            <h6 class="card-header with-elements">
+                <span class="card-header-title">Chi tiết thay đổi của phụ lục - <small style="color:#1047e1;">@Model.ContractAppendix.Name</small><small style="color:#f51010;">(@Model.ContractAppendix.Code)</small></span>
+            </h6>
+            <div class="card-body">
+                @if (Model.taskContractNote.Count > 0)
+                {
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        @foreach (var _taskNew in Model.taskNew)
+                                        {
+                                            <div class="card" style="margin:10px;">
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <div class="row">
+                                                                <div class="col-md-5" style="font-weight:500;padding-left:0px;">
+                                                                    Công việc sau thay đổi
+                                                                </div>
+                                                                <div class="col-md-3" style="font-weight:500;">
+                                                                    Ngày tạo
+                                                                </div>
+                                                                <div class="col-md-4" style="font-weight:500;padding-right:0px;">
+                                                                    Giá trị công việc
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <div class="row">
+                                                                <div class="col-md-5" style="padding-left:0px;">
+                                                                    <span>
+                                                                        <i class="lnr lnr-pushpin app-work-icon-hot"></i>@_taskNew.Name
+                                                                    </span>
+                                                                </div>
+                                                                <div class="col-md-3" style="font-size:13px;">
+                                                                    <span>
+                                                                        <i class="fas fa-calendar-alt"></i>@_taskNew.CreatedDate.toDateVNString()
+                                                                    </span>
+                                                                </div>
+                                                                <div class="col-md-4" style="padding-right:0px !important;">
+                                                                    <i class="fas fa-coins"></i>@_taskNew.TotalMoney.ToVNStringNumber()&nbsp;@_taskNew.CurrencyCode
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        @foreach (var _taskOld in Model.taskContractNote)
+                                        {
+                                            <div class="card" style="margin:10px;">
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <div class="row list-task-plan">
+                                                                <div class="col-md-5" style="font-weight:500;">
+                                                                    Công việc trước thay đổi
+                                                                </div>
+                                                                <div class="col-md-3" style="font-weight:500;">
+                                                                    Ngày tạo
+                                                                </div>
+                                                                <div class="col-md-4" style="font-weight:500;">
+                                                                    Giá trị công việc
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-md-12">
+                                                            <div class="row">
+                                                                <div class="col-md-5" style="padding-left:0px;">
+                                                                    <span>
+                                                                        <i class="lnr lnr-pushpin app-work-icon-hot"></i>@_taskOld.ObjectInfo.Name
+                                                                    </span>
+                                                                </div>
+                                                                <div class="col-md-3" style="font-size:13px;">
+                                                                    <span>
+                                                                        <i class="fas fa-calendar-alt"></i>@_taskOld.ObjectInfo.CreatedDate.toDateVNString()
+                                                                    </span>
+                                                                </div>
+                                                                <div class="col-md-4" style="padding-right:0px !important;">
+                                                                    <i class="fas fa-coins"></i><span style="color:#ff0000;">@_taskOld.ObjectInfo.TotalMoney.ToVNStringNumber()&nbsp;</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {   
+                    <div class="row">
+                        <label style="font-weight:500;">Thêm mới công việc</label>
+                    </div>
+                    <div class="card">
+                        <div class="col-md-6">
+                            @foreach (var _taskNew in Model.taskNew)
+                            {
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="row">
+                                            <div class="col-md-5">
+                                                <span>
+                                                    <i class="lnr lnr-pushpin app-work-icon-hot"></i>@_taskNew.Name
+                                                </span>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <span>
+                                                    <i class="fas fa-calendar-alt"></i>@_taskNew.CreatedDate.toDateVNString()
+                                                </span>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <i class="fas fa-money-bill-wave"></i>@_taskNew.TotalAmountText
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+            </div>
+        </div>
+</div>
+    

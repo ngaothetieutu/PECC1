@@ -1,0 +1,221 @@
+﻿@model ContractAcceptanceModel
+<div class="container-fluid flex-grow-1 container-p-y">
+    <div style="display:none">
+        @Html.TextBoxFor(c => c.PaymentAcceptanceId, new { @id = "PaymentContractAcceptanceId" })
+        @Html.TextBoxFor(c => c.Id, new { @id = "ContractAcceptanceId" })
+    </div>
+    <div class="card">
+        <div class="card-body pb-2">
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="Name" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="Name" />
+                        <span asp-validation-for="Name"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        @if (Model.TypeId == (int)GS.Core.Domain.Contracts.ContractAcceptancesType.TamUng)
+                        {
+                        <label>@T("AppWork.Contracts.ContractAcceptance.Fields.CodeAdvance")</label>
+                        }
+                        else
+                        {
+                        <nop-label asp-for="Code" />
+                        }
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="Code" />
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="Description" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="Description" />
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="ApprovalDate" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="ApprovalDate" />
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class='row'>
+                    <div class="col-md-3">
+                        <nop-label asp-for="TotalAmount" />
+                    </div>
+                    <div class="col-md-3">
+                        <nop-editor asp-for="TotalAmount" />
+                        <span id="checkValueTotalAmount"></span>
+                    </div>
+                    <div class="col-md-1"></div>
+                </div>
+            </div>
+            @if (Model.TypeId == (int)GS.Core.Domain.Contracts.ContractAcceptancesType.NoiBo)
+            {
+            @foreach (ContractPaymentAcceptanceSubModel acsub in Model.listpaymentAcceptanceSub)
+                {
+            @await Html.PartialAsync("_ContractAcceptanceSubTask", acsub);
+                }
+            }
+            <script>
+                $(document).ready(function () {
+                    ContractAcceptanceSubAdd();
+                    $("#ContractAcceptanceSubAdd").click(function () {
+                        ContractAcceptanceSubAdd();
+                    })
+                    function ContractAcceptanceSubAdd() {
+                         $.ajax({
+                            type: "GET",
+                            url: "/Contract/_ContractAcceptanceSubAdd?taskId=@Model.TaskId",
+                            success: function (data) {
+                                $("#ListContractAcceptanceSub").append(data);
+                            }
+                        });
+                    }
+                });
+            </script>
+            <nop-editor asp-for="WorkFileIds" />
+        </div>
+    </div>
+</div>
+<div class="text-right mt-3">
+    <button type="button" id="btnaddAcceptancesave" class="btn btn-primary">@T("admin.common.save")</button>&nbsp;
+    <button type="button" id="btnaddAcceptanceCancel" class="btn btn-danger">@T("admin.common.cancel")</button>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#@Html.IdFor(c=>c.TaskGroupId)").change(function () {
+            var _id = $(this).val();
+            $.ajax({
+                type: "GET",
+                url: "/TaskGroup/_getTaskGroupvalue?id=" + _id,
+                success: function (data) {
+                    if (data.Code == "00") {
+                        $("#Ratio").data("kendoNumericTextBox").value(data.ObjectInfo.Ratio);
+                    }
+                    else {
+                        $("#Ratio").data("kendoNumericTextBox").value(0);
+                    }
+                },
+                error: function () {
+                    $("#Ratio").data("kendoNumericTextBox").value(0);
+                }
+            })
+        });
+        $("#btnaddAcceptancesave").click(function () {
+            kendo.ui.progress($("#contentCreate"), true);
+            //var ResponsibleId = $("#ResponsibleId").data('kendoComboBox').value();
+            var WorkFileIds = $("#@Html.IdFor(c=>c.WorkFileIds)").val();
+            var TotalAmount = 0;
+            if (@Model.TypeId != 1) {
+                TotalAmount = ConvertToNumber("#@Html.IdFor(c=>c.TotalAmount)");
+            }
+            if (WorkFileIds.length > 0) {
+                var SelectedListFileId = WorkFileIds.split(',');
+            }
+            var listAcceptanceSub = [];
+            if (@Model.TypeId == @((int)GS.Core.Domain.Contracts.ContractAcceptancesType.NoiBo)) {
+                $(".AcceptanceSub").each(function () {
+                    var IDF = $(this).data("idf");
+                    var unitId = $("#unitId_" + IDF).val();
+                    var totalAmount = $("#totalAmount_" + IDF).val();
+                    var ratio = $("#ratio_" + IDF).val();
+                    var totalMoney = $("#totalMoney_" + IDF).val();
+                    var taskId = $("#taskId_" + IDF).val();
+                    var currencyId = $("#currencyId_" + IDF).val();
+                    var hasBB = $("#hasBB_" + IDF).is(":checked")
+                    var ccceptanceSub = {
+                        UnitId: unitId,
+                        TotalAmount: totalAmount,
+                        Ratio: ratio,
+                        TotalMoney: totalMoney,
+                        TaskId: taskId,
+                        CurrencyId: currencyId,
+                        hasBB: hasBB
+                    };
+                    listAcceptanceSub.push(ccceptanceSub);
+                })
+            }
+            var PaymentAcceptanceId = @Model.PaymentAcceptanceId.GetValueOrDefault(0);
+            var _data = {
+                Id:@Model.Id,
+                TypeId:@Model.TypeId,
+                Name: $("#@Html.IdFor(c=>c.Name)").val(),
+                Code: $("#@Html.IdFor(c=>c.Code)").val(),
+                Description: $("#@Html.IdFor(c=>c.Description)").val(),
+                ContractId: @Model.ContractId,
+                //ResponsibleId: ResponsibleId,
+                ApprovalDate: $("#@Html.IdFor(c=>c.ApprovalDate)").val(),
+                Ratio: $("#@Html.IdFor(c=>c.Ratio)").val(),
+                TotalAmount: TotalAmount,
+                CurrencyId:@Model.CurrencyId.GetValueOrDefault(0),
+                SelectedListFileId: SelectedListFileId,
+                listAcceptanceSub: listAcceptanceSub,
+                PaymentAcceptanceId:PaymentAcceptanceId,
+            };
+           //console.log(_data);
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "/Contract/_ContractAcceptanceAdd",
+                data: _data,
+                success: function (data) {
+                    //console.log(data);
+                    if (CheckValidMessageReturn(data)) {
+                        $("#tabContractAcceptanceNoiBo .close").click();
+                        if (data.ObjectInfo.TypeId == @((int)GS.Core.Domain.Contracts.ContractAcceptancesType.KhoiLuong)) {
+                            LoadTabContractAcceptance();
+                        }
+                        else if (data.ObjectInfo.TypeId == @((int)GS.Core.Domain.Contracts.ContractAcceptancesType.NoiBo)) {
+                            loadContractAcceptanceNoiBo();
+                        }
+                        else if (data.ObjectInfo.TypeId == @((int)GS.Core.Domain.Contracts.ContractAcceptancesType.TamUng)) {
+                            $("#modalAdvanceQuantity .close").click();
+                            loadContractTaskChild(@Model.ContractId, 0);
+                        }
+                        else {
+                            loadContractTaskChild(@Model.ContractId, 0);
+                        }
+                        //kendo.ui.progress($("#contentCreate"), false);
+                        ShowSuccessMessage(data.Message);
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    LoadTabContractAcceptance();
+                    ShowErrorMessage(data.Message);
+                     alert('@T("Admin.common.request.error")');
+                    $("#tabContractAcceptanceNoiBo .close").click();
+                }
+            });
+        });
+            $("#btnaddAcceptanceCancel").click(function () {
+                $("#tabContractAcceptanceNoiBo .close").click();
+            });
+        });
+</script>
+
+<style>
+    .listoption label span {
+        padding-right: 20px;
+    }
+
+    .listoption {
+        padding-bottom: 20px;
+    }
+</style>

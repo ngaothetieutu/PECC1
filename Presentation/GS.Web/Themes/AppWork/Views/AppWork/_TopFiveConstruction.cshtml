@@ -1,0 +1,36 @@
+﻿@model TopFiveConstruction
+
+<div class="card mb-4">
+    <h6 class="card-header">Top 5 công trình có giá trị cao nhất</h6>
+    <div style="margin-top:10px;">
+        @if (Model.topFiveConstruction.Count <= 0)
+        {
+            <h5>Không có hợp đồng !</h5>
+        }
+        else
+        {
+            @foreach (var ct in Model.topFiveConstruction)
+            {
+                <div class="col-md-12">
+                    <div class="card pb-4 mb-2" style="padding:5px !important;">
+                        <div class="row no-gutters align-items-center" style="padding-left:20px;">
+                            <div class="col-md-12">
+                                <a href="/Contract/List?constructionId=@ct.Id&classificationId=1" class="text-dark font-weight-semibold">@ct.Name</a>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-7" style="text-align:left;">
+                                        <i class="far fa-money-bill-alt d-block"> Tổng giá trị:<span style="color:#ff6c00"> @ct.TotalMoneyContract.ToVNStringNumber()</span></i>
+                                    </div>
+                                    <div class="col-md-5" style="text-align:left;">
+                                        <i>Tổng số hợp đồng:<span style="color:#576de2;"> @ct.ContractCount.ToVNStringNumber()</span></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>

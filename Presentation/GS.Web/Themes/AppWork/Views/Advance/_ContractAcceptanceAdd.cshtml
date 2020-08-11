@@ -1,0 +1,94 @@
+﻿@model ContractAcceptanceModel
+@{
+    var idf = @Guid.NewGuid().ToString().Replace("-", "");
+}
+<div class="row ContractAcceptance" id="Acceptance_@idf" data-idf="@idf" style="padding-top:10px;">
+    <div style="display:none">
+        @Html.TextBoxFor(c => c.TaskId, new { @id = "TaskId_" + idf })
+        @Html.TextBoxFor(c => c.ContractId, new { @id = "ContractId_" + idf })
+    </div>
+    <div class="col-md-3" style="padding-top:7px;">
+        @Model.TaskName
+        (<small class="app-work-money">@Model.TaskTotalMoneyText</small> )
+    </div>
+    <div class="col-md-3" style="padding-top:7px;">
+        <span style="color:red">@Model.ToltalAmountAdvancedText</span>
+    </div>
+    <div class="col-md-2">
+        <nop-editor asp-for="TotalAmount" asp-class="totalAmountAccep" id="totalAmount_@idf" />
+        <span id="TotalAmountValidate_@idf"></span>
+    </div>
+    <div class="col-md-2" style="padding-top:4px;">
+        @Html.EditorFor(c => c.Ratio, null, "ratio_" + idf)
+    </div>
+    <div class="col-md-2" style="padding-top:7px;">
+        <span class="app-work-money" id="realReceive_@idf"></span>
+    </div>
+    <input id="TotalReceive_@idf" class="TotalReceiveSub" type="hidden"/>
+</div>
+<script>   
+    $(document).ready(function () {       
+        var totalAmount = ConvertToNumber("#totalAmount_@idf");
+        var ratio = $("#ratio_@idf").data("kendoNumericTextBox").value();       
+        if (totalAmount > 0 && ratio > 0) {
+            $("#realReceive_@idf").html((parseInt(ratio * totalAmount / 100)).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));
+            $("#TotalReceive_@idf").val(ratio * totalAmount / 100);
+        }
+        //tinh tong gia tri thuc nhan
+        var TotalReceiveSub = 0;
+        $(".TotalReceiveSub").each(function () {
+            var ReceiveSub = $(this).val();
+            TotalReceiveSub = parseInt(TotalReceiveSub) + parseInt(ReceiveSub);
+        });
+        $("#TotalReceive").val(TotalReceiveSub.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));     
+        //khi thay doi tong tien thi tinh lai tong
+        $("#totalAmount_@idf").change(function () {
+            //thong bao khi vuot qua gioi han
+            var sumadvanced = @Model.ToltalAmountAdvanced;
+            var tasktoltalMoney = @Model.TaskTotalMoney.GetValueOrDefault(0);
+            //console.log(ConvertToNumber(this));
+            if (ConvertToNumber(this) > tasktoltalMoney - sumadvanced) {
+                $("#TotalAmountValidate_@idf").html("<small style='color:red'>Số tiền đã vượt quá hạn mức</small>");
+            }
+            else {
+                  $("#TotalAmountValidate_@idf").html("");
+            }
+            var MoneySub = ConvertToNumber(this);
+            var ratio = $("#ratio_@idf").data("kendoNumericTextBox").value();
+            $("#realReceive_@idf").html((parseInt(ratio * MoneySub / 100)).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));
+            var ratio = $("#ratio_@idf").data("kendoNumericTextBox").value();
+            if (ratio > 0) {
+                $("#realReceive_@idf").html((parseInt(ratio * MoneySub / 100)).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));
+                $("#TotalReceive_@idf").val(ratio * MoneySub / 100);
+            }
+            //tinh tong gia tri 
+            var TotalMoneySub = 0;
+            $(".totalAmountAccep").each(function () {
+                var totalAmountSub = ConvertToNumber(this);
+                TotalMoneySub = parseInt(TotalMoneySub) + parseInt(totalAmountSub);
+            });
+            $("#TotalAmount").val(TotalMoneySub.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));
+            //tinh tong gia tri thuc nhan
+            var TotalReceiveSub = 0;
+            $(".TotalReceiveSub").each(function () {
+                var ReceiveSub = $(this).val();                
+                TotalReceiveSub = parseInt(TotalReceiveSub) + parseInt(ReceiveSub);
+            });
+            $("#TotalReceive").val(TotalReceiveSub.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));
+        });
+        //khi thay doi ratio thi tinh lai tong
+        $("#ratio_@idf").data("kendoNumericTextBox").bind("change", function () {           
+            var ratio = this.value();
+            var money = ConvertToNumber("#totalAmount_@idf");            
+            $("#realReceive_@idf").html((parseInt(ratio * money / 100)).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));
+            $("#TotalReceive_@idf").val(ratio * money / 100);
+            //tinh tong gia tri thuc nhan
+            var TotalReceiveSub = 0;
+            $(".TotalReceiveSub").each(function () {
+                var ReceiveSub = $(this).val();
+                TotalReceiveSub = parseInt(TotalReceiveSub) + parseInt(ReceiveSub);
+            });
+            $("#TotalReceive").val(TotalReceiveSub.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));
+        });      
+    });    
+</script>

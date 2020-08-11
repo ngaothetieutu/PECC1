@@ -1,0 +1,116 @@
+@model ContractTypeSearchModel
+
+@{
+    //page title
+    ViewBag.Title = T("AppWork.Contracts.ContractType").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Category_contract_type");
+}
+
+<nop-antiforgery-token />
+<div class="content-header clearfix">
+    <h5 class="pull-left">
+        @T("AppWork.Contracts.ContractType")
+    </h5>
+    <div class="pull-right" style="margin-bottom:5px;">
+        <a asp-action="Create" class="btn btn-success">
+            <i class="fa fa-plus-square"></i>
+            @T("Admin.Common.AddNew")
+        </a>
+    </div>
+</div>
+<div class="ui-bordered px-4 pt-4 mb-4" style="padding-bottom: 24px;">
+    <div class="form-row">
+        <div class="col-md-10">
+            <label class="form-label">@T("AppWork.Contracts.ContractType.Fields.Name")</label>
+            <nop-editor asp-for="Name" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label d-none d-md-block">&nbsp;</label>
+            <button type="button" class="btn btn-secondary btn-block" id="btnSearch">@T("Admin.Common.Search")</button>
+        </div>
+    </div>
+</div>
+<div class="content">
+    <div class="form-horizontal">
+        <div class="panel-group">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div id="contracttype-grid"></div>
+                    <script>
+                        $(document).ready(function () {
+                            function SearchData() {
+                                var _data = {
+                                    Name:$('#@Html.IdFor(model => model.Name)').val()
+                                };
+                                addAntiForgeryToken(_data);
+                                return _data;
+                            }
+                            $("#btnSearch").click(function () {
+                                var grid = $('#contracttype-grid').data('kendoGrid');
+                                grid.dataSource.page(1); //new search. Set page size to 1
+                                return false;
+                            });
+                             $("#@Html.IdFor(model => model.Name)").keydown(function(event) {
+                                if (event.keyCode === 13) {
+                                    $("#btnSearch").click();
+                                    return false;
+                                }
+                            });
+                            $("#contracttype-grid").kendoGrid({
+                                dataSource: {
+                                    type: "json",
+                                    transport: {
+                                        read: {
+                                            url: "@Html.Raw(Url.Action("List", "ContractType"))",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: SearchData
+                                        }
+                                    },
+                                    schema: {
+                                        data: "Data",
+                                        total: "Total",
+                                        errors: "Errors"
+                                    },
+                                    error: function(e) {
+                                        display_kendoui_grid_error(e);
+                                        // Cancel the changes
+                                        this.cancelChanges();
+                                    },
+                                    pageSize: @(Model.PageSize),
+                                    serverPaging: true,
+                                    serverFiltering: true,
+                                    serverSorting: true
+                                },
+                                pageable: {
+                                    refresh: true,
+                                    pageSizes: [@(Model.AvailablePageSizes)],
+                                    @await Html.PartialAsync("_GridPagerMessages")
+                                },
+                                editable: {
+                                    confirmation: "@T("Admin.Common.DeleteConfirmation")",
+                                    mode: "inline"
+                                },
+                                scrollable: false,
+                                columns: [
+                                    {
+                                        field: "Name",
+                                        title: "@T("AppWork.Contracts.ContractType.Fields.Name")"
+                                }, {
+
+                                    field: "Id",
+                                    title: "@T("Admin.Common.Edit")",
+                                    width: 100,
+                                    headerAttributes: { style: "text-align:center" },
+                                    attributes: { style: "text-align:center" },
+                                        template: '<a class="btn btn-default" href="Edit/#=Id#"><i class="fas fa-edit"></i>@T("Admin.Common.Edit")</a>'                                    }
+                                ]
+                            });
+                        });
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

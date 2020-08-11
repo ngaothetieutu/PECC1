@@ -1,0 +1,53 @@
+@model GS.Web.Models.Works.TaskGroupModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<input asp-for="TreeNode" type="hidden" />
+<input asp-for="TreeLevel" type="hidden" />
+
+
+<div class="content">
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="Name" />
+            </div>
+            <div class="col-md-10">
+                <nop-editor asp-for="Name" asp-required="true" />
+                <span asp-validation-for="Name"></span>
+            </div>
+        </div>
+
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="Ratio" />
+            </div>
+            <div class="col-md-10">
+                <nop-editor asp-for="Ratio" asp-required="true" />
+                <span asp-validation-for="Ratio"></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="ParentId" />
+            </div>
+            <div class="col-md-10">
+                <nop-select asp-for="ParentId" asp-items="@Model.AvaibleTaskGroupList" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="Description" />
+            </div>
+            <div class="col-md-10">
+                <app-textarea asp-for="Description" />
+            </div>
+        </div>
+    </div>
+</div>

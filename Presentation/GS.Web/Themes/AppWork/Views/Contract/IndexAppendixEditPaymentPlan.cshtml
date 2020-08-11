@@ -1,0 +1,88 @@
+﻿@model AppendixEditPaymenPlanModel
+@{
+    //page title
+    ViewBag.Title = Model.ContractAppendix.Name + T("AppWork.Contracts.Contract.EditContractDetails").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Contract");
+}
+
+<div class="container-fluid flex-grow-1 container-p-y">
+    <small style="padding-left:5px;">
+        <a href="/Contract/Detail?guid=@Model.ContractGuidAB"><i class="fa fa-arrow-circle-left"></i>Quay lại hợp đồng chính</a>
+    </small>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card mb-6" style="min-height: 416px; max-height:416px;">
+            <h6 class="card-header with-elements">
+                <span class="card-header-title">Chi tiết thay đổi của phụ lục - <small style="color:#1047e1;">@Model.ContractAppendix.Name</small><small style="color:#f51010;">(@Model.ContractAppendix.Code)</small></span>
+            </h6>
+            <div class="card-body">
+                <div class="card" style="margin:10px;">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        @foreach (var _contractPaymentPlanOld in Model.AppendixEditPaymentPlanNote)
+                                        {
+
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="row">
+                                                        <div class="col-md-8" style="padding-left:0px;">
+                                                            <div class="row">
+                                                                <div class="col-md-1">
+                                                                    <i class="lnr lnr-pushpin app-work-icon-hot"></i>
+                                                                </div>
+                                                                <div class="col-md-11">
+                                                                    @_contractPaymentPlanOld.ObjectInfo.Description &nbsp;(@_contractPaymentPlanOld.ObjectInfo.CreatedDate.toDateVNString())
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4" style="padding-right:0px; padding-left:0px !important;">
+                                                            <i class="fas fa-coins"></i>&nbsp;<span style="color:#ff0000;">@_contractPaymentPlanOld.ObjectInfo.AmountSummary&nbsp;</span>&nbsp; <i class="lnr lnr-arrow-right app-work-icon-hot" style="float:right !important"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        }
+                                    </div>
+                                    <div class="col-md-6">
+                                        @foreach (var _contractPaymentPlanNew in Model.contractPaymentPlanNews)
+                                        {
+
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="row">
+                                                        <div class="col-md-8" style="padding-left:0px;">
+                                                            <div class="row">
+                                                                <div class="col-md-1">
+                                                                    <i class="lnr lnr-pushpin app-work-icon-hot"></i>
+                                                                </div>
+                                                                <div class="col-md-11">
+                                                                    @_contractPaymentPlanNew.Description &nbsp;(@_contractPaymentPlanNew.CreatedDate.toDateVNString())
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4" style="padding-right:0px;padding-left:0px !important;">
+                                                            <i class="fas fa-coins"></i>&nbsp;<span style="color:#19932b;">@_contractPaymentPlanNew.AmountSummary</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                        }
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

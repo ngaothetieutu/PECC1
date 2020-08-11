@@ -1,0 +1,173 @@
+﻿@using System.Text.Encodings.Web
+@{
+    //success messages
+    var successMessages = new List<string>();
+    if (TempData[$"nop.notifications.{NotifyType.Success}"] != null)
+    {
+        successMessages.AddRange(TempData[$"nop.notifications.{NotifyType.Success}"] as IList<string>);
+    }
+    if (ViewData[$"nop.notifications.{NotifyType.Success}"] != null)
+    {
+        successMessages.AddRange(ViewData[$"nop.notifications.{NotifyType.Success}"] as IList<string>);
+    }
+
+
+    //error messages
+    var errorMessages = new List<string>();
+    if (TempData[$"nop.notifications.{NotifyType.Error}"] != null)
+    {
+        errorMessages.AddRange(TempData[$"nop.notifications.{NotifyType.Error}"] as IList<string>);
+    }
+    if (ViewData[$"nop.notifications.{NotifyType.Error}"] != null)
+    {
+        errorMessages.AddRange(ViewData[$"nop.notifications.{NotifyType.Error}"] as IList<string>);
+    }
+
+
+    //warning messages
+    var warningMessages = new List<string>();
+    if (TempData[$"nop.notifications.{NotifyType.Warning}"] != null)
+    {
+        warningMessages.AddRange(TempData[$"nop.notifications.{NotifyType.Warning}"] as IList<string>);
+    }
+    if (ViewData[$"nop.notifications.{NotifyType.Warning}"] != null)
+    {
+        warningMessages.AddRange(ViewData[$"nop.notifications.{NotifyType.Warning}"] as IList<string>);
+    }
+}
+
+
+<script id="notification-template" type="text/x-kendo-template">
+    <a href="javascript:void(0)" class="list-group-item list-group-item-action media d-flex align-items-center">
+        @*<div class="ui-icon ui-icon-sm ion #= typeIcon # bg-danger border-0 text-white"></div>*@
+        <div class="media-body line-height-condenced d">
+            <div class="text-dark">#: subject #</div>
+            <div class="text-light small mt-1">
+                #: body #
+            </div>
+            <div class="text-light small mt-1"> #: createdDate #</div>
+        </div>
+    </a>
+</script>
+<script id="gsInforMessageTemplate" type="text/x-kendo-template">
+    <div class="gs-infor-message">
+        <img src="/images/message/envelope.png" />
+        <strong> #= title #</strong>
+        <p>#= message #</p>
+    </div>
+</script>
+<script id="gsErrorTemplate" type="text/x-kendo-template">
+    <div class="gs-error-message">
+        <img src="/images/message/error-icon.png" />
+        <p>#= message #</p>
+    </div>
+</script>
+
+<script id="gsSuccessTemplate" type="text/x-kendo-template">
+    <div class="gs-success-message">
+        <img src="/images/message/success-icon.png" />
+        <p>#= message #</p>
+    </div>
+</script>
+<script id="gsCustomerSearchTemplate" type="text/x-kendo-template">
+    <div class="ui-feed-icon-container">
+        <img src="#: data.AvatarUrl#" style="height:40px;" alt="" class="ui-w-40 rounded-circle">
+    </div>
+    <span class="k-state-default" style="margin-left:10px;padding-top:10px;display: inline-block;box-sizing: border-box;-webkit-box-sizing: border-box;-moz-box-sizing: border-box;"><strong>#: data.FullName #</strong><p style="margin:0px;padding:0px">#: data.Username #</p></span>
+</script>
+<script id="gsTaskHomeTemplate" type="text/x-kendo-template">
+    <div class="list-task-plan">
+        <i class="lnr lnr-pushpin app-work-icon-hot"></i>&nbsp;<strong>#: data.Name#</strong>&nbsp;&nbsp;
+        <i class="badge badge-danger float-right">#: data.taskStatusText#</i>
+        <div>
+            #:kendo.toString(kendo.parseDate(data.StartDate),"dd/MM")#
+            <i class="lnr lnr-arrow-right app-work-icon-hot"></i>#:kendo.toString(kendo.parseDate(data.EndDate),"dd/MM/yyyy")#
+        </div>
+    </div>
+</script>
+<script id="gsContractResourceTemplate" type="text/x-kendo-template">
+    <a href="javascript:void(0)" class="d-block mr-1 mb-1" title="#: data.CustomerFullName #">
+        <div class="media align-items-center">
+            <img src="#: data.CustomerAvatarUrl #" class="ui-w-20 rounded-circle" style="width:20px;height:20px;" alt="">
+        </div>
+    </a>
+</script>
+
+<div id="boxMessageNotification"></div>
+<script>
+    var boxnotification;
+    $(document).ready(function () {
+        boxnotification = $("#boxMessageNotification").kendoNotification({
+            position: {
+                pinned: true,
+                bottom: 30,
+                right: 30
+            },
+            autoHideAfter: 2000,
+            templates: [{
+                type: "info",
+                template: $("#gsInforMessageTemplate").html()
+            }, {
+                type: "error",
+                template: $("#gsErrorTemplate").html()
+            }, {
+                type: "success",
+                template: $("#gsSuccessTemplate").html()
+            }]
+
+        }).data("kendoNotification");
+
+    });
+    function ShowInforMessage(strtitle, strmsg) {
+        boxnotification.show({
+            title: strtitle,
+            message: strmsg
+        }, "info");
+    }
+    function ShowErrorMessage(strmsg) {
+        boxnotification.show({
+            title: "@T("common.error")",
+            message: strmsg
+        }, "error");
+    }
+    function ShowSuccessMessage(strmsg) {
+        boxnotification.show({
+            title: "@T("common.ok")",
+            message: strmsg
+        }, "success");
+    }
+
+</script>
+@if (successMessages.Count > 0)
+{
+    <script>
+        $(document).ready(function() {
+        var msg = [@Html.Raw("'" + string.Join("', '", successMessages.Select(x => JavaScriptEncoder.Default.Encode(x)).ToList()) + "'")];
+        //displayPopupNotification(msg, 'success', false);
+        ShowSuccessMessage(msg);
+        });
+    </script>
+
+}
+@if (errorMessages.Count > 0)
+{
+    <script>
+        $(document).ready(function () {
+            var msg = [ @Html.Raw("'" + string.Join("', '", errorMessages.Select(x => JavaScriptEncoder.Default.Encode(x)).ToList()) + "'")];
+            //displayPopupNotification(msg, 'error', false);
+            ShowErrorMessage(msg);
+        });
+    </script>
+}
+@if (warningMessages.Count > 0)
+{
+    <script>
+        $(document).ready(function () {
+            var msg = [ @Html.Raw("'" + string.Join("', '", warningMessages.Select(x => JavaScriptEncoder.Default.Encode(x)).ToList()) + "'")];
+            //displayPopupNotification(msg, 'warning', false);
+            ShowInforMessage(msg);
+        });
+    </script>
+}
+
+@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.Notifications })

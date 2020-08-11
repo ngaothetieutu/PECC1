@@ -1,0 +1,40 @@
+﻿@model ContractPaymentAcceptanceSubModel
+<div class="card mb-4">
+    <h6 class="card-header">
+        @Model.TaskName  &nbsp;&nbsp;&nbsp; <span><i class="lnr lnr-diamond"></i> : <small class="app-work-money">@Model.TotalmoneyText</small></span>
+    </h6> 
+    <div id="ListContractAcceptanceSub_@Model.TaskId" class="card-body">
+        <div class="form-group" style="padding-top:10px;">
+            <div class="row">
+                <div class="col-md-5" style="padding-left:10px;">
+                    <b>Hạng mục</b>
+                </div>               
+                <div class="col-md-7 row">
+                    <div class="col-sm-5" style="padding-left:20px;">
+                        <b>Giá trị</b>
+                    </div>
+                    <div class="col-sm-3" style="padding-left:10px;">
+                        <b>TLK(%)</b>
+                    </div>
+                    <div class="col-sm-4" style="padding-left:20px;">
+                        <b>Số tiền</b>
+                    </div>
+                </div>                
+            </div>
+        </div>      
+    </div>    
+</div>
+<script>
+    $(document).ready(function () {
+        var ContractId = $("#Id").val();
+        var ContractAcceptanceId = $("#ContractAcceptanceId").val();
+        $.ajax({
+            url: "/Contract/_ContractAcceptanceSub?ContractId=" + ContractId + "&TaskId=@Model.TaskId&PaymentAcceptanceSubId=@Model.Id" + "&ContractAcceptanceId=" + ContractAcceptanceId,
+            type: "GET",
+            success: function (data) {
+                $("#ListContractAcceptanceSub_@Model.TaskId").append(data)
+            }
+        });
+    });
+</script>
+

@@ -1,0 +1,65 @@
+﻿@model ConstructionModel
+    <div class="card mb-4">
+        <div class="card-body" id="modalInsertConstruction">
+            @await Html.PartialAsync("_CreateOrUpdate", Model)
+            <a id="btnAddConstruction" href="javascript:void(0);" name="save" class="btn btn-success" style="float:right;margin-right:5px; ">
+                <i class="fas fa-save" style="margin-right:5px;"></i>
+                @T("Admin.Common.Save")
+            </a>
+        </div>
+    </div>
+    <script>
+        
+            function ReloadContractConstructions(obj) {
+                var widget = $("#ConstructionId").data("kendoComboBox");
+                var dataSource = widget.dataSource;
+                dataSource.add({
+                    value: obj.Id,
+                    text: obj.Name
+                });
+                dataSource.sync();
+            }
+        
+        $(document).ready(function () {
+            $("#btnAddConstruction").click(function () {
+                var _capitalId = $("#modalInsertConstruction #CapitalId").val();
+                var postData = {
+                Code: $("#modalInsertConstruction #Code").val(),
+                Name: $("#modalInsertConstruction #Name").val(),
+                Description: $("#modalInsertConstruction #Description").val(),
+                TypeId: $("#modalInsertConstruction #TypeId").val(),
+                CapitalId: _capitalId
+            }
+            //return;
+            $.ajax({
+                cache: false,
+                type: 'POST',
+                url: "/Construction/_Create",
+                data: postData,
+                success: function (msg) {
+                    
+                    if (msg.Code == "00") {
+                        $("#modal_InsertContractNew .close").click();
+                        ShowSuccessMessage(msg.Message);
+                        var widget = $("#ConstructionId").getKendoComboBox();
+                        var dataSource = widget.dataSource;
+                        dataSource.add({
+                            value: msg.ObjectInfo.Id,
+                            text: msg.ObjectInfo.Name
+                        });
+                        dataSource.sync();
+                        widget.select(dataSource.view().length - 1);                        
+                        
+                        ReloadContractConstructions(msg.ObjectInfo);
+                        console.log(msg.ObjectInfo);
+                    }
+                    else {
+                        ShowErrorMessage(msg.Message);
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                }
+                });
+            });
+        });
+    </script>

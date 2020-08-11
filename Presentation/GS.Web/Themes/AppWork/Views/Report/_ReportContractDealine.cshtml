@@ -1,0 +1,85 @@
+﻿@using GS.Core.Domain.Contracts
+@model List<ReportContractDealine>
+
+<div>
+    <div class="row" style="text-align:center; margin-top:20px;">
+        @{
+            // gia tri hop dong sau thue
+            var _totalAmount = Model.Sum(c => c.TotalAmount);
+        }
+        <div class="col-md-12" style="margin-bottom:15px;" id="thongKe">
+            <table class="table-bordered">
+                <thead role="rowgroup" class="k-grid-header" style="color:black;">
+                    <tr role="row">
+                        <th style="min-width:300px;">Số lượng hợp đồng</th>
+                        <th style="min-width:150px;">@Model.Count()</th>
+                    </tr>
+                    <tr>
+                        <th>Tổng giá trị hợp đồng sau thuế</th>
+                        <th>@_totalAmount.ToVNStringNumber()</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        <div class="col-md-12">
+            <h6 class="header" style="font-size:22px; color:black;">BÁO CÁO HỢP ĐỒNG SẮP NGHIỆM THU</h6>
+            <table class="table-bordered" id="reportContractBB">
+                <thead role="rowgroup" class="k-grid-header" style="color:black;">
+                    <tr>
+                        <th>STT</th>
+                        <th>Mã CT</th>
+                        <th>Tên dự án</th>
+                        <th>Tên hợp đồng</th>
+                        <th>Mã hợp đồng</th>
+                        <th>Loại dự án</th>
+                        <th>Hình thức hợp đồng</th>
+                        <th>Chủ đầu tư</th>
+                        <th>Trong EVN</th>
+                        <th>Giá trị hợp đồng sau thuế (VNĐ)</th>
+                        <th>Ngày dự kiến kết thúc</th>
+                    </tr>
+                </thead>
+                <tbody style="background: white; color:black;">
+                    @{
+                        int stt = 1;
+                    }
+                    @foreach (ReportContractDealine rc in Model)
+                    {
+                        <tr>
+                            <td>@stt</td>
+                            <td>@rc.ConstructionCode</td>
+                            <td>@rc.ConstructionName</td>
+                            <td>@rc.ContractName</td>
+                            <td>@rc.ContractCode</td>
+                            <td>@rc.ConstructionType</td>
+                            <td>@rc.ContractForm</td>
+                            <td>@rc.ProcuringAgency</td>
+                            @if (rc.isEvn == true)
+                            {
+                                <td><input type="checkbox" checked="checked" disabled="disabled" /></td>
+                            }
+                            else
+                            {
+                                <td><input type="checkbox" disabled="disabled" /></td>
+                            }
+                            <td>@rc.TotalAmount.ToVNStringNumber()</td>
+                            <td>@rc.FinishDate.toDateVNString()</td>
+                        </tr>
+                        stt++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<style>
+    .table-bordered td {
+        border: 1px solid black;
+        border-collapse: collapse;
+    }
+
+    .table-bordered th {
+        border-color: black;
+        border-bottom: 0px;
+    }
+</style>

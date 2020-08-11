@@ -1,0 +1,55 @@
+@model GS.Web.Models.Unit.UnitModel
+
+<div asp-validation-summary="All"></div>
+@if (Model.Id > 0)
+{
+    <input asp-for="Id" type="hidden" />
+}
+<input asp-for="StoreId" type="hidden" />
+<input asp-for="TreeNode" type="hidden" />
+
+
+<div class="content">
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="Code" />
+            </div>
+            <div class="col-md-10">
+                <nop-editor asp-for="Code" asp-required="true" />
+                <span asp-validation-for="Code"></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="Name" />
+            </div>
+            <div class="col-md-10">
+                <nop-editor asp-for="Name" asp-required="true" />
+                <span asp-validation-for="Name"></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="ParentId" />
+            </div>
+            <div class="col-md-10">
+                <nop-select asp-for="ParentId" asp-items="@Model.ddlParentId" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <app-label asp-for="Description" />
+            </div>
+            <div class="col-md-10">
+                <app-textarea asp-for="Description" />
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,18 @@
+﻿@model ContractModel
+
+<div id="contractLog" style="margin-top:5px;"></div>
+<script>
+        $(document).ready(function () {
+
+        })
+         //load du lieu nhat ky xu ly hop dong
+        function loadContractLogList() {
+                $.ajax({
+                type: "GET",
+                    url: "/Contract/_ContractLogList?contractId=" +@Model.Id,
+                success: function (data) {
+                    $("#contractLog").html(data);
+                }
+                })
+        }
+</script>

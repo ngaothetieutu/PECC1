@@ -1,0 +1,58 @@
+﻿@model ContractLiquidationModel
+<div class="container-fluid flex-grow-1 container-p-y">
+    <div class="card">
+        <div class="card-body pb-2">
+            <div class="form-group ">
+                <div class="row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="LiquidationDate" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="LiquidationDate" />
+                    </div>
+                </div>
+            </div>
+            <nop-editor asp-for="LiquidationFileIds" />
+        </div>
+    </div>
+</div>
+<div class="text-right mt-3">
+    <button type="button" style="margin-bottom:10px;" id="btnContractLiquidationsave" class="btn btn-primary">@T("admin.common.save")</button>&nbsp;
+    <button type="button" style="margin-bottom:10px; margin-right: 10px;" id="btnContractLiquidationCancel" class="btn btn-danger">@T("admin.common.cancel")</button>
+</div>
+<script>
+
+    $(document).ready(function () {
+        $("#btnContractLiquidationsave").click(function () {
+             var WorkFileIds = $("#@Html.IdFor(c=>c.LiquidationFileIds)").val();
+            if (WorkFileIds.length > 0) {
+                var SelectedListFileId = WorkFileIds.split(',');
+            }
+            var _data = {
+            ContractId: @Model.ContractId,
+            ApprovalDate: $("#@Html.IdFor(c=>c.LiquidationDate)").val(),
+            SelectedListFileId: SelectedListFileId,
+            };
+            //console.log(_data);
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "/Contract/_ContractLiquidation",
+                data: _data,
+                success: function (data) {
+                    if (CheckValidMessageReturn(data)) {
+                        $("#tabContractLiquidation .close").click();                           
+                        ShowSuccessMessage(data.Message);
+                        location.reload();
+                    }
+                },
+                error: function(xhr, ajaxOptions, thrownError){
+                    $("#tabContractLiquidation .close").click();                    
+                }
+            })
+        })
+        $("#btnContractLiquidationCancel").click(function () {
+            $("#tabContractLiquidation .close").click();
+        })
+        })
+</script>

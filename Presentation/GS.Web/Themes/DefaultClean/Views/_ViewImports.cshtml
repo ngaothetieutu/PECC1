@@ -1,0 +1,28 @@
+﻿@inherits GS.Web.Framework.Mvc.Razor.GSRazorPage<TModel>
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@*we remove the default InputTagHelper to prevent the checkbox duplicating: https://stackoverflow.com/questions/42544961/asp-net-core-custom-input-tag-helper-rendering-duplicate-checkboxes*@
+@removeTagHelper Microsoft.AspNetCore.Mvc.TagHelpers.InputTagHelper, Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, GS.Web.Framework
+@addTagHelper *, MiniProfiler.AspNetCore.Mvc
+
+@using Microsoft.AspNetCore.Mvc.ViewFeatures
+@using GS.Web.Extensions
+@using GS.Web.Framework.UI
+@using GS.Web.Framework.Extensions
+@using GS.Web.Framework.Security.Captcha
+@using GS.Web.Framework.Security.Honeypot
+@using GS.Web.Framework.Themes
+@using GS.Web.Models.Blogs
+@using GS.Web.Models.Boards
+@using GS.Web.Models.Catalog
+@using GS.Web.Models.Cms
+@using GS.Web.Models.Common
+@using GS.Web.Models.Customer
+@using GS.Web.Models.Media
+@using GS.Web.Models.News
+@using GS.Web.Models.Newsletter
+@using GS.Web.Models.Polls
+@using GS.Web.Models.PrivateMessages
+@using GS.Web.Models.Profile
+@using GS.Web.Models.Topics
+@using GS.Web.Models.Vendors

@@ -1,0 +1,68 @@
+﻿@model ContractModel
+<div class="card-body">
+    <div class="card-header with-elements">
+        <div class="card-header-elements ml-auto">
+            @*hop dong ket thuc thi khong them moi*@
+            @if (Model.StatusId != (int)GS.Core.Domain.Contracts.ContractStatus.Completed && Model.StatusId != (int)GS.Core.Domain.Contracts.ContractStatus.Draf)
+            {
+                <button type="button" class="btn btn-xs btn-outline-primary" data-toggle="modal" data-Type="1" data-target="#tabContractAcceptance" data-title="Thêm mới nghiệm thu khối lượng">
+                    <i class="ion ion-md-add"></i>&nbsp;  @T("Admin.Common.AddNew")
+                </button>
+            }
+            </div>
+    </div>
+    <div class="content" id="listContractAcceptance">
+        @foreach (var pmac in Model.lstContractAcceptance)
+        {
+            <div class="row list-task-plan">
+                <div class="col-md-12">
+                    <div class="project-task-item">
+                        <span>
+                            <i class="fas fa-calendar-check"></i>
+                            <span>@pmac.Name</span>
+                            <span class="badge badge-success font-weight-normal ml-2">Hoàn thành</span>
+                        </span>
+                        <div class="d-flex align-items-center">
+                            <div class="project-task-actions btn-group">
+                                <button type="button" class="btn btn-default btn-xs btn-round icon-btn borderless md-btn-flat hide-arrow dropdown-toggle" data-toggle="dropdown">
+                                    <i class="ion ion-ios-more"></i>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <a class='dropdown-item' data-toggle='modal' href='#tabContractAcceptance' data-id='@pmac.Id' data-title='Sửa nghiệm thu khối lượng'><i class='fas fa-edit'></i>@T("Admin.Common.Edit")</a>
+                                    <a class="dropdown-item" href="javascript:DeleteContractAcceptance(@pmac.Id)"><i class='fas fa-trash-alt'></i>@T("Admin.Common.Delete")</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <i class="fas fa-calendar-alt"></i>&nbsp;@pmac.ApprovalDate.toDateVNString()
+                        </div>
+                        <div class="col-md-3">
+                            <i class="lnr lnr-diamond"></i>&nbsp;@pmac.TotalAmountAcceptance.ToVNStringNumber()
+                        </div>
+                        <div class="col-md-3">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="project-task-list custom-controls-stacked">
+        <div id="ContractAcceptanceTask"></div>
+        @*<script>
+            function LoadContractAcceptanceTask() {
+                $.ajax({
+                    type: "GET",
+                    url: "/Contract/_ContractAcceptance?contractId=" +@Model.Id,
+                    success: function (data) {
+                        $("#Acceptance-tasks").html(data);
+                    }
+                })
+            }           
+        </script>*@
+    </div>
+</div>

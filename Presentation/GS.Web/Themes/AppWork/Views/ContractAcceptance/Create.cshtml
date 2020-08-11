@@ -1,0 +1,127 @@
+﻿@model ContractAcceptanceModel
+@{
+    //page title
+    ViewBag.Title = T("admin.common.AcceptanceNoiBo.addnew").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Acceptance_Create");
+}
+@*<form asp-controller="Advance" asp-action="Create" method="post">*@
+<div class="card mb-4">
+    <h6 class="card-header">
+        @if (Model.Id > 0)
+        {
+            @T("AppWork.Contracts.ContractAcceptanceNoibo.Edit")
+        }
+        else
+        {
+            @T("AppWork.Contracts.ContractAcceptanceNoibo.AddNew")
+        }
+
+        <small>
+            <i class="fa fa-arrow-circle-left"></i>
+            <a asp-action="List">@T("AppWork.Contracts.ConstructionType.BackToList")</a>
+        </small>
+        <button id="btnSave" class="btn btn-success" style="float:right;margin-right:5px;">
+            <i class="far fa-save" style="margin-right:5px;">
+            </i>@T("Admin.Common.Save")
+        </button>
+        @if (Model.Id > 0)
+        {
+            <span id="btnDelete" class="btn btn-danger" style="float:right;margin-right: 5px;">
+                <i class="fas fa-trash"></i>
+                @T("Admin.Common.Delete")
+            </span>
+        }
+    </h6>
+    <div class="card-body">
+        @await Html.PartialAsync("_CreateOrUpdate", Model)
+    </div>
+</div>
+@*</form>*@
+<script>
+    $(document).ready(function () {
+        $("#btnSave").click(function () {
+            var listAcceptanceSub = [];
+            $(".AcceptanceContractTask").each(function () {
+                var TaskId = $(this).data("taskid");
+                var Ratio = $("#ratio_" + TaskId).val();
+                var TotalAmount = ConvertToNumber("#totalAmount_" + TaskId);
+                var sub = {
+                    TaskId: TaskId,
+                    Ratio: Ratio,
+                    TotalAmount: TotalAmount
+                };
+                listAcceptanceSub.push(sub);
+            })
+            var _workFileIds = $("#@Html.IdFor(c => c.WorkFileIds)").val();
+            if (_workFileIds.length > 0) {
+               var _lstWorkFileId = _workFileIds.split(',');
+            }
+            console.log(_lstWorkFileId);
+            var _data = {
+                Id: @Model.Id,
+                Name: $("#@Html.IdFor(c =>c.Name)").val(),
+                AcceptanceGuid: '@Model.AcceptanceGuid',
+                CreatorId: '@Model.CreatorId',
+                CreatedDate: '@Model.CreatedDate',
+                Code: $("#@Html.IdFor(c =>c.Code)").val(),
+                Description : $("#@Html.IdFor(c => c.Description)").val(),
+                ApprovalDate : $("#@Html.IdFor(c => c.ApprovalDate)").val(),
+                TotalAmount : $("#@Html.IdFor(c => c.TotalAmount)").val(),
+                UnitId : $("#@Html.IdFor(c => c.UnitId)").val(),
+                listAcceptanceSub: listAcceptanceSub,
+                SelectedListFileId: _lstWorkFileId,
+            }
+            //console.log(_data);
+            $.ajax({
+                url: "/ContractAcceptance/Create",
+                type: "POST",
+                data: _data,
+                success: function (data) {
+                    if (CheckValidMessageReturn(data)) {
+                        ShowSuccessMessage(data.Message);
+                        document.location.href = '/ContractAcceptance/List';
+                    }
+                },
+                error: function (data){
+
+                },
+            });
+        });
+        $("#btnDelete").click(function () {
+            
+            bootbox.confirm({
+                message: '@T("admin.common.deleteconfirmation")',
+                className: 'bootbox-sm',
+                buttons: {
+                    confirm: {
+                        label: '@T("admin.common.yes")',
+                    },
+                    cancel: {
+                        label: '@T("admin.common.no")',
+                    },
+                },
+                callback: function (result) {
+                    if (result) {
+                        //kendo.ui.progress($("#ContractPaymentRequest_" + planid), true);
+                        $.ajax({
+                            cache: false,
+                            type: "GET",
+                            url: "/ContractAcceptance/DeleteContractAcceptanceNoiBo?Id=@Model.Id",
+                            success: function (msg) {
+                                ShowSuccessMessage(msg.Message);
+                                document.location.href = '/ContractAcceptance/List';
+                            },
+                            error: function (xhr, ajaxOptions, thrownError) {
+                                alert(thrownError);
+                                //kendo.ui.progress($("#ContractPaymentRequest_" + planid), false);
+                            },
+                            traditional: true
+                        });
+                    }
+                },
+
+            });
+        });
+    });
+</script>

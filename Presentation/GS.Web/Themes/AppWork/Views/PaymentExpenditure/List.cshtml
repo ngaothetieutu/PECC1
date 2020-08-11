@@ -1,0 +1,129 @@
+﻿@model PaymentExpenditureSearchModel
+@{
+    //page title
+    ViewBag.Title = T("AppWork.Contracts.PaymentExpenditure").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("PaymentExpenditure_List");
+}
+<nop-antiforgery-token />
+<div class="content-header clearfix">
+    <h5 class="pull-left" style="margin-bottom:5px;">
+        @T("AppWork.Contracts.PaymentExpenditure")
+    </h5>   
+</div>
+<div class="ui-bordered px-4 pt-4 mb-4">
+    <div class="form-row">
+        <div class="col-md mb-7">
+            <label class="form-label">@T("AppWork.Contracts.PaymentExpenditureSearch.Fields.KeySearch")</label>
+            <nop-editor asp-for="Keysearch" />
+        </div>
+        <div class="col-md mb-3">
+            <label class="form-label">@T("AppWork.Contracts.PaymentExpenditureSearch.Fields.UnitId")</label>
+            <nop-select asp-for="UnitId" asp-items="@Model.AvailableUnit" />
+        </div>
+        <div class="col-md col-xl-2 mb-4">
+            <label class="form-label d-none d-md-block">&nbsp;</label>
+            <button type="button" class="btn btn-secondary btn-block" id="btnSearch">@T("Admin.Common.Search")</button>
+        </div>
+    </div>
+</div>
+<div class="content">
+    <div class="form-horizontal">
+        <div class="panel-group">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div id="PaymentExpenditure-grid"></div>
+                    <script>
+                        $(document).ready(function () {
+                            function SearchData() {
+                                var _data = {
+                                    UnitId: $('#@Html.IdFor(model => model.UnitId)').val(),
+                                    Keysearch:$('#@Html.IdFor(model => model.Keysearch)').val()
+                                };
+                                addAntiForgeryToken(_data);
+                                return _data;
+                            }
+                            $("#btnSearch").click(function () {
+                                var grid = $('#PaymentExpenditure-grid').data('kendoGrid');
+                                grid.dataSource.page(1);
+                                return false;
+                            });
+                             $("#@Html.IdFor(model => model.UnitId)").change(function(event) {
+                                 $("#btnSearch").click();
+                            });
+                             $("#@Html.IdFor(model => model.Keysearch)").keydown(function(event) {
+                                if (event.keyCode === 13) {
+                                    $("#btnSearch").click();
+                                    return false;
+                                }
+                            });
+                            $("#PaymentExpenditure-grid").kendoGrid({
+                                dataSource: {
+                                    type: "json",
+                                    transport: {
+                                        read: {
+                                            url: "@Html.Raw(Url.Action("List", "PaymentExpenditure"))",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: SearchData
+                                        }
+                                    },
+                                    schema: {
+                                        data: "Data",
+                                        total: "Total",
+                                        errors: "Errors"
+                                    },
+                                    error: function(e) {
+                                        display_kendoui_grid_error(e);
+                                        // Cancel the changes
+                                        this.cancelChanges();
+                                    },
+                                    pageSize: @(Model.PageSize),
+                                    serverPaging: true,
+                                    serverFiltering: true,
+                                    serverSorting: true
+                                },
+                                pageable: {
+                                    refresh: true,
+                                    pageSizes: [@(Model.AvailablePageSizes)],
+                                    @await Html.PartialAsync("_GridPagerMessages")
+                                },
+                                editable: {
+                                    confirmation: "@T("Admin.Common.DeleteConfirmation")",
+                                    mode: "inline"
+                                },
+                                scrollable: false,
+                                columns: [
+                                {
+                                    field: "Code",
+                                    width: 150,
+                                    title: "@T("AppWork.Contracts.PaymentExpenditureModel.Fields.Code")"
+                                    },{
+                                    field: "Name",
+                                    title: "@T("AppWork.Contracts.PaymentExpenditureModel.Fields.Name")"
+                                    },{
+                                    field: "UnitName",
+                                    title: "@T("AppWork.Contracts.PaymentExpenditureModel.Fields.UnitName")"
+                                    }, {
+                                    field: "CreatedDates",
+                                    title: "@T("AppWork.Contracts.PaymentExpenditureModel.Fields.CreatedDate")"
+                                    }, {
+                                    field: "TotalAmounts",
+                                    title: "@T("AppWork.Contracts.PaymentExpenditureModel.Fields.TotalAmount")"
+                                    },{
+                                    field: "ExpenditureGuid",
+                                    title: "@T("Admin.Common.Edit")",
+                                    width: 150,
+                                    headerAttributes: { style: "text-align:center" },
+                                    attributes: { style: "text-align:center" },
+                                        template: '<a class="btn btn-default" href="Create?ExpenditureGuid=#=ExpenditureGuid#"><i class="fas fa-edit"></i>@T("Admin.Common.Edit")</a>'
+                                    }
+                                ]
+                            });
+                        });
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,49 @@
+﻿@model ContractFormModel
+<div class="card mb-4" >
+    <div class="card-body" id="modalInsertContractForm">
+        @await Html.PartialAsync("_CreateOrUpdate", Model)
+        <a id="btnAddContractForm" href="javascript:void(0);" class="btn btn-success" style="float:right;margin-right:5px; ">
+            <i class="fas fa-save" style="margin-right:5px;"></i>
+            @T("Admin.Common.Save")
+        </a>
+    </div>
+</div>
+<script>
+    
+    function ReloadContractForms(obj) {
+        var widget = $("#SelectedContractFormIds").getKendoMultiSelect();
+        var dataSource = widget.dataSource;
+        dataSource.add({
+            value: obj.Id,
+            text: obj.Name
+        });
+        dataSource.sync();
+    }
+    $(document).ready(function () {
+        $("#btnAddContractForm").click(function () {
+            var postData = {
+                Name: $("#modalInsertContractForm #Name").val(),
+                Description: $("#modalInsertContractForm #Description").val()
+            }
+            $.ajax({
+                cache: false,
+                type: 'POST',
+                url: "/ContractForm/_Create",
+                data: postData,
+                success: function (msg) {
+                    if (msg.Code == "00") {
+                        $("#modal_InsertContractNew .close").click();
+                        ShowSuccessMessage(msg.Message);
+                        ReloadContractForms(msg.ObjectInfo);
+                    }
+                    else {
+                        ShowErrorMessage(msg.Message);
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                }
+            });
+            return false;
+        });
+    });
+</script>

@@ -1,0 +1,30 @@
+﻿@model ContractSettlementSubModel
+<div class="row ContractSettlementSub" id="ContractSettlementSub_@Model.TaskId" data-taskid="@Model.TaskId" style="padding-top:5px;">
+    <div class="col-md-8">
+        <span style="color:#1e70cd">@Model.TaskName </span>
+        @if (!String.IsNullOrEmpty(Model.UnitName))
+        {
+            <span style="color:#02bc77"> - @Model.UnitName</span>
+        }
+        <span style="color:#ff6a00;" id="money_@Model.TaskId">(@Model.TaskTotalMoney)</span>
+    </div>
+    <div class="col-md-4">
+        <nop-editor asp-for="TotalAmount" id="TotalAmount_@Model.TaskId" />
+        <span id="notitfication_warring_@Model.TaskId"></span>
+    </div>    
+</div>
+<script>
+    $(document).ready(function () {
+        $("#notitfication_warring_@Model.TaskId").html("");
+    });
+    $("#TotalAmount_@Model.TaskId").change(function () {
+        var a = ConvertToNumber(this);
+        var b = $("#money_@Model.TaskId").text().replace(/\./g, '').replace(/\(/g, '').replace(/\)/g, '');
+        if (a > parseInt(b)) {
+            $("#notitfication_warring_@Model.TaskId").html("<small style='color:red;'>Cao hơn giá trị công việc</small>");
+        }
+        if (a < parseInt(b)) {
+            $("#notitfication_warring_@Model.TaskId").html("");
+        }
+    });
+</script>

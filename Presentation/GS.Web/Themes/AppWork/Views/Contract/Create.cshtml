@@ -1,0 +1,52 @@
+@model ContractModel
+
+@{
+    //page title
+    ViewBag.Title = T("AppWork.Contracts.Contract.AddNew").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Contract_create");
+}
+
+<form asp-controller="Contract" asp-action="Create" method="post" id="formCreateContract">
+    <div class="card mb-4">
+        <h6 class="card-header">
+            @if (Model.ClassificationId == (int)GS.Core.Domain.Contracts.ContractClassification.BB)
+            {
+                @T("AppWork.Contracts.Contract.AddNewBB")
+            }
+            else if (Model.ClassificationId == (int)GS.Core.Domain.Contracts.ContractClassification.Appendix)
+            {
+                @T("AppWork.Contracts.Contract.AddNewAppendix")
+            }
+            else
+            {
+                @T("AppWork.Contracts.Contract.AddNew")
+            }
+            <small style="padding-left:5px;">
+                <i class="fa fa-arrow-circle-left"></i>
+                @if (Model.ClassificationId != (int)GS.Core.Domain.Contracts.ContractClassification.AB)
+                {
+                    <a href="/Contract/Detail?guid=@Model.contractGuidAB">@T("AppWork.Contracts.Contract.BackToContractAB")</a>
+                }
+                else
+                {
+                    <a asp-action="List">@T("AppWork.Contracts.Contract.BackToList")</a>
+                }
+            </small>
+            <button type="submit" data-value="1" id="btnAddContract" name="save" class="btn btn-success addContract" style="float:right;margin-right:5px; ">
+                <i class="fas fa-save" style="margin-right:5px;"></i>
+                @T("Admin.Common.Continue")
+            </button>
+        </h6>
+        <div class="card-body">
+            @await Html.PartialAsync("_CreateOrUpdate", Model)
+        </div>
+    </div>
+</form>
+<script>
+    $(document).ready(function () {
+        $("#formCreateContract").submit(function () {
+            $("#btnAddContract").attr("disabled", "disabled");
+        });
+    });
+</script>

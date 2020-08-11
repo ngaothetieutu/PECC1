@@ -1,0 +1,240 @@
+﻿@model ContractPaymentPlanModel
+
+<div class="card">
+    <div class="card-body pb-2">
+        <div class="form-group">
+            <div class="row">
+                @if (Model.TypeId != (int)GS.Core.Domain.Contracts.ContractPaymentType.Payment)
+                {
+                    <div class="col-md-3">
+                        <label style="float:right;font-weight:500; font-size:13px; margin-top:15px;">Tên tạm ứng</label>
+                    </div>
+                }
+                else
+                {
+                    <div class="col-md-3">
+                        <app-label asp-for="Description" />
+                    </div>
+                }
+                <div class="col-md-9">
+                    <nop-editor asp-for="Description" />
+                    <span asp-validation-for="Description"></span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                @if (Model.TypeId != (int)GS.Core.Domain.Contracts.ContractPaymentType.Payment)
+                {
+                    <div class="col-md-3">
+                        <label style="float:right;font-weight:500; font-size:13px;margin-top:11px;">Ngày tạm ứng</label>
+                    </div>
+                }
+                else
+                {
+                    <div class="col-md-3">
+                        <app-label asp-for="PayDate" />
+                    </div>
+                }
+                <div class="col-md-9">
+                    <nop-editor asp-for="PayDate" />
+                    <span asp-validation-for="PayDate"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group" style="@(Model.TypeId != (int)GS.Core.Domain.Contracts.ContractPaymentType.Payment?"display:none":"")">
+            <div class="row">
+                <div class="col-md-3">
+                    <app-label asp-for="PayRule" />
+                    @*<label class="form-label">@T("appwork.contracts.contract.fields.resources.roleid")</label>*@
+                </div>
+                <div class="col-md-9">
+                    <nop-select asp-for="SelectedTaskIds" asp-items="Model.Availbletasks" asp-multiple="true" />
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-3">
+                    <app-label asp-for="PercentNum" />
+                </div>
+                <div class="col-md-9">
+                    <nop-editor asp-for="PercentNum" />
+                    <span asp-validation-for="PercentNum"></span>
+                    <span class="field-validation-valid" style="padding-left:10px; display:none; font-size:13px;" id="ckPercentNum"></span>
+                </div>
+            </div>
+        </div>
+        @if (Model.TypeId != (int)GS.Core.Domain.Contracts.ContractPaymentType.Advance)
+        {
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label style="float:right; font-weight:500; font-size:13px;margin-top:11px;">Giá trị tạm tính</label>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="col-md-9">
+                            <nop-editor asp-for="AmountSummary" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @*<input style="display:none;" id="totalAmountTaskSuccgess" />*@
+        <input style="display:none;" id="totalAmountTask" />
+
+        @if (Model.TypeId != (int)GS.Core.Domain.Contracts.ContractPaymentType.Payment)
+        {
+            <div class="form-group">
+                <div class='row'>
+                    <div class="col-md-3">
+                        <label style="float:right; font-weight:500; font-size:13px;margin-top:11px;">Tổng tạm ứng</label>
+                    </div>
+                    <div class="col-md-3">
+                        <nop-editor asp-for="AmountAdvance"/>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<script>
+        $(document).ready(function() {
+            var TaskIdsInput =
+            $('#@Html.IdFor(model => model.SelectedTaskIds)')
+                .data("kendoMultiSelect");
+            TaskIdsInput.setOptions({
+                autoClose: true,
+                filter: "contains"
+            });
+            TaskIdsInput.bind("change", TaskIdsInputChange);
+            @if (Model.Availbletasks.Count == 0)
+            {
+                <text>
+                    TaskIdsInput.setOptions({
+                        enable: false,
+                        placeholder:
+                            '@T("Admin.Contract.ContractPaymentPlan.Availbletasks.NoAvailbletasks")'
+                    });
+                    TaskIdsInput._placeholder();
+                    TaskIdsInput._enable();
+                </text>
+            }
+            function TaskIdsInputChange(n) {
+                var PercentNum = $("#@Html.IdFor(c=>c.PercentNum)").val();
+                if (PercentNum == 0) { 
+                    PercentNum = 100;
+                }
+                var data = {
+                    SelectedTaskIds: this.value(),
+                    PercentNum: PercentNum,
+                }
+                $.ajax({
+                    url: "/Works/_GetTotalAmountTask",
+                    type: "POST",
+                    data: data,
+                    success: function (data) {
+                        $("#totalAmountTask").val(data.ObjectInfo.AmountSummary);
+                        $("#AmountSummary").val(data.ObjectInfo.AmountSummary);
+                        $("#PercentNum").data("kendoNumericTextBox").value(data.ObjectInfo.PercentNum);
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        console.log("error");
+                    }
+                })
+            }
+            var _PercentNumtextbox = $('#@Html.IdFor(model => model.PercentNum)').data("kendoNumericTextBox");
+                _PercentNumtextbox.bind("change", PercentNumChange);
+            function PercentNumChange(e) {
+                var TaskIds = $("#@Html.IdFor(c=>c.SelectedTaskIds)").val();
+                var _percentNum = $('#@Html.IdFor(model => model.PercentNum)').val();
+                if (TaskIds.length > 0) {
+                    var data = {
+                        SelectedTaskIds: TaskIds,
+                        PercentNum: _percentNum,
+                    }
+                    $.ajax({
+                        url: "/Works/_GetTotalAmountTask",
+                        type: "POST",
+                        data: data,
+                        success: function (data) {
+                            $("#totalAmountTask").val(data.ObjectInfo.AmountSummary);
+                            $("#AmountSummary").val(data.ObjectInfo.AmountSummary);
+                            if (data.ObjectInfo.ckPercentNumNote != null) {
+                                $("#ckPercentNum").html("<span style='color:red;font-size:15px; padding-right: 5px;'>*</span>" + data.ObjectInfo.ckPercentNumNote);
+                                $("#ckPercentNum").show();
+                            } else {
+                                $("#ckPercentNum").html("");
+                                $("#ckPercentNum").hide();
+                            }
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            console.log("error");
+                        }
+                    })
+                }               
+            }
+        });
+</script>
+<div class="text-right mt-3">
+    <button type="button" id="btnContractPaymentPlanAdd" class="btn btn-primary">@T("admin.common.save")</button>&nbsp;
+    <button type="button" class="btn btn-danger" data-dismiss="modal">@T("admin.common.cancel")</button>
+</div>
+<script>
+    $(document).ready(function () {
+        if (@Model.TypeId == 1 ) {
+            $("#AmountAdvance").change(function () {
+                var AmountNumber = ConvertToNumber($("#AmountAdvance"));
+                var money = @Model.totalAmountContract;
+                if ((money > 0) && (AmountNumber > 0)) {
+                    $("#PercentNum").data("kendoNumericTextBox").value((AmountNumber / money) * 100);
+                }
+            });
+            var PercentNumtextbox = $('#@Html.IdFor(model => model.PercentNum)').data("kendoNumericTextBox");
+            PercentNumtextbox.bind("change", function () {
+                var Percent = this.value();
+                var money = @Model.totalAmountContract;
+                if ((Percent > 0) && (money > 0)) {
+                    $("#AmountAdvance").val((money * Percent / 100).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."));
+                }
+            });
+        }
+        $("#btnContractPaymentPlanAdd").click(function () {
+                var _data = {
+                    Id: @Model.Id,
+                    TypeId:@Model.TypeId,
+                    Description: $("#@Html.IdFor(c=>c.Description)").val(),
+                    ContractId:@Model.ContractId,
+                    PayDate: $("#@Html.IdFor(c=>c.PayDate)").val(),
+                    PercentNum: $("#@Html.IdFor(c=>c.PercentNum)").val(),
+                    AmountAdvance: $("#@Html.IdFor(c=>c.AmountAdvance)").val(),
+                    SelectedTaskIds:$("#@Html.IdFor(c=>c.SelectedTaskIds)").val(),
+                    AmountSummary:$("#@Html.IdFor(c=>c.AmountSummary)").val(),
+                    AppendixId:@Model.AppendixId,
+            }
+            
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "/Contract/_ContractPaymentPlanAdd",
+                data: _data,
+                success: function (data) {
+                    if (CheckValidMessageReturn(data)) {
+                        $("#modalContractPaymentPlan .close").click();
+                        loadContractPaymentPlan();
+                        ShowSuccessMessage(data.Message);
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                    $("#modalContractPaymentPlan .close").click();
+                }
+            });
+            return false;
+
+        })
+
+        })
+</script>

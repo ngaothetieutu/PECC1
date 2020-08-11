@@ -1,0 +1,121 @@
+﻿@using GS.Core.Domain.Contracts
+@model List<ContractReportAB>
+
+<div>
+    <div class="row" style="text-align:center; margin-top:20px;">
+        @{
+            // Tong gia tri cac hop dong sau thue
+            var _totalAmountSauThue = Model.Sum(c => c.TotalAmount);
+            // Tien do thu von
+            var _totalPlanPayment= Model.Sum(c => c.PlanPayment);
+            var _totalPlanAdvance = Model.Sum(c => c.PlanAdvance);
+            // Gia tri tamu ng
+            var _totalAdvance = Model.Sum(c => c.TotalAdvance);
+            <div class="col-md-12" style="margin-bottom:15px;" id="thongKe">
+                <table class="table-bordered" >
+                    <thead role="rowgroup" class="k-grid-header" style="color:black;">
+                        <tr role="row">
+                            <th style="min-width:300px;">Số lượng hợp đồng</th>
+                            <th style="min-width:150px;">@Model.Count()</th>
+                        </tr>
+                        <tr>
+                            <th>Tổng giá trị hợp đồng sau thuế</th>
+                            <th>@_totalAmountSauThue.ToVNStringNumber()</th>
+                        </tr>
+                        <tr>
+                            <th rowspan="2">Tiến độ thu vốn</th>
+                            <td style="border-bottom: 0px;">Thanh toán: @_totalPlanPayment.ToVNStringNumber()</td>
+                        </tr>
+                        <tr>
+                            <td style="border-bottom: 0px;">Tạm ứng: @_totalPlanAdvance.ToVNStringNumber()</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid;color:black;">
+                            <th>Giá trị tạm ứng</th>
+                            <th>@_totalAdvance.ToVNStringNumber()</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        }
+            <div class="col-md-12">
+                <h6 class="header" style="font-size:22px; color:black;">BÁO CÁO HỢP ĐỒNG AB</h6>
+                <table class="table-bordered" id="ReportContractAB">
+                    <thead role="rowgroup" class="k-grid-header" style="color:black;">
+                        <tr>
+                            <th>STT</th>
+                            <th>Mã CT</th>
+                            <th>Tên dự án</th>
+                            <th>Tên hợp đồng</th>
+                            <th>Giai đoạn</th>
+                            <th>Loại dự án</th>
+                            <th>Trong EVN</th>
+                            <th>Giá trị hợp đồng sau thuế (VNĐ)</th>
+                            <th>Hình thức hợp đồng</th>
+                            <th>Số hiệu hợp đồng</th>
+                            <th>Ngày ký</th>
+                            <th>Tiến độ thực hiện</th>
+                            <th>Tiến độ thu vốn</th>
+                            <th>Mã KH</th>
+                            <th>Đối tác</th>
+                            <th>ĐVTH</th>
+                            <th>Điều độ</th>
+                            <th>Giá trị tạm ứng</th>
+                            <th>Ngày hóa đơn</th>
+                            <th>Kế hoạch thu</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody style="background: white; color:black;">
+                        @{
+                            int stt = 1;
+                        }
+                        @foreach (ContractReportAB ct in Model)
+                        {
+                            <tr>
+                                <td>@stt</td>
+                                <td>@ct.ConstructionCode</td>
+                                <td>@ct.ConstructionName</td>
+                                <td>@ct.ContractName</td>
+                                <td>@ct.ContractPeriod</td>
+                                <td>@ct.ConstructionType</td>
+                                @if (ct.IsEVN == true)
+                                {
+                                    <td id="ProcuringAgencyIsEVN1" class="ProcuringAgencyIsEVN"><input type="checkbox" checked="checked" disabled="disabled" /></td>
+                                }
+                                else
+                                {
+                                    <td id="ProcuringAgencyIsEVN1" class="ProcuringAgencyIsEVN"><input type="checkbox" disabled="disabled" /></td>
+                                }
+                                <td>@ct.TotalAmount.ToVNStringNumber()</td>
+                                <td>@ct.ContractForms</td>
+                                <td>@ct.ContractCode</td>
+                                <td>@ct.SignedDate.toDateVNString()</td>
+                                <td>@ct.Progress.toDateVNString()</td>
+                                <td>Tạm ứng:@ct.PlanAdvance.ToVNStringNumber()<br />Thanh toán:@ct.PlanPayment.ToVNStringNumber()</td>
+                                <td>@ct.ClientCode</td>
+                                <td>@ct.ClientName</td>
+                                <td>@ct.UnitCode</td>
+                                <td></td>
+                                <td>@ct.TotalAdvance.ToVNStringNumber()</td>
+                                <td>@ct.BillDate.toDateVNString()</td>
+                                <td></td>
+                                <td>@ct.ContractStatus.ToStatusContractVN()</td>
+                            </tr>
+                            stt++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+    </div>
+</div>
+<style>
+    .table-bordered td {
+        border: 1px solid black;
+        border-collapse: collapse;
+    }
+
+    .table-bordered th {
+        border-color: black;
+        border-bottom: 0px;
+    }
+</style>

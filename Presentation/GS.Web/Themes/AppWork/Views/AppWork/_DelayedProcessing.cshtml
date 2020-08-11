@@ -1,0 +1,32 @@
+﻿@model ContractDelayedProcesing
+<div class="card mb-4" id="delayedProcessing">
+    <h6 class="card-header">Chậm tiến độ xử lý <span style="color:red">(@Model.contractDelayedProcessing.Count())</span></h6>
+    <div style="margin-top:10px;">
+        @if (Model.contractDelayedProcessing.Count <= 0)
+        {
+            <div>
+                <h5>Không có hợp đồng !</h5>
+            </div>
+        }
+        else if (Model.contractDelayedProcessing.Count < 5)
+        {
+            @foreach (ContractModel ct in Model.contractDelayedProcessing)
+            {
+                @await Html.PartialAsync("_ContractViewInfo", ct)
+            }
+        }
+        else
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                @await Html.PartialAsync("_ContractViewInfo", Model.contractDelayedProcessing[i])
+            }
+        }
+    </div>
+    <a href="/Contract/List?ContractMonitorStatus=2" class="card-footer d-block text-center text-dark small font-weight-semibold">@T("admin.common.showall")</a>
+</div>
+<script>
+    if (@Model.contractDelayedProcessing.Count == 0) {
+        $('#delayedProcessing').hide();
+    };
+</script>
