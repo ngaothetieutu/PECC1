@@ -1,7 +1,7 @@
 ﻿{
   "DataProvider": "sqlserver",
-  "DataConnectionString": "Data Source=118.70.216.5;Initial Catalog=PECC1;Integrated Security=False;Persist Security Info=False;User ID=sa;Password=P@01012018",
+  //"DataConnectionString": "Data Source=118.70.216.5;Initial Catalog=PECC1;Integrated Security=False;Persist Security Info=False;User ID=sa;Password=P@01012018",
   //"DataConnectionString": "Data Source=10.4.0.24;Initial Catalog=PECC1;Integrated Security=False;Persist Security Info=False;User ID=sa;Password=P@01012018",
-  //"DataConnectionString": "Data Source=DESKTOP-7IVAI0C\\SQLEXPRESS;Initial Catalog=PECC1;Integrated Security=True",
+  "DataConnectionString": "Data Source=LAPTOP-DUNGNT;Initial Catalog=PECC1;Integrated Security=True",
   "RawDataSettings": {}
 }
